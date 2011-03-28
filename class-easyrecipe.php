@@ -130,7 +130,11 @@ EOD;
       $recipe = $regs[0];
       $post = $posts[0];
 
+      /*
+       * We need the <p>'s for some formatting
+       */
       $content = wpautop($post->post_content);
+
       /*
        *  This should never fail - but check since we need to split up the content anyway
        */
@@ -141,9 +145,8 @@ EOD;
       $vars["recipe"] = $regs[1];
 
       /*
-       * Look for an image and try to scale it proprtionally
+       * Look for an image and try to scale it proportionally
        * Pretty crap way of doing it - we really should create a thumb so it only needs to be done once ever - next version!
-       * TODO - what if PHP allow_url_fopen is off?
        */
       $vars["pluginsURL"] = $this->pluginsURL;
 
@@ -155,7 +158,30 @@ EOD;
         $img = $regs[1];
         if (preg_match('/src=(?:"|\')?(.*?)(?:"|\'| |>)/si', $img, $regs)) {
           $imageURL = trim($regs[1]);
-          $img = @file_get_contents($imageURL);
+          /*
+           * Try for a file on the current server first
+           */
+          $parsedURL = parse_url($imageURL);
+          $fName = $_SERVER['DOCUMENT_ROOT'] . $parsedURL['path'];
+          $img = false;
+          /*
+           * If it exists on the server's doc root, and it's a file, try reading it
+           */
+          if (is_file($fName)) {
+            $img = @file_get_contents($fName);
+          }
+          /*
+           * If reading the file didn't work, try getting the URL
+           */
+          if (!$img) {
+            $img = @file_get_contents($imageURL);
+          }
+          /*
+           * If still no go, try sockets as a last resort
+           */
+          if (!$img) {
+            $img = $this->getImage($parsedURL);
+          }
           if ($img) {
             $image = @imagecreatefromstring($img);
             if ($image) {
@@ -168,12 +194,13 @@ EOD;
                 $ty = $imageSize;
                 $tx = floor($x * $imageSize / $y);
               }
-            }
-            $vars["tx"] = $tx;
-            $vars["ty"] = $ty;
 
-            $vars["imageURL"] = $imageURL;
-            $vars["imagedisplay"] = "block";
+              $vars["tx"] = $tx;
+              $vars["ty"] = $ty;
+
+              $vars["imageURL"] = $imageURL;
+              $vars["imagedisplay"] = "block";
+            }
           }
         }
       }
@@ -211,7 +238,7 @@ EOD;
           return $this->printRecipe($posts);
         }
 
-         $this->easyrecipes[$post->ID] = true;
+        $this->easyrecipes[$post->ID] = true;
         /*
          * Insert the page's permalink for the print button and make the print button visible
          * The visibilities are hardcoded in the post so we degrade gracefully if EasyRecipe is deactivated
@@ -337,7 +364,7 @@ EOD;
       if (!$this->easyrecipes[$post->ID]) {
         return $comment;
       }
-      
+
       $rating = get_comment_meta(get_comment_ID(), 'ERRating', true);
       if ($rating == '') {
         $rating = 0;
@@ -522,6 +549,37 @@ EOD;
 
       echo json_encode($result);
       exit;
+    }
+
+    /*
+     * Read image from a URL
+     */
+
+    function getImage($parsedURL) {
+
+      $host = $parsedURL['host'];
+      $path = isset($parsedURL['path']) ? $parsedURL['path'] : '/';
+      $path .= isset($parsedURL['query']) ? $parsedURL['query'] : '';
+      $port = isset($parsedURL['port']) ? $parsedURL['port'] : "80";
+
+      $timeout = 5;
+      $image = '';
+
+      $fp = @fsockopen($host, $port, $errno, $errstr, $timeout);
+
+      if (!$fp) {
+        return false;
+      }
+
+      @fputs($fp, "GET $path HTTP/1.1\r\nHost: $host\r\n\r\n");
+
+      while ($data = @fread($fp, 4096)) {
+        $image .= $data;
+      }
+      @fclose($fp);
+
+      $endHeaders = strpos($image, "\r\n\r\n");
+      return substr($image, $endHeaders + 4);
     }
 
   }

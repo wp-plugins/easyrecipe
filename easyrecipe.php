@@ -4,7 +4,7 @@
     Plugin URI: http://www.orgasmicchef.com/easyrecipe/
     Description: Create, edit, display and print recipes with hRecipe microformat functionality
     Author: Orgasmic Chef
-    Version: 1.1.1
+    Version: 1.1.2
     Author URI: http://www.orgasmicchef.com
    */
 
@@ -14,9 +14,6 @@
     exit;
   }
 
-  /*
-   * Make sure we have the minimum WP and PHP versions
-   */
   if (is_admin ()) {
     $page = $GLOBALS["pagenow"];
     if (page == "admin-ajax.php") {
