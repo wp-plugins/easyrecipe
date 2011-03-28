@@ -11,6 +11,7 @@
     private $pluginsURL;
     private $pluginsDIR;
     private $settings = array();
+    private $easyrecipes = array();
 
     function __construct() {
       /*
@@ -47,7 +48,7 @@
           wp_enqueue_script('farbtastic', "$this->pluginsURL/easyrecipe/farbtastic/farbtastic.js", array(), "1.2", true);
           wp_enqueue_script('easyrecipecp', "$this->pluginsURL/easyrecipe/easyrecipe-options.js", array(), "1.0.1", true);
         } else {
-          wp_enqueue_script('easyrecipeadmin', "$this->pluginsURL/easyrecipe/easyrecipe-admin.js", array(), "1.0.1", true);
+          wp_enqueue_script('easyrecipeadmin', "$this->pluginsURL/easyrecipe/easyrecipe-admin.js", array(), "1.1", true);
           add_action('admin_footer', array($this, 'addDialogHTML'));
           add_action('wp_ajax_convertRecipeSEO', array($this, 'convertRecipeSEO'));
           add_filter('mce_external_plugins', array($this, 'mcePlugins'));
@@ -67,6 +68,7 @@
         } else {
           add_action('comment_form', array($this, 'commentForm'));
           add_action('comment_post', array($this, 'ratingSave'));
+
           add_action('comment_text', array($this, 'ratingDisplay'));
           add_action('wp_print_scripts', array($this, 'extraCSS'));
         }
@@ -209,6 +211,7 @@ EOD;
           return $this->printRecipe($posts);
         }
 
+         $this->easyrecipes[$post->ID] = true;
         /*
          * Insert the page's permalink for the print button and make the print button visible
          * The visibilities are hardcoded in the post so we degrade gracefully if EasyRecipe is deactivated
@@ -300,7 +303,15 @@ EOD;
       return $newPosts;
     }
 
-    function commentForm($args) {
+    function commentForm($postID) {
+
+      /*
+       * Only add ratings for easy recipes
+       */
+      if (!$this->easyrecipes[$postID]) {
+        return;
+      }
+
       echo <<<EOD
 <div id="ERComment">
 <div style="float:left">Rate this recipe: </div>
@@ -318,6 +329,15 @@ EOD;
     }
 
     function ratingDisplay($comment) {
+      global $post;
+
+      /*
+       * Only display comment ratings if the post is an Easy Recipe
+       */
+      if (!$this->easyrecipes[$post->ID]) {
+        return $comment;
+      }
+      
       $rating = get_comment_meta(get_comment_ID(), 'ERRating', true);
       if ($rating == '') {
         $rating = 0;
