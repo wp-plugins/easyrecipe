@@ -26,7 +26,7 @@ You can download and install the EasyRecipe plugin using the built in WordPress 
 
 Activate the EasyRecipe plugin in the "Plugins" admin panel using the "Activate" link.
 
-To use the plugin, click the [Easy Recipe button](http://www.orgasmicchef.com/wp-content/plugins/easyrecipe/images/chefbutton.png) on the "Add Post" or "Edit Post" pages, right next to the editor formatting buttons. Then enter (or cut and paste) your recipe into EasyRecipe.  Any ingredient or instruction line beginning with an exclamation mark (!) is formatted as a heading. Click the "Add Recipe" button and it will save your recipe and insert it into your blog post.
+To use the plugin, click the Easy Recipe button (the chef icon) on the "Add Post" or "Edit Post" pages, right next to the editor formatting buttons. Then enter (or cut and paste) your recipe into EasyRecipe.  Any ingredient or instruction line beginning with an exclamation mark (!) is formatted as a heading. Click the "Add Recipe" button and it will save your recipe and insert it into your blog post.
 
 == Frequently Asked Questions ==
 
