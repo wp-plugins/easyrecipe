@@ -4,7 +4,7 @@ Donate link: http://orgasmicchef.com/easyrecipe/faq/
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: "trunk"
+Stable tag: "1.1"
 
 Adding a recipe to a Wordpress blog is now quick, easy AND provides the recipe microformatting that Google is looking for.
 
@@ -16,7 +16,7 @@ Adding rich snippet microformatting to a post is not only time consuming but it'
 
 Enter EasyRecipe.
 
-Our EasyRecipe plugin gives you all the advantages of microformats, without any of the messy coding. We've done all the geeky work for you.  
+Our EasyRecipe plugin gives you all the advantages of microformats, without any of the messy coding. We've done all the geeky work for you.
 
 Enter your post, enter your photos and enter your recipe.  EasyRecipe formats it all and allows your visitors to view your nicely formatted recipe AND print it along with a thumbnail photo.
 
@@ -62,5 +62,6 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
 
 == Changelog ==
+1.1 Fixed a problem when Wordpress autosave adds spurious paragraphs
 
 == Upgrade Notice ==
