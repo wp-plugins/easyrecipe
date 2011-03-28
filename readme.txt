@@ -61,5 +61,4 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 
 == Changelog ==
 
-
 == Upgrade Notice ==
