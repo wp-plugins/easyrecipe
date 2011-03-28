@@ -1,7 +1,7 @@
 === EasyRecipe ===
 Contributors: Jayce53
 Donate link: http://orgasmicchef.com/easyrecipe/faq/
-Tags: recipes, seo, hrecipe, Recipe View, microformatting
+Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
 Requires at least: 3.0
 Tested up to: 3.1
 Stable tag: "trunk"
@@ -34,7 +34,7 @@ To use the plugin, click the [Easy Recipe button](http://www.orgasmicchef.com/wp
 
 Because of the way the WordPress editor works, if you make changes to your recipe using the html editor, you're at risk of messing up the microformatting and then you'll be upset with us.  We want you to show up in Google so EasyRecipe requires that you make changes by clicking the placeholder and changing your previous entry.
 
-== Why Is EasyRecipe Better? ==
+= Why Is EasyRecipe Better? =
 
 Because not only is EasyRecipe an easy way to let the search engines get your recipes in the format that helps you get the most exposure for your recipes, it really IS easy to use.  Simply cut and paste your recipe in Easy Recipe and hit publish. The options on our EasyRecipe screen are the ones Google looks for.
 
@@ -42,16 +42,15 @@ Because not only is EasyRecipe an easy way to let the search engines get your re
 
 You can [contact us](http://orgasmicchef.com/easyrecipe/support/) with your requests.  We may not be able to implement every request, but we want to make this the easiest recipe plugin for everyone to use.
 
-== Can You Convert Your Recipes From Plain Text or Another Plugin? ==
+= Can You Convert Your Recipes From Plain Text or Another Plugin? =
 
 We CAN but it all depends on what's in the text and/or what other things another plugin has added.  We can’t guarantee that you won’t need to do a little additional manual editing, but Easy Recipe can usually do 95% of the work for you.
 
-== Where Can I Get Help? ==
+= Where Can I Get Help? =
 
 We’ll do our best to help you with any problem you have with EasyRecipe.  You can [contact me](http://orgasmicchef.com/easyrecipe/support/) and we’ll answer you as quickly as we can.
 
 == Screenshots ==
-
 1. The RecipeSEO Plugin icon is located next to the other "Upload/Insert" media icons.
 2. It's easy to enter the basic information for your recipes: the title, the ingredients, and the instructions for preparing the recipe.
 3. Once you click the "Add Recipe" button, a placeholder image will be inserted into your post where your recipe will go.
