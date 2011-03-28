@@ -1,0 +1,119 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="../easyrecipe.css" rel="stylesheet" type="text/css" />
+<link href="X../easyrecipe-admin.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+body, td, th {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 12px;
+}
+</style>
+</head>
+
+<body>
+<!-- START PAGE -->
+<div class="easyrecipe">
+  <table border="0" class="ERHDTable">
+    <tr>
+      <td><span class="item ERName"><span class="fn">#name#</span></span></td>
+      <td align="center" valign="top"><div class="ERRatingOuter" style="display:none">
+          <div class="ERRatingInner" style="width:0%">#inner#</div>
+          <div class="review hreview-aggregate"><span class="rating"><span class="average">#ratingval#</span> from <span class="count">#reviews#</span> reviews</span></div></div></td>
+      <td class="ERHDPrint" valign="top"><div class="btnERPrint" style="display:none;">Print<a href="#printlink#"></a></div></td>
+    </tr>
+  </table>
+  <div class="ERClear"></div>
+  <!-- START INCLUDEIF type -->
+  <div class="ERHead">Recipe Type: <span class="tag">#type#</span></div>
+  <!-- END INCLUDEIF type --> 
+  <!-- START INCLUDEIF author -->
+  <div class="ERHead">Author: <span class="author">#author#</span></div>
+  <!-- END INCLUDEIF author --> <br />
+  <!-- START INCLUDEIF preptime -->
+  <div class="ERHead">Prep time: <span class="preptime">#preptime#<span class="value-title" title="#preptimeISO#"></span></span></div>
+  <!-- END INCLUDEIF preptime --> 
+  <!-- START INCLUDEIF cooktime -->
+  <div class="ERHead">Cook time: <span class="cooktime">#cooktime#<span class="value-title" title="#cooktimeISO#"></span></span></div>
+  <!-- END INCLUDEIF cooktime --> 
+  <!-- START INCLUDEIF duration -->
+  <div class="ERHead">Total time: <span class="duration">#duration#<span class="value-title" title="#durationISO#"></span></span></div>
+  <!-- END INCLUDEIF duration --> 
+  <!-- START INCLUDEIF yield -->
+  <div class="ERHead">Serves: <span class="yield">#yield#</span></div>
+  <!-- END INCLUDEIF yield --> 
+  <!-- START INCLUDEIF summary -->
+  <div class="ERSummary"><span class="summary">#summary#</span></div>
+  <!-- END INCLUDEIF summary -->
+  <div class="ERIngredientsHeader">Ingredients</div>
+  <ul class="ingredients">
+    <!-- START REPEAT INGREDIENTS --> 
+    <!-- START INCLUDEIF !isSeparator -->
+    <li class="ingredient">#ingredient#</li>
+    <!-- END INCLUDEIF !isSeparator --> 
+    <!-- START INCLUDEIF isSeparator -->
+    <li class="ERSeparator">#ingredient#</li>
+    <!-- END INCLUDEIF isSeparator --> 
+    <!-- END REPEAT INGREDIENTS -->
+  </ul>
+  <div class="ERInstructionsHeader">Instructions</div>
+  <div  class="instructions"> 
+    <!-- START REPEAT STEPS --> 
+    <!-- START INCLUDEIF separator -->
+    <div class="ERSeparator">#separator#</div>
+    <!-- END INCLUDEIF separator -->
+    <ol>
+      <!-- START REPEAT INSTRUCTIONS --> 
+      <!-- START INCLUDEIF !isSeparator -->
+      <li class="instruction">#instruction#</li>
+      <!-- END INCLUDEIF !isSeparator --> 
+      <!-- END REPEAT INSTRUCTIONS -->
+    </ol>
+    <!-- END REPEAT STEPS --> 
+  </div>
+  <div class="nutrition"> 
+    <!-- START INCLUDEIF servesize --> 
+    <span>Serving size: <span class="servingSize">#servesize#</span></span> 
+    <!-- END INCLUDEIF servesize --> 
+    <!-- START INCLUDEIF calories --> 
+    <span>Calories: <span class="calories">#calories#</span></span> 
+    <!-- END INCLUDEIF calories --> 
+    <!-- START INCLUDEIF fat --> 
+    <span>Fat: <span class="fat">#fat#</span></span> 
+    <!-- END INCLUDEIF fat --> 
+    <!-- START INCLUDEIF satfat --> 
+    <span>Saturated fat: <span class="saturatedFat">#satfat#</span></span> 
+    <!-- END INCLUDEIF satfat --> 
+    <!-- START INCLUDEIF unsatfat --> 
+    <span>Unsaturated fat: <span class="unsaturatedFat">#unsatfat#</span></span> 
+    <!-- END INCLUDEIF unsatfat --> 
+    <!-- START INCLUDEIF carbs --> 
+    <span>Carbohydrates: <span class="carbohydrates">#carbs#</span></span> 
+    <!-- END INCLUDEIF carbs --> 
+    <!-- START INCLUDEIF sugar --> 
+    <span>Sugar: <span class="sugar">#sugar#</span></span> 
+    <!-- END INCLUDEIF sugar --> 
+    <!-- START INCLUDEIF fiber --> 
+    <span>Fiber: <span class="fiber">#fiber#</span></span> 
+    <!-- END INCLUDEIF fiber --> 
+    <!-- START INCLUDEIF protein --> 
+    <span>Protein: <span class="protein">#protein#</span></span> 
+    <!-- END INCLUDEIF protein --> 
+    <!-- START INCLUDEIF cholestrol --> 
+    <span>Cholestrol: <span class="cholestrol">#cholestrol#</span></span> 
+    <!-- END INCLUDEIF cholestrol --> 
+  </div>
+  <!-- START INCLUDEIF notes -->
+  <div>
+    <div class="ERNotesHeader">Notes</div>
+    <div class="ERNotes">#notes#</div>
+  </div>
+  <!-- END INCLUDEIF notes -->
+  <div class="ERLinkback" style="display:none">Google Recipe View Microformatting by <a href="http://www.orgasmicchef.com/easyrecipe/" target="_blank">Easy Recipe</a></div>
+  <div class="endeasyrecipe" style="display:none">#version#</div>
+</div>
+<!-- END PAGE -->
+</body>
+</html>
