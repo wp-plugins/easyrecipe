@@ -10,15 +10,17 @@ Adding a recipe to a Wordpress blog is now quick, easy AND provides the recipe m
 
 == Description ==
 
-Since Google introduced Recipe View [Google's Recipe View](http://googleblog.blogspot.com/2011/02/slice-and-dice-your-recipe-search.html), food bloggers became aware that their recipes needed microformatting or they'd lose visitors to sites who supplied this information to Google. Bloggers who do not use rich snippets for their recipes won't be able to be shown in Recipe View searches on Google.
+Since Google introduced [Recipe View](http://googleblog.blogspot.com/2011/02/slice-and-dice-your-recipe-search.html), food bloggers became aware that their recipes needed microformatting or they'd lose visitors to sites who supplied this information to Google. Bloggers who do not use rich snippets for their recipes won't be able to be shown in Recipe View searches on Google.
 
 Adding rich snippet microformatting to a post is not only time consuming but it's also pretty geeky and most cooks prefer to cook not code webpages.
 
 Enter EasyRecipe.
 
-Our EasyRecipe plugin gives you all the advantages of microformats, without any of the messy coding. We've done all the geeky work for you.  Enter your post, enter your photos and enter your recipe.  EasyRecipe Wordpress plugin formats it all and allows your visitors to view your nicely formatted recipe AND print it along with a thumbnail photo.
+Our EasyRecipe plugin gives you all the advantages of microformats, without any of the messy coding. We've done all the geeky work for you.  
 
-It's quick. It's easy. The recipes look good.  They offer a print feature and most importantly you have a much better chance for your recipes showing up in Google's Recipe View search results.
+Enter your post, enter your photos and enter your recipe.  EasyRecipe formats it all and allows your visitors to view your nicely formatted recipe AND print it along with a thumbnail photo.
+
+It's quick. It's easy. The recipes look good.  They offer ratings and print features and most importantly you have a much better chance for your recipes showing up in Google's Recipe View search results.
 
 == Installation ==
 
