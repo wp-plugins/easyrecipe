@@ -63,6 +63,7 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 
 == Changelog ==
 1.1 Fixed a problem when Wordpress autosave adds spurious paragraphs
+
 1.1.1 Only accept and display comment ratings if the post is an Easy Recipe
 
 == Upgrade Notice ==
