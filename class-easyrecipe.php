@@ -33,7 +33,7 @@
         if ($page == "options-general.php") {
           wp_enqueue_style("easyrecipecp", "$this->pluginsURL/easyrecipe/farbtastic/farbtastic.css", array(), "1.2");
         }
-        wp_enqueue_style("easyrecipe-admin", "$this->pluginsURL/easyrecipe/easyrecipe-admin.css", array(), "1.0.1");
+        wp_enqueue_style("easyrecipe-admin", "$this->pluginsURL/easyrecipe/easyrecipe-admin.css", array(), "1.2");
 
 
         wp_enqueue_script('jquery');
@@ -47,9 +47,9 @@
          */
         if ($page == "options-general.php") {
           wp_enqueue_script('farbtastic', "$this->pluginsURL/easyrecipe/farbtastic/farbtastic.js", array(), "1.2", true);
-          wp_enqueue_script('easyrecipecp', "$this->pluginsURL/easyrecipe/easyrecipe-options.js", array(), "1.0.1", true);
+          wp_enqueue_script('easyrecipecp', "$this->pluginsURL/easyrecipe/easyrecipe-options.js", array(), "1.2", true);
         } else {
-          wp_enqueue_script('easyrecipeadmin', "$this->pluginsURL/easyrecipe/easyrecipe-admin.js", array(), "1.1", true);
+          wp_enqueue_script('easyrecipeadmin', "$this->pluginsURL/easyrecipe/easyrecipe-admin.js", array(), "1.2", true);
           add_action('admin_footer', array($this, 'addDialogHTML'));
           add_action('wp_ajax_convertRecipeSEO', array($this, 'convertRecipeSEO'));
           add_filter('mce_external_plugins', array($this, 'mcePlugins'));
@@ -61,11 +61,11 @@
         add_filter('plugin_action_links', array($this, 'pluginActionLinks'), 10, 2);
       } else {
         wp_enqueue_script('jquery');
-        wp_enqueue_script('easyrecipe', "$this->pluginsURL/easyrecipe/easyrecipe.js", array('jquery'), "1.0.1");
+        wp_enqueue_script('easyrecipe', "$this->pluginsURL/easyrecipe/easyrecipe.js", array('jquery'), "1.2");
 
-        wp_enqueue_style("easyrecipe", "$this->pluginsURL/easyrecipe/easyrecipe.css", array(), "1.0.3");
+        wp_enqueue_style("easyrecipe", "$this->pluginsURL/easyrecipe/easyrecipe.css", array(), "1.2");
         if (isset($_REQUEST['erprint'])) {
-          wp_enqueue_style("easyrecipe-print", "$this->pluginsURL/easyrecipe/easyrecipe-print.css", array(), "1.0.1", 'print');
+          wp_enqueue_style("easyrecipe-print", "$this->pluginsURL/easyrecipe/easyrecipe-print.css", array(), "1.2", 'print');
         } else {
           add_action('comment_form', array($this, 'commentForm'));
           add_action('comment_post', array($this, 'ratingSave'));
