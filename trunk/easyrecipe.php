@@ -4,7 +4,7 @@
     Plugin URI: http://www.orgasmicchef.com/easyrecipe/
     Description: Create, edit, display and print recipes with hRecipe microformat functionality
     Author: Orgasmic Chef
-    Version: 1.1.2
+    Version: 1.2
     Author URI: http://www.orgasmicchef.com
    */
 

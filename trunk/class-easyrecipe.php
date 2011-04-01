@@ -7,11 +7,12 @@
    */
   class EasyRecipe {
 
-    private $regexEasyrecipe = '%<div class="easyrecipe[^>]>*(.*)<div class="endeasyrecipe[^>]*>([0-9]+\.[0-9]+)</div>%si';
+    private $regexEasyrecipe = '%<div class="easyrecipe[^>]>*(.*)<div class="endeasyrecipe[^>]*>([0-9\.]+)</div>%si';
     private $pluginsURL;
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
+    private $version = "1.2";
 
     function __construct() {
       /*
@@ -210,6 +211,8 @@ EOD;
        * The JS will take care of the print and closing the window
        */
       $vars["title"] = $post->post_title;
+      $vars["blogname"] = get_option("blogname");
+      $vars["recipeurl"] = get_permalink($post->ID);
       $html = $this->getTemplate("easyrecipe-print.html", $vars);
       echo $html;
       exit;
@@ -277,12 +280,18 @@ EOD;
         /*
          * If we have a rating, the make the ratings visible and insert the values
          * Remove the "#inner#" placeholder which was there to prevent tinyMCE cleaning the inner div out of existence
+         *
+         * 1.2 Remove the whole thing entirely if there aren't any ratings
          */
-        $sRating = $nRatings > 0 ? sprintf("%3.1f", $totalRating / $nRatings) : "0.0";
-        $content = str_replace("#ratingval#", $sRating, $content);
-        $content = preg_replace('/class=(?:"|\')ERRatingInner(?:"|\') style=(?:"|\')width: *(0)%/si', 'class="ERRatingInner" style="width:' . $sRating * 20 . '%', $content);
-        $content = str_replace("#reviews#", $nRatings, $content);
-        $content = str_replace("#inner#", "", $content);
+        if ($totalRating > 0) {
+          $sRating = $nRatings > 0 ? sprintf("%3.1f", $totalRating / $nRatings) : "0.0";
+          $content = str_replace("#ratingval#", $sRating, $content);
+          $content = preg_replace('/class=(?:"|\')ERRatingInner(?:"|\') style=(?:"|\')width: *(0)%/si', 'class="ERRatingInner" style="width:' . $sRating * 20 . '%', $content);
+          $content = str_replace("#reviews#", $nRatings, $content);
+          $content = str_replace("#inner#", "", $content);
+        } else {
+          $content = preg_replace('%<div +class="ERRatingOuter".*?</div>.*?</div>[\s]*</div>%si', '', $content);
+        }
 
         /*
          * Make it display if the rating is > 0
@@ -372,12 +381,13 @@ EOD;
       $stars = "";
       if ($rating > 0) {
         $rating *= 20;
-      }
-      $stars = <<<EOD
+
+        $stars = <<<EOD
       <div class="ERRatingComment">
       <div style="width:$rating%" class="ERRatingInner"></div>
       </div >
 EOD;
+      }
       return $comment . $stars;
     }
 
@@ -502,6 +512,7 @@ EOD;
 if (typeof EASYRECIPE == "undefined") {
   var EASYRECIPE = {};
 }
+EASYRECIPE.version = $this->version;
 EASYRECIPE.pluginsURL = '$this->pluginsURL';
 EASYRECIPE.recipeTemplate = '$html';
 EASYRECIPE.testURL = '$testURL';
