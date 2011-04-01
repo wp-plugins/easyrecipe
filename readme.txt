@@ -4,7 +4,7 @@ Donate link: http://orgasmicchef.com/easyrecipe/faq/
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: "1.1.2"
+Stable tag: "1.2"
 
 Adding a recipe to a Wordpress blog is now quick, easy AND provides the recipe microformatting that Google is looking for.
 
@@ -21,6 +21,8 @@ Our EasyRecipe plugin gives you all the advantages of microformats, without any 
 Enter your post, enter your photos and enter your recipe.  EasyRecipe formats it all and allows your visitors to view your nicely formatted recipe AND print it along with a thumbnail photo.
 
 It's quick. It's easy. The recipes look good.  They offer ratings and print features and most importantly you have a much better chance for your recipes showing up in Google's Recipe View search results.
+
+Requires PHP 5+
 
 == Installation ==
 
@@ -62,10 +64,22 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
 
 == Changelog ==
-1.1 Fixed a problem when Wordpress autosave adds spurious paragraphs
+= 1.1 =
+* Fixed a problem when Wordpress autosave adds spurious paragraphs
 
-1.1.1 Only accept and display comment ratings if the post is an Easy Recipe
+= 1.1.1 =
+* Only accept and display comment ratings if the post is an Easy Recipe
 
-1.1.2 Fix for image not printing on servers with allow_url_fopen off
+= 1.1.2 =
+* Fix for image not printing on servers with allow_url_fopen off
+
+= 1.2 =
+* Added blog title and URL to the bottom of the printed recipe
+* Added a button to the html editor toolbar to prevent confusion
+* Added checks for valid color values in settings to prevent the recipe border and background not displaying correctly when colors were invalid
+* Added a workaround for a bug in the WP editor which inconsistently removes empty HTML tags. This sometimes resulted in the total cooking time not being recognised by Google
+* Only display stars on comments if the comment actually has a non-zero rating
+* Removes the ratings microformat information if there are no ratings to keep the Google test page happy
+
 
 == Upgrade Notice ==
