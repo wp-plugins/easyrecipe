@@ -4,7 +4,7 @@ Donate link: http://orgasmicchef.com/easyrecipe/faq/
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
 Requires at least: 3.0
 Tested up to: 3.1
-Stable tag: "1.2"
+Stable tag: "1.2.1"
 
 Adding a recipe to a Wordpress blog is now quick, easy AND provides the recipe microformatting that Google is looking for.
 
@@ -81,5 +81,7 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 * Only display stars on comments if the comment actually has a non-zero rating
 * Removes the ratings microformat information if there are no ratings to keep the Google test page happy
 
+= 1.2.1 =
+* Fix for settings not being stored correctly
 
 == Upgrade Notice ==

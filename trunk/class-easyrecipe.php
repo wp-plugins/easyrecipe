@@ -12,7 +12,7 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "1.2";
+    private $version = "1.2.1";
 
     function __construct() {
       /*
@@ -411,7 +411,7 @@ EOD;
      */
 
     function validateOptions($settings) {
-      $this->settings["allowLink"] = isset($settings["allowLink"]) ? $settings["allowLink"] : true;
+      $this->settings["allowLink"] = isset($settings["allowLink"]);
       $this->settings["ingredientHead"] = trim(wp_filter_nohtml_kses($settings["ingredientHead"]));
       $this->settings["instructionHead"] = trim(wp_filter_nohtml_kses($settings["instructionHead"]));
       $this->settings["notesHead"] = trim(wp_filter_nohtml_kses($settings["notesHead"]));
@@ -419,14 +419,14 @@ EOD;
       $this->settings["borderStyle"] = trim($settings["borderStyle"]);
       $this->settings["borderWidth"] = (int) $settings["borderWidth"];
       $this->settings["borderColor"] = trim($settings["borderColor"]);
-      $this->settings["pingMBRB"] = isset($settings["pingMBRB"]) ? $settings["pingMBRB"] : true;
+      $this->settings["pingMBRB"] = isset($settings["pingMBRB"]);
 
       return $this->settings;
     }
 
     function getSettings() {
       $settings = get_option("ERSettings", array());
-      $this->settings["allowLink"] = isset($settings["allowLink"]) ? $settings["allowLink"] : true;
+      $this->settings["allowLink"] = isset($settings["allowLink"]) ? $settings["allowLink"] : false;
       $this->settings["ingredientHead"] = isset($settings["ingredientHead"]) ? $settings["ingredientHead"] : "Ingredients";
       $this->settings["instructionHead"] = isset($settings["instructionHead"]) ? $settings["instructionHead"] : "Instructions";
       $this->settings["notesHead"] = isset($settings["notesHead"]) ? $settings["notesHead"] : "Notes";
@@ -434,7 +434,7 @@ EOD;
       $this->settings["borderStyle"] = isset($settings["borderStyle"]) ? $settings["borderStyle"] : "dashed";
       $this->settings["borderWidth"] = isset($settings["borderWidth"]) ? $settings["borderWidth"] : 1;
       $this->settings["borderColor"] = isset($settings["borderColor"]) ? $settings["borderColor"] : "#000000";
-      $this->settings["pingMBRB"] = isset($settings["pingMBRB"]) ? $settings["pingMBRB"] : true;
+      $this->settings["pingMBRB"] = isset($settings["pingMBRB"]) ? $settings["pingMBRB"] : false;
     }
 
     function settingsPage() {
@@ -512,7 +512,7 @@ EOD;
 if (typeof EASYRECIPE == "undefined") {
   var EASYRECIPE = {};
 }
-EASYRECIPE.version = $this->version;
+EASYRECIPE.version = '$this->version';
 EASYRECIPE.pluginsURL = '$this->pluginsURL';
 EASYRECIPE.recipeTemplate = '$html';
 EASYRECIPE.testURL = '$testURL';
