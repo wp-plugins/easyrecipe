@@ -12,9 +12,10 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "1.2.1";
+    private $version = "1.2.2";
 
     function __construct() {
+
       /*
        * For convenience
        */
@@ -23,18 +24,19 @@
 
       /*
        * TODO - do better selection of what to load based on what page we're in
-       * No point slowing things down if we aren't gonna be used
+       * No point slowing things down if we aren't gonna be used 
        */
       if (is_admin ()) {
+
 
         $page = $GLOBALS["pagenow"];
 
         wp_enqueue_style("wp-jquery-ui-dialog");
         if ($page == "options-general.php") {
-          wp_enqueue_style("easyrecipecp", "$this->pluginsURL/easyrecipe/farbtastic/farbtastic.css", array(), "1.2");
+          wp_enqueue_style("easyrecipecp", "$this->pluginsURL/easyrecipe/farbtastic/farbtastic.css", array(), $this->version);
         }
-        wp_enqueue_style("easyrecipe-admin", "$this->pluginsURL/easyrecipe/easyrecipe-admin.css", array(), "1.2");
-
+        wp_enqueue_style("easyrecipe-admin", "$this->pluginsURL/easyrecipe/easyrecipe-admin.css", array(), $this->version);
+        wp_enqueue_style("easyrecipe-diagnostics", "$this->pluginsURL/easyrecipe/easyrecipe-diagnostics.css", array(), $this->version);
 
         wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-ui-core');
@@ -46,26 +48,30 @@
          * recipe related plugins, so we have no choice but to load ourselves at the end
          */
         if ($page == "options-general.php") {
-          wp_enqueue_script('farbtastic', "$this->pluginsURL/easyrecipe/farbtastic/farbtastic.js", array(), "1.2", true);
-          wp_enqueue_script('easyrecipecp', "$this->pluginsURL/easyrecipe/easyrecipe-options.js", array(), "1.2", true);
+          wp_enqueue_script('farbtastic', "$this->pluginsURL/easyrecipe/farbtastic/farbtastic.js", array(), $this->version, true);
+          wp_enqueue_script('easyrecipecp', "$this->pluginsURL/easyrecipe/easyrecipe-options.js", array(), $this->version, true);
         } else {
-          wp_enqueue_script('easyrecipeadmin', "$this->pluginsURL/easyrecipe/easyrecipe-admin.js", array(), "1.2", true);
+          wp_enqueue_script('easyrecipeadmin', "$this->pluginsURL/easyrecipe/easyrecipe-admin.js", array(), $this->version, true);
           add_action('admin_footer', array($this, 'addDialogHTML'));
-          add_action('wp_ajax_convertRecipeSEO', array($this, 'convertRecipeSEO'));
+          add_action('wp_ajax_ERconvertRecipeSEO', array($this, 'convertRecipeSEO'));
+          add_action('wp_ajax_ERsendDiagnostics', array($this, 'sendDiagnostics'));
           add_filter('mce_external_plugins', array($this, 'mcePlugins'));
           add_filter('mce_buttons', array($this, 'mceButtons'));
           add_action('publish_post', array($this, 'pingMBRB'), 10, 2);
         }
-        add_action('admin_menu', array($this, 'addOptionsMenu'));
+        if ($page == "tools.php" && isset($_GET["page"]) && $_GET["page"] == "erdiagnostics") {
+          wp_enqueue_script('easyrecipediag', "$this->pluginsURL/easyrecipe/easyrecipe-diagnostics.js", array(), $this->version, true);
+        }
+        add_action('admin_menu', array($this, 'addMenus'));
         add_action('admin_init', array($this, 'adminInit'));
         add_filter('plugin_action_links', array($this, 'pluginActionLinks'), 10, 2);
       } else {
         wp_enqueue_script('jquery');
-        wp_enqueue_script('easyrecipe', "$this->pluginsURL/easyrecipe/easyrecipe.js", array('jquery'), "1.2");
+        wp_enqueue_script('easyrecipe', "$this->pluginsURL/easyrecipe/easyrecipe.js", array('jquery'), $this->version);
 
-        wp_enqueue_style("easyrecipe", "$this->pluginsURL/easyrecipe/easyrecipe.css", array(), "1.2");
+        wp_enqueue_style("easyrecipe", "$this->pluginsURL/easyrecipe/easyrecipe.css", array(), $this->version);
         if (isset($_REQUEST['erprint'])) {
-          wp_enqueue_style("easyrecipe-print", "$this->pluginsURL/easyrecipe/easyrecipe-print.css", array(), "1.2", 'print');
+          wp_enqueue_style("easyrecipe-print", "$this->pluginsURL/easyrecipe/easyrecipe-print.css", array(), $this->version, 'print');
         } else {
           add_action('comment_form', array($this, 'commentForm'));
           add_action('comment_post', array($this, 'ratingSave'));
@@ -90,17 +96,7 @@
     function pingMBRB($postID) {
       $data = http_build_query(array('id' => $postID, 'link' => get_permalink($postID)));
 
-      $fp = fsockopen('www.mybigrecipebox.com', 80, $errno, $errstr, 5);
-
-      if ($fp) {
-        fputs($fp, "POST /pingback.php HTTP/1.1\r\n");
-        fputs($fp, "Host: www.mybigrecipebox.com\r\n");
-        fputs($fp, "Content-type: application/x-www-form-urlencoded\r\n");
-        fputs($fp, "Content-length: " . strlen($data) . "\r\n");
-        fputs($fp, "Connection: close\r\n\r\n");
-        fputs($fp, $data);
-      }
-      @fclose($fp);
+      $this->socketIO("POST", "www.mybigrecipebox.com", 80, "/pingback.php", $data);
     }
 
     function extraCSS() {
@@ -242,6 +238,7 @@ EOD;
         }
 
         $this->easyrecipes[$post->ID] = true;
+
         /*
          * Insert the page's permalink for the print button and make the print button visible
          * The visibilities are hardcoded in the post so we degrade gracefully if EasyRecipe is deactivated
@@ -304,7 +301,7 @@ EOD;
          * Remove the linkback if we aren't going to display it
          */
         if (!$this->settings["allowLink"]) {
-          $content = str_replace('class="ERLinkback"', 'class="ERLinkback" style="top:20px"', $content);
+          $content = preg_replace('%<div class="ERLinkback".*?</div>%si', '', $content);
         }
         /*
          * Look for an image and add the "photo" class to the first one found
@@ -402,8 +399,106 @@ EOD;
       return $links;
     }
 
-    function addOptionsMenu() {
+    function addMenus() {
       add_options_page('Easy Recipe Settings', 'Easy Recipe', 'administrator', 'easyrecipe', array($this, 'settingsPage'));
+      add_submenu_page("tools.php", "Easy Recipe Diagnostics", "Easy Recipe", "administrator", "erdiagnostics", array($this, "diagnostics"));
+    }
+
+    function getDiagnostics() {
+      global $wp_version, $wp_filter;
+
+      /*
+       * Get the php info
+       */
+      ob_start();
+      phpinfo();
+      $phpinfo = ob_get_clean();
+      preg_match('%<body>(.*)</body>%si', $phpinfo, $regs);
+      $vars["phpinfo"] = $regs[1];
+      $vars["email"] = get_bloginfo("admin_email");
+
+      $user = $GLOBALS['current_user'];
+      $capabilities = "";
+      foreach ($user->capabilities AS $cap => $allowed) {
+        if ($allowed) {
+          $capabilities .= "$cap,";
+        }
+      }
+      $vars["wpcapabilities"] = rtrim($capabilities, ",");
+      $vars["wpversion"] = $wp_version;
+      $vars["wpurl"] = get_bloginfo("wpurl");
+
+      $themeData = get_theme_data(get_stylesheet_directory() . "/style.css");
+      $vars["wptheme"] = $themeData["Name"];
+      $vars["wpthemeversion"] = $themeData["Version"];
+      $vars["wpthemeurl"] = $themeData["URI"];
+
+
+      $plugins = get_plugins();
+      foreach ($plugins as $pluginFile => $null) {
+        $plugins[$pluginFile]["active"] = is_plugin_active($pluginFile) ? "Active" : "Inactive";
+      }
+      usort($plugins, array($this, "sortPlugins"));
+      $vars["plugindata"] = "";
+      foreach ($plugins as $plugin) {
+        $name = $plugin["Title"];
+        $active = $plugin["active"];
+        $version = $plugin["Version"];
+        $url = $plugin["PluginURI"];
+        $style = $active == "Active" ? "" : ' style=color:#888';
+        $vars["plugindata"] .= <<<EOD
+        <tr$style>
+          <td>$name</td>
+          <td>$active</td>
+          <td>$version</td>
+          <td>$url</td>
+        </tr>\n
+EOD;
+      }
+
+      $hooks = $wp_filter;
+      ksort($hooks);
+      $vars["hookdata"] = "";
+      foreach ($hooks as $tag => $priorities) {
+        ksort($priorities);
+        foreach ($priorities as $priority => $functions) {
+          ksort($functions);
+          foreach ($functions as $name => $null) {
+            $vars["hookdata"] .= <<<EOD
+        <tr>
+          <td>$tag</td>
+          <td>$priority</td>
+          <td>$name</td>
+        </tr>\n
+EOD;
+          }
+        }
+      }
+      return $vars;
+    }
+
+    /**
+     * Display the diagnostics page, collect the data and if requested, send it
+     */
+    function diagnostics() {
+      $existingOP = ob_get_clean();
+      $vars = $this->getDiagnostics();
+      echo $existingOP;
+      $vars["pluginsURL"] = $this->pluginsURL;
+      $html = $this->getTemplate("easyrecipe-diagnostics.html", $vars);
+
+      echo $html;
+    }
+
+    function sendDiagnostics() {
+      $data = new stdClass();
+      $data->vars = $this->getDiagnostics();
+      $data->email = stripslashes($_POST['email']);
+      $data->problem = stripslashes($_POST['problem']);
+      $data = "data=" . urlencode(json_encode($data));
+      $status = $this->socketIO("POST", "www.orgasmicchef.com", 80, "/easyrecipe/diagnostics.php", $data);
+      echo json_encode(array("status" => $status));
+      exit;
     }
 
     /*
@@ -469,7 +564,7 @@ EOD;
 
     function mcePlugins($plugins) {
       $plugins = (array) $plugins;
-      $plugins["easyrecipe"] = WP_PLUGIN_URL . '/easyrecipe/easyrecipe-mce.js';
+      $plugins["easyrecipe"] = WP_PLUGIN_URL . '/easyrecipe/easyrecipe-mce.js?v=' . $this->version;
       return $plugins;
     }
 
@@ -562,6 +657,35 @@ EOD;
       exit;
     }
 
+    function socketIO($method, $host, $port, $path, $data = "", $timeout = 5) {
+
+      $fp = @fsockopen($host, $port, $errno, $errstr, $timeout);
+
+      if (!$fp) {
+        return false;
+      }
+
+      @fputs($fp, "$method $path HTTP/1.1\r\nHost: $host\r\n");
+
+      if ($method == "POST") {
+        fputs($fp, "Content-type: application/x-www-form-urlencoded\r\n");
+        fputs($fp, "Content-length: " . strlen($data) . "\r\n");
+        fputs($fp, "Connection: close\r\n\r\n");
+        fputs($fp, $data);
+      } else {
+        fputs($fp, "Connection: close\r\n\r\n");
+      }
+
+      $inData = "";
+      while ($data = @fread($fp, 4096)) {
+        $inData .= $data;
+      }
+      @fclose($fp);
+
+      $endHeaders = strpos($inData, "\r\n\r\n");
+      return substr($inData, $endHeaders + 4);
+    }
+
     /*
      * Read image from a URL
      */
@@ -576,21 +700,14 @@ EOD;
       $timeout = 5;
       $image = '';
 
-      $fp = @fsockopen($host, $port, $errno, $errstr, $timeout);
+      return $this->socketIO("GET", $host, $port, $path);
+    }
 
-      if (!$fp) {
-        return false;
+    private function sortPlugins($a, $b) {
+      if ($a["active"] != $b["active"]) {
+        return strcmp($a["active"], $b["active"]);
       }
-
-      @fputs($fp, "GET $path HTTP/1.1\r\nHost: $host\r\n\r\n");
-
-      while ($data = @fread($fp, 4096)) {
-        $image .= $data;
-      }
-      @fclose($fp);
-
-      $endHeaders = strpos($image, "\r\n\r\n");
-      return substr($image, $endHeaders + 4);
+      return strcmp($a["Title"], $b["Title"]);
     }
 
   }
