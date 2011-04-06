@@ -5,6 +5,7 @@
    *
    * @author John
    */
+  
   class EasyRecipe {
 
     private $regexEasyrecipe = '%<div class="easyrecipe[^>]>*(.*)<div class="endeasyrecipe[^>]*>([0-9\.]+)</div>%si';
@@ -12,7 +13,7 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "1.2.2";
+    private $version = "1.2.3";
 
     function __construct() {
 
