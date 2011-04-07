@@ -5,7 +5,6 @@
    *
    * @author John
    */
-  
   class EasyRecipe {
 
     private $regexEasyrecipe = '%<div class="easyrecipe[^>]>*(.*)<div class="endeasyrecipe[^>]*>([0-9\.]+)</div>%si';
@@ -13,7 +12,7 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "1.2.3";
+    private $version = "1.2.4";
 
     function __construct() {
 
@@ -94,8 +93,16 @@
      * Notify MBRB when we publish or update
      */
 
-    function pingMBRB($postID) {
+    function pingMBRB($postID, $thisPost) {
+      /*
+       * Only ping back if this is an Easy Recipe
+       */
+      if (strpos($thisPost->post_content, 'class="easyrecipe"') === false) {
+        return;
+      }
+
       $data = http_build_query(array('id' => $postID, 'link' => get_permalink($postID)));
+
 
       $this->socketIO("POST", "www.mybigrecipebox.com", 80, "/pingback.php", $data);
     }
@@ -418,11 +425,16 @@ EOD;
       $vars["phpinfo"] = $regs[1];
       $vars["email"] = get_bloginfo("admin_email");
 
-      $user = $GLOBALS['current_user'];
       $capabilities = "";
-      foreach ($user->capabilities AS $cap => $allowed) {
-        if ($allowed) {
-          $capabilities .= "$cap,";
+      get_currentuserinfo();
+
+      $user = $GLOBALS['current_user'];
+
+      if (isset($user->capabilities)) {
+        foreach ($user->capabilities AS $cap => $allowed) {
+          if ($allowed) {
+            $capabilities .= "$cap,";
+          }
         }
       }
       $vars["wpcapabilities"] = rtrim($capabilities, ",");
