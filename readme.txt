@@ -3,8 +3,8 @@ Contributors: Jayce53
 Donate link: http://orgasmicchef.com/easyrecipe/faq/
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
 Requires at least: 3.0
-Tested up to: 3.1
-Stable tag: "1.2.4"
+Tested up to: 3.2.1
+Stable tag: "2.1"
 
 Adding a recipe to a Wordpress blog is now quick, easy AND provides the recipe microformatting that Google is looking for.
 
@@ -55,7 +55,7 @@ We CAN but it all depends on what's in the text and/or what other things another
 We’ll do our best to help you with any problem you have with EasyRecipe.  You can [contact me](http://orgasmicchef.com/easyrecipe/support/) and we’ll answer you as quickly as we can.
 
 == Screenshots ==
-1. The RecipeSEO Plugin icon is located next to the other "Upload/Insert" media icons.
+1. The EasyRecipe Plugin icon is located next to the other "Upload/Insert" media icons.
 2. It's easy to enter the basic information for your recipes: the title, the ingredients, and the instructions for preparing the recipe.
 3. Once you click the "Add Recipe" button, a placeholder image will be inserted into your post where your recipe will go.
 4. Once you preview or publish the post, your recipe will be there with all your microformats... without any extra work from you!
@@ -63,7 +63,23 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 6. The formated recipe on your page has ratings from comments and a Print feature.
 7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
 
+
 == Changelog ==
+= 2.1 =
+* Added comprehensive formatting options
+* Added embedded image and link capability
+* Extended the template customization for non-english languages or other specific text
+* Fixed occasional loss of print capability in WP 3.2
+* Fixed occasional loss of time microformatting in WP 3.2
+
+== 2.0 ==
+* Beta release of version 2
+
+= 1.3 =
+* Added the ability to replace labels with language or other specific text
+* Fixed an issue of the Print button sometimes not being displayed
+* Fix Cholesterol typo
+
 = 1.2.4 =
 * Fix Easy Recipe not being inserted into the post on some browsers when there is no initial editor content and/or the cursor is not in the editor body
 * Only ping MyBigRecipeBox.com if the published post contains an Easy Recipe
