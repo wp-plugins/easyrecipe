@@ -1,10 +1,11 @@
 <?php
+
   /*
     Plugin Name: Easy Recipe
     Plugin URI: http://www.orgasmicchef.com/easyrecipe/
     Description: Create, edit, display and print recipes with hRecipe microformat functionality
     Author: Orgasmic Chef
-    Version: 1.2.4
+    Version: 2.1
     Author URI: http://www.orgasmicchef.com
    */
 
@@ -15,7 +16,7 @@
   }
 
   function easyrecipeActivation() {
-    wp_die("Easy Recipe requires PHP 5+.  Your server is running PHP " . phpversion().'<br /><a href="/wp-admin/plugins.php">Go back</a>');
+    wp_die("Easy Recipe requires PHP 5+.  Your server is running PHP " . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
   }
 
   if (phpversion() < '5') {
@@ -23,20 +24,24 @@
     return;
   }
 
-  if (is_admin ()) {
+  $fp = fopen("/tmp/oc.log", "a");
+  fprintf($fp, "uri: %s page: %s 404: %d isadmin: %d\n", $_SERVER['REQUEST_URI'], $GLOBALS["pagenow"], is_404(), is_admin());
+  fclose($fp);
 
-    $page = $GLOBALS["pagenow"];
-    if ($page == "admin-ajax.php" && (!isset($_POST["action"]) || $_POST["action"] != "ERsendDiagnostics")) {
-      return;
+
+  /*
+   * If we're in admin, we only care about specific pages/actions
+   * Don't waste time with stuff where the plugin isn't needed
+   */
+  if (is_admin()) {
+    if ($GLOBALS["pagenow"] == "admin-ajax.php") {
+      if (!isset($_REQUEST["action"]) || ($_REQUEST["action"] != "ERsendDiagnostics" && $_REQUEST["action"] != "customCSS")) {
+        return;
+      }
     }
-    if (!class_exists('EasyRecipe')) {
-      require_once 'class-easyrecipe.php';
-      new EasyRecipe();
-    }
-  } else {
-    if (!class_exists('EasyRecipe')) {
-      require_once 'class-easyrecipe.php';
-      new EasyRecipe();
-    }
+  }
+  if (!class_exists('EasyRecipe')) {
+    require_once 'class-easyrecipe.php';
+    new EasyRecipe();
   }
 ?>
