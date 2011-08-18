@@ -293,6 +293,9 @@
         $url .= "&erformat";
       }
       $node = $this->getElementByClassName("btnERPrint", "div");
+      if (!$node) {
+        return null;
+      }
       for ($aNode = $node->firstChild; $aNode; $aNode = $n->nextSibling) {
         if ($aNode->nodeName == "a") {
           break;
