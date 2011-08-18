@@ -29,7 +29,7 @@
       /*
        * Found it - construct a DOMDocument
        */
-      parent::__construct();
+      parent::__construct("1.0", "UTF-8");
       /*
        * Handle our own shortcodes because Wordpress's braindead implementation can't handle consecutive shortcodes (!)
        *
@@ -51,9 +51,11 @@
       /*
        * Make sure we can parse it
        */
-      if (!$this->loadHTML($content)) {
+
+      if (!$this->loadHTML('<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />' . $content)) {
         return;
       }
+
       /*
        * Pick up the stuff before and after the recipe
        */
@@ -102,10 +104,13 @@
       $nodes = array();
       $domNodeList = $this->getElementsByTagName($tag);
       for ($i = 0; $i < $domNodeList->length; $i++) {
-        $classes = explode(" ", $domNodeList->item($i)->attributes->getNamedItem('class')->nodeValue);
-        for ($j = 0; $j < count($classes); $j++) {
-          if ($classes[$j] == $className) {
-            $nodes[] = $domNodeList->item($i);
+        $item = $domNodeList->item($i)->attributes->getNamedItem('class');
+        if ($item) {
+          $classes = explode(" ", $item->nodeValue);
+          for ($j = 0; $j < count($classes); $j++) {
+            if ($classes[$j] == $className) {
+              $nodes[] = $domNodeList->item($i);
+            }
           }
         }
       }
@@ -132,6 +137,9 @@
      */
     public function setRating($totalRating, $nRatings) {
       $outerDiv = $this->getElementByClassName("ERRatingOuter");
+      if (!$outerDiv) {
+        return;
+      }
       if ($totalRating == 0) {
         try {
           $this->easyrecipeDiv->removeChild($outerDiv);
@@ -166,8 +174,8 @@
     }
 
     /**
-     * The original ER template didn't explicitly identify by class the individual labels
-     * for various significant tags, just the tags themselves
+     * The original ER template didn't explicitly identify by class the individual
+     * labels for various significant tags, just the tags themselves.
      * This method modifies the labels for those tags
      *
      * @param string $className   The class of the tag
