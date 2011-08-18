@@ -5,7 +5,7 @@
     Plugin URI: http://www.orgasmicchef.com/easyrecipe/
     Description: Create, edit, display and print recipes with hRecipe microformat functionality
     Author: Orgasmic Chef
-    Version: 2.1.1
+    Version: 2.1.2
     Author URI: http://www.orgasmicchef.com
    */
 
@@ -15,14 +15,24 @@
     exit;
   }
 
-  function easyrecipeActivation() {
-    wp_die("Easy Recipe requires PHP 5+.  Your server is running PHP " . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
+  function easyrecipeNeedPHP5() {
+    wp_die("Easy Recipe requires PHP 5+.  Your server is running PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
+  }
+
+  function easyrecipeNeedDOM() {
+    wp_die("Easy Recipe requires the PHP DOMDocument extension but it has been disabled in your server's PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
   }
 
   if (phpversion() < '5') {
-    register_activation_hook(__FILE__, "easyrecipeActivation");
+    register_activation_hook(__FILE__, "easyrecipeNeedPHP5");
     return;
   }
+
+  if (!class_exists("DOMDocument")) {
+    register_activation_hook(__FILE__, "easyrecipeNeedDOM");
+    return;
+  }
+
 
   $fp = fopen("/tmp/oc.log", "a");
   fprintf($fp, "uri: %s page: %s 404: %d isadmin: %d\n", $_SERVER['REQUEST_URI'], $GLOBALS["pagenow"], is_404(), is_admin());

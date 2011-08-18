@@ -13,7 +13,7 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "2.1.1";
+    private $version = "2.1.2";
     private $formatting = false;
 
     function __construct() {
@@ -351,13 +351,27 @@ EOD;
 
       foreach ($posts AS $post) {
 
-        $this->easyrecipes[$post->ID] = true;
+        /*
+         * Suppress warnings and errors and then reset it to whatever is was
+         */
+        if (!isset($_REQUEST['erdebug'])) {
+          $oldErrors = error_reporting(0);
+          $oldDisplay = ini_get("display_errors");
+          ini_set("display_errors", 0);
+        } else {
+          $oldErrors = error_reporting(E_ALL);
+          $oldDisplay = ini_get("display_errors");
+          ini_set("display_errors", 1);
+        }
         $easyrecipe = new ERDOMDocument($post->post_content);
+        error_reporting($oldErrors);
+        ini_set("display_errors", $oldDisplay);
+
         if (!$easyrecipe->isEasyRecipe) {
           $newPosts[] = $post;
           continue;
         }
-
+        $this->easyrecipes[$post->ID] = true;
         /*
          * Insert the page's permalink for the print button and make the print button visible
          * The visibilities are hardcoded in the post so we degrade gracefully if EasyRecipe is deactivated
