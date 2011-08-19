@@ -5,7 +5,7 @@
     Plugin URI: http://www.orgasmicchef.com/easyrecipe/
     Description: Create, edit, display and print recipes with hRecipe microformat functionality
     Author: Orgasmic Chef
-    Version: 2.1.2
+    Version: 2.1.3
     Author URI: http://www.orgasmicchef.com
    */
 
@@ -32,12 +32,6 @@
     register_activation_hook(__FILE__, "easyrecipeNeedDOM");
     return;
   }
-
-
-  $fp = fopen("/tmp/oc.log", "a");
-  fprintf($fp, "uri: %s page: %s 404: %d isadmin: %d\n", $_SERVER['REQUEST_URI'], $GLOBALS["pagenow"], is_404(), is_admin());
-  fclose($fp);
-
 
   /*
    * If we're in admin, we only care about specific pages/actions

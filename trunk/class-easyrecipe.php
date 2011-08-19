@@ -13,7 +13,7 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "2.1.2";
+    private $version = "2.1.3";
     private $formatting = false;
 
     function __construct() {
@@ -65,6 +65,7 @@
         }
 
         add_filter('plugin_action_links', array($this, 'pluginActionLinks'), 10, 2);
+        add_action('admin_init', array($this, 'adminInit'));
       } else {
         wp_enqueue_script('easyrecipe', "$this->pluginsURL/easyrecipe/easyrecipe.js", array('jquery'), $this->version);
 
@@ -84,6 +85,7 @@
          * chance to mess with them so specify a ridiculously high priority here
          */
         add_action('the_posts', array($this, 'thePosts'), -32767);
+        add_action('the_excerpt', array($this, 'theExcerpt'), -32767);
         add_action('init', array($this, 'initialise'));
         add_action('wp_before_admin_bar_render', array($this, 'adminBarMenu'));
 
@@ -342,6 +344,10 @@ EOD;
       exit;
     }
 
+    function theExcerpt($posts) {
+      $x = 1;
+    }
+
     function thePosts($posts) {
 
       $newPosts = array();
@@ -517,6 +523,10 @@ EOD;
         $links[] = '<a href="options-general.php?page=easyrecipe">' . __('Settings') . '</a>';
       }
       return $links;
+    }
+
+    function adminInit() {
+      register_setting('EROptionSettings', 'ERSettings', array($this, 'validateOptions'));
     }
 
     function addMenus() {
