@@ -13,7 +13,7 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "2.1.3";
+    private $version = "2.1.4";
     private $formatting = false;
 
     function __construct() {
@@ -85,7 +85,6 @@
          * chance to mess with them so specify a ridiculously high priority here
          */
         add_action('the_posts', array($this, 'thePosts'), -32767);
-        add_action('the_excerpt', array($this, 'theExcerpt'), -32767);
         add_action('init', array($this, 'initialise'));
         add_action('wp_before_admin_bar_render', array($this, 'adminBarMenu'));
 
@@ -342,10 +341,6 @@ EOD;
         $this->addFormatDialog();
       }
       exit;
-    }
-
-    function theExcerpt($posts) {
-      $x = 1;
     }
 
     function thePosts($posts) {
