@@ -400,9 +400,9 @@
       if ($html !== false) {
         $this->preEasyRecipe = $html;
       } else {
-        $photo = $this->getElementsByTagName("img");
-        if (count($photo) > 0) {
-          $this->addClass($photo[0], "photo");
+        $photos = $this->getElementsByTagName("img");
+        if ($photos && $photos->length > 0) {
+          $this->addClass($photos->item(0), "photo");
         } else {
           $html = $this->makePhotoClass($this->postEasyRecipe);
           if ($html !== false) {
