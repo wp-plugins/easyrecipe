@@ -13,7 +13,7 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "2.1.5";
+    private $version = "2.1.6";
     private $formatting = false;
 
     function __construct() {
