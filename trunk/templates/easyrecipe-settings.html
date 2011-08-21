@@ -36,7 +36,19 @@
 }
 </style>
 <link href="../easyrecipe-admin.css" rel="stylesheet" type="text/css" />
-<style type="text/css"></style>
+<style type="text/css">
+body, td, th {
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+.form-table td {
+  font-size: 12px;
+  line-height: 20px;
+  margin-bottom: 9px;
+  padding: 8px 10px;
+}
+</style>
 </head>
 
 <body>
@@ -67,6 +79,21 @@
                       <input name="ERSettings[pingMBRB]" type="checkbox" id="ERPingMBRB" #mbrbLinkChecked# />
                       Automatically list your recipes at <a href="http://www.mybigrecipebox.com" target="_blank">MyBigRecipeBox.com</a></label></td>
                 </tr>
+                <tr>
+                  <th valign="top" scope="row">Subscribe to the Easy Recipe Mailing List (Optional)</th>
+                  <td><table class="ERMailing" border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>First name:</td>
+                        <td><input name="ERSettings[erFirstName]" type="text" id="erFirstName" value="#erFirstName#" /></td>
+                      </tr>
+                      <tr>
+                        <td>Email address:</td>
+                        <td><input name="ERSettings[erEmailAddress]" type="text" id="erEmailAddress" value="#erEmailAddress#" /></td>
+                      </tr>
+                    </table>
+                    Keep up with  upgrades and news about Easy Recipe!<br />
+                    Leave blank if you don't wish to receive email from Easy Recipe.</td>
+                </tr>
               </table>
             </div>
           </div>
@@ -75,14 +102,13 @@
             <div class="inside">
               <table width="100%" border="0" class="form-table">
                 <tr align="center">
-                  <td width="32%">
-<!--                  <form action="https://www.paypal.com/cgi-bin/webscr" method="post"> 
+                  <td width="32%"><!--                  <form action="https://www.paypal.com/cgi-bin/webscr" method="post"> 
 <input type="hidden" name="cmd" value="_s-xclick" />
 <input type="hidden" name="hosted_button_id" value="8B5J9WPT9DJA4" />
 <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />
 <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
-<!-- /form -->
-<img style="cursor:pointer" id="btnERPayPal" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" width="147" height="47" /></td>
+<!-- /form --> 
+                    <img style="cursor:pointer" id="btnERPayPal" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" width="147" height="47" /></td>
                   <td width="68%">Easy Recipe is totally free, but anything you can give to help with support and ongoing development costs will certainly be appreciated</td>
                 </tr>
               </table>
@@ -95,7 +121,7 @@
                 <tr align="center">
                   <td width="32%"><input type="button" class="button-primary" id="btnERSLiveFormat" value="Live Formatting" /></td>
                   <td width="68%">Navigate to a page that contains an Easy Recipe, and click "Format Easy Recipe" in the Admin bar, or click anywhere inside any recipe.<br />
-                  <a href="http://www.orgasmicchef.com/easyrecipe/howto/formatting/" target="_blank">Click here to see a formatting tutorial video</a></td>
+                    <a href="http://www.orgasmicchef.com/easyrecipe/howto/formatting/" target="_blank">Click here to see a formatting tutorial video</a></td>
                 </tr>
               </table>
             </div>
@@ -201,11 +227,10 @@
       </div>
     </form>
   </div>
-  
-<form id="frmERPayPal" action="https://www.paypal.com/cgi-bin/webscr" target="_blank" method="post"> 
-<input type="hidden" name="cmd" value="_s-xclick" />
-<input type="hidden" name="hosted_button_id" value="8B5J9WPT9DJA4" />
-</form>
+  <form id="frmERPayPal" action="https://www.paypal.com/cgi-bin/webscr" target="_blank" method="post">
+    <input type="hidden" name="cmd" value="_s-xclick" />
+    <input type="hidden" name="hosted_button_id" value="8B5J9WPT9DJA4" />
+  </form>
   <!-- END PAGE --> 
 </div>
 </body>
