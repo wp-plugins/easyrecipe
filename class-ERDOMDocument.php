@@ -12,6 +12,7 @@
     private $postEasyRecipe;
 
     const regexEasyRecipe = '%^(.*?)(<div +class *= *["\']easyrecipe[^>]>(.*?)<div +class *= *[\'"]endeasyrecipe.*?</div>)(.*?)$%si';
+    const regexPhotoClass = '/<img [^>]*class\s*=\s*(?:"|\')(?:-?[_a-zA-Z]+[_a-zA-Z0-9-]* *)?\b(?-i)photo\b[^>]+>/si';
 
     /**
      * If there's an Easy Recipe in the content, set up the class
@@ -142,9 +143,9 @@
       }
       if ($totalRating == 0) {
         try {
-          $this->easyrecipeDiv->removeChild($outerDiv);
+          $outerDiv->parentNode->removeChild($outerDiv);
         } catch (Exception $e) {
-
+          $except = $e;
         }
         return;
       }
@@ -166,10 +167,14 @@
      * @param boolean $display  TRUE to show, or false to hide
      */
     public function setLinkback($display) {
+      $linkBack = $this->getElementByClassName("ERLinkback");
+      if (!$linkBack) {
+        return;
+      }
       if ($display) {
-        $this->removeStyle($this->getElementByClassName("ERLinkback"), "display");
+        $this->removeStyle($linkBack, "display");
       } else {
-        $this->easyrecipeDiv->removeChild($this->getElementByClassName("ERLinkback"));
+        $this->easyrecipeDiv->removeChild($linkBack);
       }
     }
 
@@ -292,10 +297,12 @@
      * @param string $url The print URL
      */
     public function setPrintButton($url, $formatting) {
-      if (strpos($url, "?") !== false) {
-        $url .= "&erprint";
-      } else {
-        $url .= "?erprint";
+      if (!preg_match('/(?:\?|&)erprint/', $url)) {
+        if (strpos($url, "?") !== false) {
+          $url .= "&erprint";
+        } else {
+          $url .= "?erprint";
+        }
       }
       if ($formatting) {
         $url .= "&erformat";
@@ -304,10 +311,16 @@
       if (!$node) {
         return null;
       }
-      for ($aNode = $node->firstChild; $aNode; $aNode = $n->nextSibling) {
+      /*
+       * Remove any existing <a> tags since some installations have bad URLs inserted at the editor stage for some unknown reason
+       */
+      $aNode = $node->firstChild;
+      while ($aNode) {
+        $next = $aNode->nextSibling;
         if ($aNode->nodeName == "a") {
-          break;
+          $aNode->parentNode->removeChild($aNode);
         }
+        $aNode = $next;
       }
       if (!$aNode) {
         $aNode = $this->createElement("a");
@@ -321,6 +334,18 @@
     }
 
     /**
+     * Adds the class $class to the element $element
+     *
+     * @param DOMElement $element   The element to use
+     * @param string $class         The class to add
+     */
+    public function addClass(DOMElement $element, $class) {
+      $classes = $element->getAttribute("class");
+      $classes .= " $class";
+      $element->setAttribute("class", trim($classes));
+    }
+
+    /**
      * Find the first <img> in $html and add the class name "photo" to it
      *
      * If no <img> is found, returns false
@@ -329,7 +354,7 @@
      * @return boolean/string The adjusted html if an <img> was found, else false
      */
     private function makePhotoClass($html) {
-      if (!@preg_match('/^(.*?)<img ([^>]+>)(.*)$/si', $this->preEasyRecipe, $regs)) {
+      if (!@preg_match('/^(.*?)<img ([^>]+>)(.*)$/si', $html, $regs)) {
         return false;
       }
       $preamble = $regs[1];
@@ -351,16 +376,38 @@
     }
 
     /**
-     * Add the "photo" class name to the first image in the html outside the EasyRecipe
+     * Add the "photo" class name to the first image in the html inside or outside the EasyRecipe
+     * Check first to see if there is already an image anywhere in the post with the "photo" class
      */
     public function addPhotoClass() {
+      /*
+       * Check to see if there's an image anywhere in the post that already has a photo class
+       */
+      if (@preg_match(self::regexPhotoClass, $this->preEasyRecipe)) {
+        return;
+      }
+      if (@preg_match(self::regexPhotoClass, $this->postEasyRecipe)) {
+        return;
+      }
+      $photo = $this->getElementsByClassName("photo", "img");
+      if (count($photo) > 0) {
+        return;
+      }
+      /*
+       * Search for the first image and if there is one, add the photo class to it
+       */
       $html = $this->makePhotoClass($this->preEasyRecipe);
       if ($html !== false) {
         $this->preEasyRecipe = $html;
       } else {
-        $html = $this->makePhotoClass($this->postEasyRecipe);
-        if ($html !== false) {
-          $this->postEasyRecipe = $html;
+        $photo = $this->getElementsByTagName("img");
+        if (count($photo) > 0) {
+          $this->addClass($photo[0], "photo");
+        } else {
+          $html = $this->makePhotoClass($this->postEasyRecipe);
+          if ($html !== false) {
+            $this->postEasyRecipe = $html;
+          }
         }
       }
     }

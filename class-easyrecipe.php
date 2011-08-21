@@ -13,7 +13,7 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "2.1.4";
+    private $version = "2.1.5";
     private $formatting = false;
 
     function __construct() {
@@ -40,13 +40,14 @@
         wp_enqueue_script('jquery-ui-widget');
         wp_enqueue_script('jquery-ui-dialog');
 
+        wp_enqueue_style("easyrecipe-admin", "$this->pluginsURL/easyrecipe/easyrecipe-admin.css", array(), $this->version);
+
         if ($GLOBALS["pagenow"] == "options-general.php") {
           if ($_REQUEST['page'] !== "easyrecipe") {
             return;
           }
           wp_enqueue_script('easyrecipe-options', "$this->pluginsURL/easyrecipe/easyrecipe-options.js", array(), $this->version);
         } else {
-          wp_enqueue_style("easyrecipe-admin", "$this->pluginsURL/easyrecipe/easyrecipe-admin.css", array(), $this->version);
           wp_enqueue_script('easyrecipeadmin', "$this->pluginsURL/easyrecipe/easyrecipe-admin.js", array('jquery-ui-dialog'), $this->version, true);
 
           add_action('wp_ajax_customCSS', array($this, 'updateCustomCSS'));
@@ -85,11 +86,17 @@
          * chance to mess with them so specify a ridiculously high priority here
          */
         add_action('the_posts', array($this, 'thePosts'), -32767);
+//        add_action('the_excerpt', array($this, 'theExcerpt'));
         add_action('init', array($this, 'initialise'));
         add_action('wp_before_admin_bar_render', array($this, 'adminBarMenu'));
 
         $this->getSettings();
       }
+    }
+
+    function theExcerpt($content) {
+      $content = str_replace("#ratingval# from #reviews# reviews Print", "", $content);
+      return "blah" . $content;
     }
 
     function adminBarMenu() {
@@ -184,8 +191,6 @@ EOD;
       }
 
       $data = http_build_query(array('id' => $postID, 'link' => get_permalink($postID)));
-
-
       $this->socketIO("POST", "www.mybigrecipebox.com", 80, "/pingback.php", $data);
     }
 
@@ -308,7 +313,7 @@ EOD;
       $vars["blogname"] = get_option("blogname");
       $vars["recipeurl"] = get_permalink($post->ID);
       if (current_user_can("administrator") && isset($_REQUEST['erformat'])) {
-        $siteURL = site_url();
+        $siteURL = get_site_url();
         $vars['cssjs'] = <<<EOD
       <link rel='stylesheet' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css?ver=$this->version' type='text/css' />
 <link rel='stylesheet' href='$this->pluginsURL/easyrecipe/easyrecipe-format.css?ver=$this->version' type='text/css' />
@@ -620,6 +625,16 @@ EOD;
       echo $html;
     }
 
+    function easyrecipeActivated() {
+      $data = http_build_query(array('action' => 'activate', 'site' => get_site_url()));
+      $status = $this->socketIO("POST", "www.orgasmicchef.com", 80, "/easyrecipe/installed.php", $data);
+    }
+
+    function easyrecipeDeactivated() {
+      $data = http_build_query(array('action' => 'deactivate', 'site' => get_site_url()));
+      $status = $this->socketIO("POST", "www.orgasmicchef.com", 80, "/easyrecipe/installed.php", $data);
+    }
+
     function sendDiagnostics() {
       $data = new stdClass();
       $data->vars = $this->getDiagnostics();
@@ -675,6 +690,19 @@ EOD;
         $this->settings["customPrintCSS"] = trim($settings["customPrintCSS"]);
       }
 
+      /*
+       * Handle the mailing list options
+       * Only need to send a notification if the values have changed
+       */
+      $this->settings["lblRateRecipe"] = trim($settings["lblRateRecipe"]);
+      $settings["erFirstName"] = trim($settings["erFirstName"]);
+      $settings["erEmailAddress"] = trim($settings["erEmailAddress"]);
+      if ($settings["erFirstName"] != $this->settings["erFirstName"] || $settings["erEmailAddress"] != $this->settings["erEmailAddress"]) {
+        $this->settings["erFirstName"] = $settings["erFirstName"];
+        $this->settings["erEmailAddress"] = $settings["erEmailAddress"];
+        $data = http_build_query(array('email' => $settings["erEmailAddress"], 'first' => $settings["erFirstName"], 'site' => get_site_url()));
+        $this->socketIO("POST", "www.orgasmicchef.com", 80, "/easyrecipe/mailing.php", $data);
+      }
       return $this->settings;
     }
 
@@ -708,6 +736,10 @@ EOD;
       $this->settings["lblProtein"] = isset($settings["lblProtein"]) ? $settings["lblProtein"] : "Protein";
       $this->settings["lblCholesterol"] = isset($settings["lblCholesterol"]) ? $settings["lblCholesterol"] : "Cholesterol";
       $this->settings["lblRateRecipe"] = isset($settings["lblRateRecipe"]) ? $settings["lblRateRecipe"] : "Rate this recipe";
+
+      $this->settings["erEmailAddress"] = isset($settings["erEmailAddress"]) ? $settings["erEmailAddress"] : "";
+      $this->settings["erFirstName"] = isset($settings["erFirstName"]) ? $settings["erFirstName"] : "";
+      
       if (isset($settings["customCSS"])) {
         $this->settings["customCSS"] = $settings["customCSS"];
       } else {
@@ -728,7 +760,7 @@ EOD;
       $vars["allowLinkChecked"] = $this->settings["allowLink"] ? 'checked="checked"' : '';
       $vars["mbrbLinkChecked"] = $this->settings["pingMBRB"] ? 'checked="checked"' : '';
       $vars["pluginsURL"] = $this->pluginsURL;
-      $vars['siteurl'] = home_url();
+      $vars['siteurl'] = get_site_url();
       $optionsHTML = "<input type='hidden' name='option_page' value='EROptionSettings' />";
       $optionsHTML .= '<input type="hidden" name="action" value="update" />';
       $optionsHTML .= wp_nonce_field("EROptionSettings-options", '_wpnonce', true, false);

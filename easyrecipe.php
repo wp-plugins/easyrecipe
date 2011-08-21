@@ -5,7 +5,7 @@
     Plugin URI: http://www.orgasmicchef.com/easyrecipe/
     Description: Create, edit, display and print recipes with hRecipe microformat functionality
     Author: Orgasmic Chef
-    Version: 2.1.4
+    Version: 2.1.5
     Author URI: http://www.orgasmicchef.com
    */
 
@@ -33,6 +33,7 @@
     return;
   }
 
+//  register_activation_hook(__FILE__, "easyrecipeActivated");
   /*
    * If we're in admin, we only care about specific pages/actions
    * Don't waste time with stuff where the plugin isn't needed
@@ -46,6 +47,8 @@
   }
   if (!class_exists('EasyRecipe')) {
     require_once 'class-easyrecipe.php';
-    new EasyRecipe();
+    $er = new EasyRecipe();
+    register_activation_hook(__FILE__, array($er, "easyrecipeActivated"));
+    register_deactivation_hook(__FILE__, array($er, "easyrecipeDeactivated"));
   }
 ?>
