@@ -13,7 +13,7 @@
     private $pluginsDIR;
     private $settings = array();
     private $easyrecipes = array();
-    private $version = "2.1.6";
+    private $version = "2.1.7";
     private $formatting = false;
 
     function __construct() {
@@ -694,7 +694,6 @@ EOD;
        * Handle the mailing list options
        * Only need to send a notification if the values have changed
        */
-      $this->settings["lblRateRecipe"] = trim($settings["lblRateRecipe"]);
       $settings["erFirstName"] = trim($settings["erFirstName"]);
       $settings["erEmailAddress"] = trim($settings["erEmailAddress"]);
       if ($settings["erFirstName"] != $this->settings["erFirstName"] || $settings["erEmailAddress"] != $this->settings["erEmailAddress"]) {
@@ -739,7 +738,7 @@ EOD;
 
       $this->settings["erEmailAddress"] = isset($settings["erEmailAddress"]) ? $settings["erEmailAddress"] : "";
       $this->settings["erFirstName"] = isset($settings["erFirstName"]) ? $settings["erFirstName"] : "";
-      
+
       if (isset($settings["customCSS"])) {
         $this->settings["customCSS"] = $settings["customCSS"];
       } else {
