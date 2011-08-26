@@ -174,7 +174,7 @@
       if ($display) {
         $this->removeStyle($linkBack, "display");
       } else {
-        $this->easyrecipeDiv->removeChild($linkBack);
+        $linkBack->parentNode->removeChild($linkBack);
       }
     }
 
