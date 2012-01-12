@@ -64,7 +64,7 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
 
 == Changelog ==
-= 2.1.10 =
+= 2.2.0 =
 * Fix fatal error in extra CSS processing 
 
 = 2.1.9 =
