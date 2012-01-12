@@ -13,7 +13,7 @@ class EasyRecipe {
     private $pluginsDIR;
     private $settings = array ();
     private $easyrecipes = array ();
-    private $version = "2.1.10";
+    private $version = "2.2.0";
     private $formatting = false;
     
     /*
