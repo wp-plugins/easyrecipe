@@ -1,0 +1,139 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="../../../wp-admin/css/wp-admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../wp-admin/css/colors-fresh.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+#apDiv1 {
+  position:absolute;
+  left:310px;
+  top:21px;
+  width:1146px;
+  height:571px;
+  z-index:1;
+}
+
+#apDiv2 {
+  position:absolute;
+  left:37px;
+  top:40px;
+  width:963px;
+  height:507px;
+  z-index:1;
+}
+</style>
+<link href="../../../../wp-admin/css/global.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+#apDiv3 {
+  position:absolute;
+  left:2px;
+  top:10px;
+  width:47px;
+  height:36px;
+  z-index:1;
+}
+</style>
+<link href="../easyrecipe-admin.css" rel="stylesheet" type="text/css" />
+<style type="text/css"></style>
+</head>
+
+<body>
+<div id="wpbody"> 
+  <!-- START PAGE -->
+  <div class="wrap"><a href="http://www.orgasmicchef.com/" target="_blank"><span class="icon32 chef32"></span></a>
+    <h2><span>Easy Recipe Options</span></h2>
+    <p>&nbsp;</p>
+    <form action="options.php" method="post">
+      #optionsHTML#
+      <div class="metabox-holder">
+        <div class="postbox-container">
+          <div class="meta-box-sortables ui-sortable">
+            <div style="width:620px" class="postbox">
+              <h3 class="hndle">Easy Recipe Options</h3>
+              <div class="inside">
+                <table border="0" class="form-table">
+                  <tr>
+                    <th scope="row">Support Easy Recipe</th>
+                    <td><label>
+                        <input name="ERSettings[allowLink]" type="checkbox" id="ERAllowLink" #allowLinkChecked# />
+                        Allow us to place a teensy link back to our plugin site</label></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Ingredients heading</th>
+                    <td><input name="ERSettings[ingredientHead]" type="text" id="ERIngredientHead" value="#ingredientHead#" />
+                      <br />
+                      The text you want as the heading above the Ingredients list</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Instructions heading</th>
+                    <td><input name="ERSettings[instructionHead]" type="text" id="ERInstructionHead" value="#instructionHead#" />
+                      <br />
+                      The text you want as the heading above the list of instructions</td>
+                  </tr>
+                  
+                    <th scope="row">Notes heading</th>
+                    <td><input name="ERSettings[notesHead]" type="text" id="ERInstructionHead" value="#notesHead#" />
+                      <br />
+                      The text you want as the heading above any recipe notes</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Recipe background</th>
+                    <td><div style="position:relative">
+                        <input name="ERSettings[recipeBackground]" type="text" id="ERRecipeBackground" value="#recipeBackground#" />
+                        <img src="#pluginsURL#/easyrecipe/images/colorpick.png" width="18" height="18" id="imgERColorPick" style="background-color:#recipeBackground#" />
+                        <div id="divERColorPick" class="ERColorPick" >
+                          <div id="divERFarb1"></div>
+                          <div id="divERCPButtons"><img id="btnERCPCancel" src="#pluginsURL#/easyrecipe/images/cpCancel.png" width="34" height="18" alt="Cancel" /> <img id="btnERCPOK" src="#pluginsURL#/easyrecipe/images/cpOK.png" width="34" height="18" alt="OK" /></div>
+                        </div>
+                        <span class="ERTinytext">Click to pick a color </span><br />
+                        The background color for the recipe display</div></td>
+                  </tr>
+                  
+                    <th scope="row">Recipe border style</th>
+                    <td><div style="position:relative">
+                        <select name="ERSettings[borderStyle]" id="ERBorderStyle">
+                          <option value="none" #noneselected# >None</option>
+                          <option value="solid" #solidselected# >Solid</option>
+                          <option value="dashed" #dashedselected# >Dashes</option>
+                          <option value="dotted" #dottedselected# >Dots</option>
+                        </select>
+                        &nbsp;&nbsp;Color
+                        <input name="ERSettings[borderColor]" type="text" class="ERSmallInput" id="ERBorderColor" value="#borderColor#" />
+                        <img id="imgERBorderColor" src="#pluginsURL#/easyrecipe/images/colorpick.png" width="18" height="18" alt="Color picker" style="background-color:#borderColor#" />
+                        <div id="divERBorderColor" class="ERColorPick" >
+                          <div id="divERFarb2"></div>
+                          <div id="divERBCButtons"><img id="btnERBCCancel" src="#pluginsURL#/easyrecipe/images/cpCancel.png" width="34" height="18" alt="Cancel" /> <img id="btnERBCOK" src="#pluginsURL#/easyrecipe/images/cpOK.png" width="34" height="18" alt="OK" /></div>
+                        </div>
+                        &nbsp;&nbsp;&nbsp;Width
+                        <input name="ERSettings[borderWidth]" type="text" class="ERTinyInput" id="ERBorderWidth" value="#borderWidth#" />
+                        <br />
+                        The border style displayed around the formatted recipe</div></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">List at MyBigRecipeBox</th>
+                    <td><label>
+                        <input name="ERSettings[pingMBRB]" type="checkbox" id="ERPingMBRB" #mbrbLinkChecked# />
+                        Automatically list your recipes at <a href="http://www.mybigrecipebox.com" target="_blank">MyBigRecipeBox.com</a></label></td>
+                  </tr>
+                  <tr>
+                    <th scope="row">&nbsp;</th>
+                    <td><span class="ERSettingError">Invalid color value - must be &quot;#&quot; followed by 3 or 6 hex chars</span>&nbsp;</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">&nbsp;</th>
+                    <td><input name="button" type="submit" class="button-primary" id="ERSSubmit" value="Update Settings" /></td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <!-- END PAGE --> 
+</div>
+</body>
+</html>
