@@ -1,4 +1,4 @@
-=== EasyRecipe ===
+﻿=== EasyRecipe ===
 Contributors: Jayce53
 Donate link: http://orgasmicchef.com/easyrecipe/faq/
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
@@ -69,7 +69,7 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 * Fixed invalid time formats
 * Fixed defaults not handled correctly in WP 3.3.1
 * Added "noindex" to print page
-* Added <div> wrappers around Ingredients and Instructions for easier own formatting
+* Added &lt;div&gt; wrappers around Ingredients and Instructions for easier own formatting
 * No longer strips leading non alphanumerics from pasted ingredient lists
 
 = 2.1.7 =
