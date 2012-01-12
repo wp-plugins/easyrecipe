@@ -13,7 +13,7 @@ class EasyRecipe {
     private $pluginsDIR;
     private $settings = array ();
     private $easyrecipes = array ();
-    private $version = "2.2.0";
+    private $version = "2.2.1";
     private $formatting = false;
     
     /*
@@ -905,7 +905,7 @@ EOD;
         }
         
         $inData = "";
-        while (($data = @fread($fp, 4096)) !== false) {
+        while (($data = @fread($fp, 4096)) !== '' && $data !== false) {
             $inData .= $data;
         }
         @fclose($fp);
