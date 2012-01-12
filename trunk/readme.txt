@@ -3,8 +3,8 @@ Contributors: Jayce53
 Donate link: http://orgasmicchef.com/easyrecipe/faq/
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
 Requires at least: 3.0
-Tested up to: 3.2.1
-Stable tag: "2.1.7"
+Tested up to: 3.3.1
+Stable tag: "2.1.8"
 
 Adding a recipe to a Wordpress blog is now quick, easy AND provides the recipe microformatting that Google is looking for.
 
@@ -64,6 +64,14 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
 
 == Changelog ==
+= 2.1.8 =
+* Updated for WP 3.3.1
+* Fixed invalid time formats
+* Fixed defaults not handled correctly in WP 3.3.1
+* Added "noindex" to print page
+* Added <div> wrappers around Ingredients and Instructions for easier own formatting
+* No longer strips leading non alphanumerics from pasted ingredient lists
+
 = 2.1.7 =
 * Added the ability to select "transparent" as a color
 * Fix occasional PHP error when linkback removed
