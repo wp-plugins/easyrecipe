@@ -13,7 +13,7 @@ class EasyRecipe {
     private $pluginsDIR;
     private $settings = array ();
     private $easyrecipes = array ();
-    private $version = "2.1.9";
+    private $version = "2.1.10";
     private $formatting = false;
     
     /*
@@ -227,15 +227,13 @@ EOD;
     }
     
     function extraCSS() {
-        $css = trim(json_decode(stripslashes($this->settings["customCSS"])));
-        if ($css !== '') {
-            echo "<style type=\"text/css\">\n";
-            foreach ($css as $selector => $style) {
-                $style = addslashes($style);
-                echo "$selector { $style }\n";
-            }
-            echo "</style>\n";
+        $css = json_decode(stripslashes($this->settings["customCSS"]));
+        echo "<style type=\"text/css\">\n";
+        foreach ($css as $selector => $style) {
+            $style = addslashes($style);
+            echo "$selector { $style }\n";
         }
+        echo "</style>\n";
     }
     
     public function urlShortcode($attributes, $content) {
