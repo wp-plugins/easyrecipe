@@ -4,23 +4,32 @@ Donate link: http://orgasmicchef.com/easyrecipe/faq/
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: "2.2.1"
+Stable tag: "2.2.2"
+License: GPLv2 or later
 
-Adding a recipe to a Wordpress blog is now quick, easy AND provides the recipe microformatting that Google is looking for.
+The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
 
 == Description ==
 
-Since Google introduced [Recipe View](http://googleblog.blogspot.com/2011/02/slice-and-dice-your-recipe-search.html), food bloggers became aware that their recipes needed microformatting or they'd lose visitors to sites who supplied this information to Google. Bloggers who do not use rich snippets for their recipes won't be able to be shown in Recipe View searches on Google.
+The most fully featured recipe plugin that doesn't require a degree in geek! 
 
-Adding rich snippet microformatting to a post is not only time consuming but it's also pretty geeky and most cooks prefer to cook not code webpages.
+EasyRecipe makes recipe entry a breeze, with features like cut and paste, auto conversion of your plain text recipe posts, live custom formatting, Google Recipe View formatting and preview button, automatic ratings, conversion from other recipe plugins like ZipList and RecipeSEO, and more.
+
+Adding a recipe and getting the [Recipe View](http://googleblog.blogspot.com/2011/02/slice-and-dice-your-recipe-search.html) microformatting correct is not only time consuming but it's also pretty geeky and most cooks prefer to cook and share, not code webpages.
 
 Enter EasyRecipe.
 
-Our EasyRecipe plugin gives you all the advantages of microformats, without any of the messy coding. We've done all the geeky work for you.
+EasyRecipe gives you all the advantages of microformats, without any of the messy coding. We've done all the geeky work for you.
 
-Enter your post, enter your photos and enter your recipe.  EasyRecipe formats it all and allows your visitors to view your nicely formatted recipe AND print it along with a thumbnail photo.
+Enter your post, upload your photos and enter your recipe.  EasyRecipe formats it all and allows your visitors to view your recipe in the format YOU create - there's no messy CSS or PHP editing required.
 
-It's quick. It's easy. The recipes look good.  They offer ratings and print features and most importantly you have a much better chance for your recipes showing up in Google's Recipe View search results.
+And of course there's a print button that allows your visitors to print your recipes in a format you can change to be just how you want it. 
+
+It's quick. It's easy. The recipes look great.  Your recipes will have ratings and print features and most importantly you have a much better chance for your recipes showing up in Google's Recipe View search results.
+
+To convert an existing plain text recipe post to EasyRecipe, edit the post, select the Ingredients and Instructions with your mouse and click the EasyRecipe icon. As long as there's an appropriate header above the ingredients and instructions, EasyRecipe can import your post directly.
+
+To convert a ZipList or RecipeSEO post to EasyRecipe, edit the post and click the EasyRecipe icon. That's it!  How easy was that?
 
 Requires PHP 5+
 
@@ -48,11 +57,11 @@ You can [contact us](http://orgasmicchef.com/easyrecipe/support/) with your requ
 
 = Can You Convert Your Recipes From Plain Text or Another Plugin? =
 
-We CAN but it all depends on what's in the text and/or what other things another plugin has added.  We can’t guarantee that you won’t need to do a little additional manual editing, but Easy Recipe can usually do 95% of the work for you.
+We CAN but it all depends on what's in the text and/or what other things another plugin has added.  We can't guarantee that you won't need to do a little additional manual editing, but Easy Recipe can usually do 95% of the work for you.
 
 = Where Can I Get Help? =
 
-We’ll do our best to help you with any problem you have with EasyRecipe.  You can [contact me](http://orgasmicchef.com/easyrecipe/support/) and we’ll answer you as quickly as we can.
+We'll do our best to help you with any problem you have with EasyRecipe.  You can [contact me](http://orgasmicchef.com/easyrecipe/support/) and we'll answer you as quickly as we can.
 
 == Screenshots ==
 1. The EasyRecipe Plugin icon is located next to the other "Upload/Insert" media icons.
@@ -64,6 +73,14 @@ We’ll do our best to help you with any problem you have with EasyRecipe.  You 
 7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
 
 == Changelog ==
+= 2.2.2 =
+* Added ZipList conversion
+* Updated RecipeSEO conversion
+* Added meta tag for MyBigRecipeBox.com crawler permissions
+* Fixed some options not being correctly saved 
+* Fix "Recipe Details" formatting not saved
+* Fix "Carbs" label not displaying
+
 = 2.2.1 =
 * Fix My Big Recipe Box ping (hung on publish) 
 
