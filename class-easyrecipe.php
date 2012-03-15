@@ -9,11 +9,11 @@ require_once 'class-ERDOMDocument.php';
 
 class EasyRecipe {
     
-    private $pluginsURL;
-    private $pluginsDIR;
+    private $easyrecipeDIR;
+    private $easyrecipeURL;
     private $settings = array ();
     private $easyrecipes = array ();
-    private $version = "2.2.1";
+    private $version = "2.2.2";
     private $formatting = false;
     
     /*
@@ -25,10 +25,6 @@ class EasyRecipe {
         'ingredientHead' => 'Ingredients', 
         'instructionHead' => 'Instructions', 
         'notesHead' => 'Notes', 
-        'recipeBackground' => '#f7f7f7', 
-        'borderStyle' => 'dashed', 
-        'borderWidth' => 1, 
-        'borderColor' => '#000000', 
         'pingMBRB' => false, 
         
         'lblRecipeType' => 'Recipe type', 
@@ -60,8 +56,10 @@ class EasyRecipe {
         /*
 		 * For convenience
 		 */
-        $this->pluginsURL = WP_PLUGIN_URL;
-        $this->pluginsDIR = WP_PLUGIN_DIR;
+        $this->easyrecipeDIR = dirname(__FILE__);
+        $this->easyrecipeURL = WP_PLUGIN_URL . "/" . basename($this->easyrecipeDIR);
+        
+        $this->getSettings();
         
         /*
 		 * If we're in admin, only load the easyrecipe stuff on the easyrecipe
@@ -70,47 +68,37 @@ class EasyRecipe {
         
         if (is_admin()) {
             
-            global $concatenate_scripts;
-            $concatenate_scripts = false;
+            if (isset($_REQUEST['ERDEBUG'])) {
+                error_reporting(E_ALL);
+                ini_set("display_errors", 1);
+            }
             
+            // global $concatenate_scripts;
+            // $concatenate_scripts = false;
             add_action('admin_menu', array ($this, 'addMenus'));
             add_filter('plugin_action_links', array ($this, 'pluginActionLinks'), 10, 2);
-            
-            wp_enqueue_script('jquery');
-            wp_enqueue_script('jquery-ui-widget');
-            wp_enqueue_script('jquery-ui-dialog');
-            
-            wp_enqueue_style("easyrecipe-admin", "$this->pluginsURL/easyrecipe/easyrecipe-admin.css", array (), $this->version);
             
             if ($GLOBALS["pagenow"] == "options-general.php") {
                 if ($_REQUEST['page'] !== "easyrecipe") {
                     return;
                 }
-                wp_enqueue_script('easyrecipe-options', "$this->pluginsURL/easyrecipe/easyrecipe-options.js", array (), $this->version);
             } else {
-                wp_enqueue_script('easyrecipeadmin', "$this->pluginsURL/easyrecipe/easyrecipe-admin.js", array ('jquery-ui-dialog'), $this->version, true);
-                
                 add_action('wp_ajax_customCSS', array ($this, 'updateCustomCSS'));
                 add_action('admin_footer', array ($this, 'addDialogHTML'));
                 add_filter('mce_external_plugins', array ($this, 'mcePlugins'));
                 add_filter('mce_buttons', array ($this, 'mceButtons'));
-                add_action('publish_post', array ($this, 'pingMBRB'), 10, 2);
+                if ($this->settings['pingMBRB']) {
+                    add_action('publish_post', array ($this, 'pingMBRB'), 10, 2);
+                }
             }
             
-            add_action('wp_ajax_ERconvertRecipeSEO', array ($this, 'convertRecipeSEO'));
+            add_action('wp_ajax_ERconvertRecipe', array ($this, 'convertRecipe'));
             add_action('wp_ajax_ERsendDiagnostics', array ($this, 'sendDiagnostics'));
-            
-            if (isset($_GET["page"]) && $_GET["page"] == "erdiagnostics") {
-                wp_enqueue_style("easyrecipe-diagnostics", "$this->pluginsURL/easyrecipe/easyrecipe-diagnostics.css", array (), $this->version);
-                wp_enqueue_script('easyrecipediag', "$this->pluginsURL/easyrecipe/easyrecipe-diagnostics.js", array (), $this->version, true);
-            }
-            
             add_filter('plugin_action_links', array ($this, 'pluginActionLinks'), 10, 2);
+            
             add_action('admin_init', array ($this, 'adminInit'));
         } else {
             if (!isset($_REQUEST['erprint'])) {
-                wp_enqueue_script('easyrecipe', "$this->pluginsURL/easyrecipe/easyrecipe.js", array ('jquery'), $this->version);
-                wp_enqueue_style("easyrecipe", "$this->pluginsURL/easyrecipe/easyrecipe.css", array (), $this->version);
                 add_action('comment_form', array ($this, 'commentForm'));
                 add_action('comment_post', array ($this, 'ratingSave'));
                 add_action('comment_text', array ($this, 'ratingDisplay'));
@@ -122,14 +110,12 @@ class EasyRecipe {
 			 * has a chance to mess with them so specify a ridiculously high
 			 * priority here
 			 */
-            
             add_action('the_posts', array ($this, 'thePosts'), -32767);
-            // add_action('the_excerpt', array($this, 'theExcerpt'));
             add_action('init', array ($this, 'initialise'));
             add_action('wp_before_admin_bar_render', array ($this, 'adminBarMenu'));
-            
-            $this->getSettings();
+            add_action('wp_head', array ($this, 'addMetaTags'));
         }
+    
     }
     
     function theExcerpt($content) {
@@ -144,29 +130,83 @@ class EasyRecipe {
         $wp_admin_bar->add_menu($root_menu);
     }
     
+    function adminInit() {
+        
+        global $concatenate_scripts;
+        $concatenate_scripts = false;
+        
+        add_filter('plugin_action_links', array ($this, 'pluginActionLinks'), 10, 2);
+        wp_deregister_script('jquery');
+        if (isset($_REQUEST['ERDEBUG'])) {
+            wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"), false, '');
+        } else {
+            wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"), false, '');
+        }
+        wp_enqueue_script('jquery');
+        
+        add_action('wp_ajax_customCSS', array ($this, 'updateCustomCSS'));
+        
+        wp_deregister_script('jquery-ui');
+        if (isset($_REQUEST['ERDEBUG'])) {
+            wp_register_script('jquery-ui', ("http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.js"), false, '');
+        } else {
+            wp_register_script('jquery-ui', ("https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"), false, '');
+        }
+        wp_enqueue_script('jquery-ui');
+        wp_enqueue_style("jquery-ui-base", "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css");
+        wp_enqueue_style("easyrecipe-admin-dialog", "$this->easyrecipeURL/dialog/easyrecipeDialog.css", array (), $this->version);
+        wp_enqueue_style("easyrecipe-admin", "$this->easyrecipeURL/easyrecipe-admin.css", array (), $this->version);
+        
+        if ($GLOBALS["pagenow"] == "options-general.php") {
+            if ($_REQUEST['page'] !== "easyrecipe") {
+                return;
+            }
+            wp_enqueue_script('easyrecipe-options', "$this->easyrecipeURL/easyrecipe-options.js", array (), $this->version);
+        } else {
+            wp_enqueue_script('easyrecipeadmin', "$this->easyrecipeURL/easyrecipe-admin.js", array ('jquery-ui-dialog'), $this->version, true);
+        }
+        
+        if (isset($_GET["page"]) && $_GET["page"] == "erdiagnostics") {
+            wp_enqueue_style("easyrecipe-diagnostics", "$this->easyrecipeURL/easyrecipe-diagnostics.css", array (), $this->version);
+            wp_enqueue_script('easyrecipediag', "$this->easyrecipeURL/easyrecipe-diagnostics.js", array (), $this->version, true);
+        }
+        
+        register_setting('EROptionSettings', 'ERSettings', array ($this, 'validateOptions'));
+    }
     function initialise() {
+        
+        if (!isset($_REQUEST['erprint'])) {
+            wp_enqueue_script('easyrecipe', "$this->easyrecipeURL/easyrecipe.js", array ('jquery'), $this->version);
+            wp_enqueue_style("easyrecipe", "$this->easyrecipeURL/easyrecipe.css", array (), $this->version);
+        }
         
         if (current_user_can("administrator")) {
             
             wp_deregister_script('jquery');
-            wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"), false, '');
+            wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"), false, '');
             wp_enqueue_script('jquery');
             
             add_action('wp_ajax_customCSS', array ($this, 'updateCustomCSS'));
             
             wp_deregister_script('jquery-ui');
-            wp_register_script('jquery-ui', ("https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js"), false, '');
+            wp_register_script('jquery-ui', ("https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"), false, '');
             wp_enqueue_script('jquery-ui');
             
-            wp_enqueue_style("jquery-ui-base", "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css");
+            wp_enqueue_style("jquery-ui-base", "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css");
             wp_enqueue_script('json2');
             
-            wp_enqueue_style("easyrecipeformat", "$this->pluginsURL/easyrecipe/easyrecipe-format.css", array (), $this->version);
+            wp_enqueue_style("easyrecipeformat", "$this->easyrecipeURL/easyrecipe-format.css", array (), $this->version);
             
-            wp_enqueue_script('easyrecipeformat', "$this->pluginsURL/easyrecipe/easyrecipe-format.js", array ('jquery-ui'), $this->version);
+            wp_enqueue_script('easyrecipeformat', "$this->easyrecipeURL/easyrecipe-format.js", array ('jquery-ui'), $this->version);
             
             add_action('wp_footer', array ($this, 'addFormatDialog'));
         }
+    
+    }
+    
+    public function addMetaTags() {
+        $mbrb = isset($this->settings["pingMBRB"]) && $this->settings["pingMBRB"] == true ? 'on' : 'off';
+        echo "<meta name=\"mybigrecipebox\" content=\"$mbrb\" />\n";
     }
     
     /**
@@ -201,7 +241,7 @@ if (typeof EASYRECIPE == "undefined") {
   var EASYRECIPE = {};
 }
 EASYRECIPE.customCSS = '$customCSS';
-EASYRECIPE.pluginsURL = '$this->pluginsURL';
+EASYRECIPE.easyrecipeURL = '$this->easyrecipeURL';
 EASYRECIPE.version = '$this->version';
 EASYRECIPE.ajaxURL = '$ajaxURL';
 EASYRECIPE.fontChangeHTML = '$fontChangeHTML';
@@ -280,7 +320,7 @@ EOD;
 		 * of doing it - we really should create a thumb so it only needs to be
 		 * done once ever - in a later version maybe!
 		 */
-        $vars["pluginsURL"] = $this->pluginsURL;
+        $vars["easyrecipeURL"] = $this->easyrecipeURL;
         
         $vars["imageURL"] = "";
         $vars["tx"] = 0;
@@ -349,16 +389,16 @@ EOD;
             $siteURL = get_site_url();
             $vars['cssjs'] = <<<EOD
       <link rel='stylesheet' href='http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/themes/base/jquery-ui.css?ver=$this->version' type='text/css' />
-<link rel='stylesheet' href='$this->pluginsURL/easyrecipe/easyrecipe-format.css?ver=$this->version' type='text/css' />
+<link rel='stylesheet' href='$this->easyrecipeURL/easyrecipe-format.css?ver=$this->version' type='text/css' />
 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'></script>
 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.14/jquery-ui.min.js'></script>
 <script type='text/javascript' src='$siteURL/wp-includes/js/json2.js?ver=2011-02-23'></script>
-<script type='text/javascript' src='$this->pluginsURL/easyrecipe/easyrecipe-format.js?ver=$this->version'></script>
+<script type='text/javascript' src='$this->easyrecipeURL/easyrecipe-format.js?ver=$this->version'></script>
 EOD;
         } else {
             $vars['cssjs'] = <<<EOD
 <script type='text/javascript' src='https://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js'></script>
-<script type="text/javascript" src="$this->pluginsURL/easyrecipe/easyrecipe-print.js?ver=$this->version"></script>
+<script type="text/javascript" src="$this->easyrecipeURL/easyrecipe-print.js?ver=$this->version"></script>
 EOD;
         }
         
@@ -393,7 +433,7 @@ EOD;
             /*
 			 * Suppress warnings and errors and then reset it to whatever is was
 			 */
-            if (!isset($_REQUEST['erdebug'])) {
+            if (!isset($_REQUEST['ERDEBUG'])) {
                 $oldErrors = error_reporting(0);
                 $oldDisplay = ini_get("display_errors");
                 ini_set("display_errors", 0);
@@ -414,12 +454,13 @@ EOD;
                 continue;
             }
             $this->easyrecipes[$post->ID] = true;
-            /*
-			 * Insert the page's permalink for the print button and make the
-			 * print button visible The visibilities are hardcoded in the post
-			 * so we degrade gracefully if EasyRecipe is deactivated Allow for
-			 * the editor to mess about with the spacing
-			 */
+            /**
+             * Insert the page's permalink for the print button and make the
+             * print button visible The visibilities are hardcoded in the post
+             * so we degrade gracefully if EasyRecipe is deactivated
+             *
+             * Allows for the editor to mess about with the spacing
+             */
             
             if (isset($_REQUEST['preview'])) {
                 $easyrecipe->setPrintButton($_SERVER['REQUEST_URI'], current_user_can("administrator"));
@@ -445,7 +486,7 @@ EOD;
             $easyrecipe->setParentValueByClassName("fat", $this->settings['lblFat'], "Fat");
             $easyrecipe->setParentValueByClassName("unsaturatedFat", $this->settings['lblUnsatFat'], "Unsaturated fat");
             $easyrecipe->setParentValueByClassName("saturatedFat", $this->settings['lblSatFat'], "Saturated fat");
-            $easyrecipe->setParentValueByClassName("carbohydrates", $this->settings['lblCarbohydrates'], "Carbohydrates");
+            $easyrecipe->setParentValueByClassName("carbohydrates", $this->settings['lblCarbs'], "Carbohydrates");
             $easyrecipe->setParentValueByClassName("sugar", $this->settings['lblSugar'], "Sugar");
             $easyrecipe->setParentValueByClassName("fiber", $this->settings['lblFiber'], "Fiber");
             $easyrecipe->setParentValueByClassName("protein", $this->settings['lblProtein'], "Protein");
@@ -509,7 +550,7 @@ EOD;
         /*
 		 * Only add ratings for easy recipes
 		 */
-        if (!$this->easyrecipes[$postID]) {
+        if (!isset($this->easyrecipes[$postID]) || !$this->easyrecipes[$postID]) {
             return;
         }
         
@@ -561,10 +602,6 @@ EOD;
             $links[] = '<a href="options-general.php?page=easyrecipe">' . __('Settings') . '</a>';
         }
         return $links;
-    }
-    
-    function adminInit() {
-        register_setting('EROptionSettings', 'ERSettings', array ($this, 'validateOptions'));
     }
     
     function addMenus() {
@@ -656,7 +693,7 @@ EOD;
         $existingOP = ob_get_clean();
         $vars = $this->getDiagnostics();
         echo $existingOP;
-        $vars["pluginsURL"] = $this->pluginsURL;
+        $vars["easyrecipeURL"] = $this->easyrecipeURL;
         $html = $this->getTemplate("easyrecipe-diagnostics.html", $vars);
         
         echo $html;
@@ -693,10 +730,6 @@ EOD;
         $this->settings["ingredientHead"] = trim(wp_filter_nohtml_kses($settings["ingredientHead"]));
         $this->settings["instructionHead"] = trim(wp_filter_nohtml_kses($settings["instructionHead"]));
         $this->settings["notesHead"] = trim(wp_filter_nohtml_kses($settings["notesHead"]));
-        $this->settings["recipeBackground"] = trim($settings["recipeBackground"]);
-        $this->settings["borderStyle"] = trim($settings["borderStyle"]);
-        $this->settings["borderWidth"] = (int) $settings["borderWidth"];
-        $this->settings["borderColor"] = trim($settings["borderColor"]);
         $this->settings["pingMBRB"] = isset($settings["pingMBRB"]);
         
         $this->settings["lblRecipeType"] = trim($settings["lblRecipeType"]);
@@ -752,13 +785,13 @@ EOD;
         $settings = get_option("ERSettings", array ());
         
         foreach ($this->defaultSettings as $setting => $default) {
-            $this->settings[$setting] = isset($settings[$setting]) && $settings[$setting] != '' ? $settings[$setting] : $default;
+            $this->settings[$setting] = isset($settings[$setting]) && $settings[$setting] !== '' ? $settings[$setting] : $default;
         }
         
         if (isset($settings["customCSS"]) && $settings["customCSS"] != '') {
             $this->settings["customCSS"] = $settings["customCSS"];
         } else {
-            $this->settings["customCSS"] = '{".easyrecipe":"background-color:' . $this->settings["recipeBackground"] . ';border-style:dashed;border-color:' . $this->settings["borderColor"] . ';border-width:' . $this->settings["borderWidth"] . 'px"}';
+            $this->settings["customCSS"] = '{}';
         }
         if (isset($settings["customPrintCSS"]) && $settings["customPrintCSS"] != '') {
             $this->settings["customPrintCSS"] = $settings["customPrintCSS"];
@@ -768,12 +801,10 @@ EOD;
     }
     
     function settingsPage() {
-        
-        $this->getSettings();
         $vars = $this->settings;
         $vars["allowLinkChecked"] = $this->settings["allowLink"] ? 'checked="checked"' : '';
         $vars["mbrbLinkChecked"] = $this->settings["pingMBRB"] ? 'checked="checked"' : '';
-        $vars["pluginsURL"] = $this->pluginsURL;
+        $vars["easyrecipeURL"] = $this->easyrecipeURL;
         $vars['siteurl'] = get_site_url();
         $optionsHTML = "<input type='hidden' name='option_page' value='EROptionSettings' />";
         $optionsHTML .= '<input type="hidden" name="action" value="update" />';
@@ -792,7 +823,7 @@ EOD;
     
     function mcePlugins($plugins) {
         $plugins = (array) $plugins;
-        $plugins["easyrecipe"] = WP_PLUGIN_URL . '/easyrecipe/easyrecipe-mce.js?v=' . $this->version;
+        $plugins["easyrecipe"] = "$this->easyrecipeURL/easyrecipe-mce.js?v=$this->version";
         return $plugins;
     }
     
@@ -813,11 +844,14 @@ EOD;
     function addDialogHTML() {
         global $post;
         
-        wp_enqueue_script("easyrecipeadmin", "$this->pluginsURL/easyrecipe/easyrecipe-admin01.js");
+        if (!isset($post)) {
+            return;
+        }
+        wp_enqueue_script("easyrecipeadmin", "$this->easyrecipeURL/easyrecipe-admin01.js");
         $html = $this->getTemplate("easyrecipe-dialog.html");
         echo "<div id=\"easyrecipeDialog\">$html</div>";
         
-        $vars = array ("pluginsURL" => $this->pluginsURL);
+        $vars = array ("easyrecipeURL" => $this->easyrecipeURL);
         $html = $this->getTemplate("easyrecipe-convert.html", $vars);
         echo "<div id=\"easyrecipeConvert\">$html</div>";
         
@@ -835,7 +869,7 @@ if (typeof EASYRECIPE == "undefined") {
   var EASYRECIPE = {};
 }
 EASYRECIPE.version = '$this->version';
-EASYRECIPE.pluginsURL = '$this->pluginsURL';
+EASYRECIPE.easyrecipeURL = '$this->easyrecipeURL';
 EASYRECIPE.recipeTemplate = '$html';
 EASYRECIPE.testURL = '$testURL';
 /* ]]> */
@@ -848,7 +882,7 @@ EOD;
 	 */
     
     function getTemplate($template, $vars = array()) {
-        $html = @file_get_contents("$this->pluginsDIR/easyrecipe/templates/$template");
+        $html = @file_get_contents("$this->easyrecipeDIR/templates/$template");
         if (!$html) {
             return '';
         }
@@ -863,24 +897,38 @@ EOD;
     }
     
     /*
-	 * Return RecipeSEO data
+	 * Return RecipeSEO/ZipList data
 	 */
     
-    function convertRecipeSEO() {
+    function convertRecipe() {
         global $wpdb;
         
         $id = (int) $_POST['id'];
         $result = new stdClass();
         
-        $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_recipes WHERE recipe_id=" . $id);
-        $ingredients = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_ingredients WHERE recipe_id=" . $id . " ORDER BY ingredient_id");
-        
-        $result->ingredients = array ();
-        foreach ($ingredients as $ingredient) {
+        switch ($_POST['type']) {
             
-            $result->ingredients[] = $ingredient->amount . " " . $ingredient->name;
+            case 'recipeseo' :
+                $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_recipes WHERE recipe_id=" . $id);
+                $ingredients = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_ingredients WHERE recipe_id=" . $id . " ORDER BY ingredient_id");
+                
+                $result->ingredients = array ();
+                foreach ($ingredients as $ingredient) {
+                    $result->ingredients[] = $ingredient->amount . " " . $ingredient->name;
+                }
+                break;
+            
+            case 'zlrecipe' :
+                $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_zlrecipe_recipes WHERE recipe_id=" . $id);
+                $ingredients = explode("\n", str_replace('\r', "", $result->recipe->ingredients));
+                $result->ingredients = array ();
+                foreach ($ingredients as $ingredient) {
+                    $result->ingredients[] = $ingredient;
+                }
+                unset($result->recipe->ingredients);
+                
+                break;
         }
-        
         echo json_encode($result);
         exit();
     }

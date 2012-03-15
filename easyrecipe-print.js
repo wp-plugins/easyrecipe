@@ -1,1 +1,1 @@
-(function(a){a(function(){window.print();setTimeout(function(){window.close()},500)})})(jQuery);
+(function(a){a(function(){window.print();setTimeout(function(){window.close()},500)})}(jQuery));

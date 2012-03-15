@@ -126,6 +126,7 @@ class ERDOMDocument extends DOMDocument {
     
     /**
      * Convenience method to return a single element by class name when we know there's only going to be one
+     * If there is actually more than one, then return the first 
      *
      * @param $className string
      *            The class name to search for
@@ -135,7 +136,7 @@ class ERDOMDocument extends DOMDocument {
      */
     public function getElementByClassName($className, $tag = "*") {
         $nodes = $this->getElementsByClassName($className, $tag);
-        return count($nodes) == 1 ? $nodes[0] : $nodes;
+        return count($nodes) > 0 ? $nodes[0] : null;
     }
     
     /**
@@ -184,7 +185,20 @@ class ERDOMDocument extends DOMDocument {
         if (!$linkBack) {
             return;
         }
+        /*
+         * Remove the display:none and replace the old easyrecipe site URL with the new URL if necessary
+        */
+        
         if ($display) {
+            if (strpos($linkBack->nodeValue, "Google Recipe") !== false) {
+                $newLink = $this->createDocumentFragment();
+                $newLink->appendXML('<a class="ERWRPLink" href="http://www.orgasmicchef.com/easyrecipe/" title="EasyRecipe" target="_blank">Wordpress Recipe Plugin</a> and Microformatting by <a href="http://www.orgasmicchef.com/easyrecipe/" title="Wordpress Recipe Plugin" target="_blank">EasyRecipe</a>');
+                while (($node = $linkBack->firstChild) != null) {
+                    $linkBack->removeChild($node);
+                }
+        
+                $linkBack->appendChild($newLink);
+            }
             $this->removeStyle($linkBack, "display");
         } else {
             $linkBack->parentNode->removeChild($linkBack);
