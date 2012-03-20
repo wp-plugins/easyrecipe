@@ -4,7 +4,7 @@ Donate link: http://orgasmicchef.com/easyrecipe/faq/
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
 Requires at least: 3.0
 Tested up to: 3.3.1
-Stable tag: "2.2.2"
+Stable tag: "2.2.3"
 License: GPLv2 or later
 
 The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
@@ -73,6 +73,9 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
 
 == Changelog ==
+= 2.2.3 =
+* Fixed some incompatibilities with some other themes/plugins
+
 = 2.2.2 =
 * Added ZipList conversion
 * Updated RecipeSEO conversion
