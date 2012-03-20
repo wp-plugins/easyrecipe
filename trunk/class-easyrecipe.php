@@ -13,7 +13,7 @@ class EasyRecipe {
     private $easyrecipeURL;
     private $settings = array ();
     private $easyrecipes = array ();
-    private $version = "2.2.2";
+    private $version = "2.2.3";
     private $formatting = false;
     
     /*
@@ -130,31 +130,29 @@ class EasyRecipe {
         $wp_admin_bar->add_menu($root_menu);
     }
     
+    // TODO - only load our stuff when absolutely necessary
     function adminInit() {
         
         global $concatenate_scripts;
         $concatenate_scripts = false;
         
-        add_filter('plugin_action_links', array ($this, 'pluginActionLinks'), 10, 2);
         wp_deregister_script('jquery');
-        if (isset($_REQUEST['ERDEBUG'])) {
-            wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"), false, '');
-        } else {
-            wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"), false, '');
-        }
-        wp_enqueue_script('jquery');
-        
-        add_action('wp_ajax_customCSS', array ($this, 'updateCustomCSS'));
-        
         wp_deregister_script('jquery-ui');
         if (isset($_REQUEST['ERDEBUG'])) {
+            wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"), false, '');
             wp_register_script('jquery-ui', ("http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.js"), false, '');
         } else {
+            wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"), false, '');
             wp_register_script('jquery-ui', ("https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"), false, '');
         }
+        wp_enqueue_script('jquery');
         wp_enqueue_script('jquery-ui');
-        wp_enqueue_style("jquery-ui-base", "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css");
-        wp_enqueue_style("easyrecipe-admin-dialog", "$this->easyrecipeURL/dialog/easyrecipeDialog.css", array (), $this->version);
+        
+        /*
+         * Use our own version of the jQuery UI theme because we need the latest version and it stuffs some up other plugin dialogs
+         * Remove this when WP gets itself up to date with jQuery
+         */
+        wp_enqueue_style("easyrecipe-jquery", "$this->easyrecipeURL/jQueryCSS/jquery.css", array (), $this->version);
         wp_enqueue_style("easyrecipe-admin", "$this->easyrecipeURL/easyrecipe-admin.css", array (), $this->version);
         
         if ($GLOBALS["pagenow"] == "options-general.php") {
@@ -164,6 +162,7 @@ class EasyRecipe {
             wp_enqueue_script('easyrecipe-options', "$this->easyrecipeURL/easyrecipe-options.js", array (), $this->version);
         } else {
             wp_enqueue_script('easyrecipeadmin', "$this->easyrecipeURL/easyrecipe-admin.js", array ('jquery-ui-dialog'), $this->version, true);
+        
         }
         
         if (isset($_GET["page"]) && $_GET["page"] == "erdiagnostics") {
@@ -171,8 +170,13 @@ class EasyRecipe {
             wp_enqueue_script('easyrecipediag', "$this->easyrecipeURL/easyrecipe-diagnostics.js", array (), $this->version, true);
         }
         
+        add_filter('plugin_action_links', array ($this, 'pluginActionLinks'), 10, 2);
+        add_action('wp_ajax_customCSS', array ($this, 'updateCustomCSS'));
+        
         register_setting('EROptionSettings', 'ERSettings', array ($this, 'validateOptions'));
     }
+    
+    // TODO - only load our stuff when absolutely necessary
     function initialise() {
         
         if (!isset($_REQUEST['erprint'])) {
@@ -182,17 +186,25 @@ class EasyRecipe {
         
         if (current_user_can("administrator")) {
             
-            wp_deregister_script('jquery');
-            wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"), false, '');
-            wp_enqueue_script('jquery');
-            
             add_action('wp_ajax_customCSS', array ($this, 'updateCustomCSS'));
             
+            wp_deregister_script('jquery');
             wp_deregister_script('jquery-ui');
-            wp_register_script('jquery-ui', ("https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"), false, '');
+            if (isset($_REQUEST['ERDEBUG'])) {
+                wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.js"), false, '');
+                wp_register_script('jquery-ui', ("http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.js"), false, '');
+            } else {
+                wp_register_script('jquery', ("https://ajax.googleapis.com/ajax/libs/jquery/1.7.1/jquery.min.js"), false, '');
+                wp_register_script('jquery-ui', ("https://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/jquery-ui.min.js"), false, '');
+            }
+            wp_enqueue_script('jquery');
             wp_enqueue_script('jquery-ui');
             
-            wp_enqueue_style("jquery-ui-base", "http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.18/themes/base/jquery-ui.css");
+            /*
+             * Use our own version of the jQuery UI theme because we need the latest version and it stuffs some up other plugin dialogs
+             * Remove this when WP gets itself up to date with jQuery
+             */
+            wp_enqueue_style("easyrecipe-jquery", "$this->easyrecipeURL/jQueryCSS/jquery.css", array (), $this->version);
             wp_enqueue_script('json2');
             
             wp_enqueue_style("easyrecipeformat", "$this->easyrecipeURL/easyrecipe-format.css", array (), $this->version);

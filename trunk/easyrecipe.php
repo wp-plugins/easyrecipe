@@ -5,7 +5,7 @@ Plugin Name: Easy Recipe
 Plugin URI: http://www.orgasmicchef.com/easyrecipe/
 Description: Create, edit, display and print recipes with hRecipe microformat functionality
 Author: The Orgasmic Chef
-Version: 2.2.2
+Version: 2.2.3
 Author URI: http://www.orgasmicchef.com
 License: GPLv2 or later
 */
@@ -29,7 +29,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-// Make sure we don't expose any info if called directly
 if (!function_exists('add_action')) {
     echo "Hi there!  I'm just a plugin, not much I can do when called directly.";
     exit();
@@ -53,11 +52,10 @@ if (!class_exists("DOMDocument")) {
     return;
 }
 
-// register_activation_hook(__FILE__, "easyrecipeActivated");
-/*
-   * If we're in admin, we only care about specific pages/actions
-   * Don't waste time with stuff where the plugin isn't needed
-   */
+/**
+ * We only need to load on ajax calls that we want to trap
+ */
+
 if (is_admin()) {
     if ($GLOBALS["pagenow"] == "admin-ajax.php") {
         if (!isset($_REQUEST["action"]) || ($_REQUEST["action"] != "ERsendDiagnostics" && $_REQUEST["action"] != "customCSS" && $_REQUEST["action"] != "ERconvertRecipe")) {
@@ -65,6 +63,7 @@ if (is_admin()) {
         }
     }
 }
+
 if (!class_exists('EasyRecipe')) {
     require_once 'class-easyrecipe.php';
     $er = new EasyRecipe();
