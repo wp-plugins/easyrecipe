@@ -13,7 +13,7 @@ class EasyRecipe {
     private $easyrecipeURL;
     private $settings = array ();
     private $easyrecipes = array ();
-    private $version = "2.2.3";
+    private $version = "2.2.4";
     private $formatting = false;
     
     /*
