@@ -1,0 +1,107 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="../../../wp-admin/css/wp-admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../wp-admin/css/colors-fresh.css" rel="stylesheet" type="text/css" />
+<link href="../../../../wp-admin/css/global.css" rel="stylesheet" type="text/css" />
+<link href="../easyrecipe-admin.css" rel="stylesheet" type="text/css" />
+<link href="../easyrecipe-diagnostics.css" rel="stylesheet" type="text/css" />
+<style type="text/css"></style>
+</head>
+
+<body>
+<div id="wpbody"> 
+  <!-- START PAGE -->
+  <div class="wrap"><a href="http://www.orgasmicchef.com/" target="_blank"><span class="icon32 chef32"></span></a>
+    <h2><span>Easy Recipe Diagnostics</span></h2>
+    <div id="divERDiagnostics">
+      <p>If Easy Recipe isn't working for you, or not working as you expect, we're keen to help.</p>
+      <p>But it's difficult for us to resolve problems without knowing quite a bit about the environment Easy&nbsp;Recipe is running in on <em>your</em> server.</p>
+      <p>To help us diagnose any problems you might have, this page gathers information about your server and your Wordpress configuration and sends it to us.</p>
+      <p>We don't collect any personal information, just geeky system setup details.</p>
+      <p><span class="ERDClickHere">Click here</span> to see the data that will be sent.  We only use this information to resolve issues with Easy&nbsp;Recipe and we delete it once it's no longer needed for that purpose.</p>
+      <div class="postbox">
+        <table border="0" class="form-table">
+          <tr>
+            <th scope="row">Your email address</th>
+            <td><input name="inpERDEmail" type="text" class="ERDinpEmail" id="inpERDEmail" value="#email#" />
+              <br />
+              Optional. We'll reply to this address if appropriate</td>
+          </tr>
+          <tr>
+            <th scope="row">Tell us about the problem</th>
+            <td><textarea name="inpERDProblem" cols="45" rows="5" class="ERDProblem" id="inpERDProblem"></textarea>
+              <br /></td>
+          </tr>
+          <tr>
+            <th scope="row">&nbsp;</th>
+            <td>&nbsp;</td>
+          </tr>
+          <tr>
+            <th scope="row">&nbsp;</th>
+            <td><input name="btnERSendDiagnostics" type="submit" class="button-primary" id="btnERSendDiagnostics" value="Send Diagnostics" />
+              <span id="ERDSending"><img src="#easyrecipeURL#/images/spinner02.gif" width="16" height="16" />Sending data... please wait</span>
+              <span id="ERDOK">Your information has been sent and received.<br />We'll get back to you as soon as we have an answer.</span>
+              <span id="ERDFail"><br />The send failed.<br />Try again and if you continue to have problems, email us at: <br /><a href="mailto:support@orgasmicchef.com">support@orgasmicchef.com</a></span></td>
+          </tr>
+        </table>
+      </div>
+    </div>
+    <div id="divERDiagData">
+      <div class="ERWPinfo">
+        <h3>Wordpress</h3>
+        <table border="0" cellspacing="5">
+          <tr>
+            <th scope="row">Wordpress version</th>
+            <td>#wpversion#</td>
+          </tr>
+          <tr>
+            <th scope="row">Current user capabilities</th>
+            <td>#wpcapabilities#</td>
+          </tr>
+          <tr>
+            <th scope="row">Blog URL</th>
+            <td>#wpurl#</td>
+          </tr>
+          <tr>
+            <th scope="row">Current theme</th>
+            <td>#wptheme#</td>
+          </tr>
+          <tr>
+            <th scope="row">Theme version</th>
+            <td>#wpthemeversion#</td>
+          </tr>
+          <tr>
+            <th scope="row">Theme URL</th>
+            <td>#wpthemeurl#</td>
+          </tr>
+        </table>
+        <h3>Plugins </h3>
+        <table class="ERDTable" border="0">
+          <tr>
+            <th>Plugin</th>
+            <th>Activated</th>
+            <th>Version</th>
+            <th>URL</th>
+          </tr>
+          #plugindata#
+        </table>
+        <h3>Hooks </h3>
+        <table class="ERDTable" border="0">
+          <tr>
+            <th scope="col">Hook</th>
+            <th scope="col">Priority</th>
+            <th scope="col">Function</th>
+          </tr>
+          #hookdata#
+        </table>
+      </div>
+      <div class="ERPHPinfo">#phpinfo#</div>
+    </div>
+  </div>
+  <!-- END PAGE --> 
+</div>
+</body>
+</html>
