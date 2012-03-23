@@ -3,9 +3,9 @@
 /*
 Plugin Name: Easy Recipe
 Plugin URI: http://www.orgasmicchef.com/easyrecipe/
-Description: Create, edit, display and print recipes with hRecipe microformat functionality
+Description: The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
 Author: The Orgasmic Chef
-Version: 2.2.4
+Version: 2.2.5
 Author URI: http://www.orgasmicchef.com
 License: GPLv2 or later
 */
