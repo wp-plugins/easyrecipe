@@ -5,7 +5,7 @@ Plugin Name: Easy Recipe
 Plugin URI: http://www.orgasmicchef.com/easyrecipe/
 Description: The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
 Author: The Orgasmic Chef
-Version: 2.2.5
+Version: 2.2.6
 Author URI: http://www.orgasmicchef.com
 License: GPLv2 or later
 */
@@ -57,10 +57,19 @@ if (!class_exists("DOMDocument")) {
  */
 
 if (is_admin()) {
-    if ($GLOBALS["pagenow"] == "admin-ajax.php") {
-        if (!isset($_REQUEST["action"]) || ($_REQUEST["action"] != "ERsendDiagnostics" && $_REQUEST["action"] != "customCSS" && $_REQUEST["action"] != "ERconvertRecipe")) {
-            return;
-        }
+    switch ($GLOBALS["pagenow"]) {
+        case "admin-ajax.php" :
+            if (!isset($_REQUEST["action"]) || ($_REQUEST["action"] != "ERsendDiagnostics" && $_REQUEST["action"] != "customCSS" && $_REQUEST["action"] != "ERconvertRecipe")) {
+                return;
+            }
+            break;
+        
+        case "tools.php" :
+            if (!isset($_REQUEST["page"]) || ($_REQUEST["page"] != "erdiagnostics")) {
+                return;
+            }
+            
+            break;
     }
 }
 
