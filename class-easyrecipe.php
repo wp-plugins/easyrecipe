@@ -13,7 +13,7 @@ class EasyRecipe {
     private $easyrecipeURL;
     private $settings = array ();
     private $easyrecipes = array ();
-    private $version = "2.2.6";
+    private $version = "2.2.7";
     private $formatting = false;
     
     /*
@@ -125,7 +125,7 @@ class EasyRecipe {
     
     function adminBarMenu() {
         global $wp_admin_bar;
-        $root_menu = array ('parent' => false, 'id' => 'ERFormatMenu', 'title' => 'Easy Recipe Format', 'href' => admin_url('my-new-menu.php'), 'meta' => array ('onclick' => 'EASYRECIPE.openFormat(); return false'));
+        $root_menu = array ('parent' => false, 'id' => 'ERFormatMenu', 'title' => 'Easy Recipe Format', 'href' => admin_url('#'), 'meta' => array ('onclick' => 'EASYRECIPE.openFormat(); return false'));
         
         $wp_admin_bar->add_menu($root_menu);
     }
@@ -713,12 +713,12 @@ EOD;
     
     function easyrecipeActivated() {
         $data = http_build_query(array ('action' => 'activate', 'site' => get_site_url()));
-        $status = $this->socketIO("POST", "www.orgasmicchef.com", 80, "/easyrecipe/installed.php", $data);
+        $status = $this->socketIO("POST", "www.easyrecipeplugin.com", 80, "/installed.php", $data);
     }
     
     function easyrecipeDeactivated() {
         $data = http_build_query(array ('action' => 'deactivate', 'site' => get_site_url()));
-        $status = $this->socketIO("POST", "www.orgasmicchef.com", 80, "/easyrecipe/installed.php", $data);
+        $status = $this->socketIO("POST", "www.easyrecipeplugin.com", 80, "/installed.php", $data);
     }
     
     function sendDiagnostics() {
@@ -727,7 +727,7 @@ EOD;
         $data->email = stripslashes($_POST['email']);
         $data->problem = stripslashes($_POST['problem']);
         $data = "data=" . urlencode(json_encode($data));
-        $status = $this->socketIO("POST", "www.orgasmicchef.com", 80, "/easyrecipe/diagnostics.php", $data);
+        $status = $this->socketIO("POST", "www.easyrecipeplugin.com", 80, "/diagnostics.php", $data);
         echo json_encode(array ("status" => $status));
         exit();
     }
@@ -783,7 +783,7 @@ EOD;
             $this->settings["erFirstName"] = $settings["erFirstName"];
             $this->settings["erEmailAddress"] = $settings["erEmailAddress"];
             $data = http_build_query(array ('email' => $settings["erEmailAddress"], 'first' => $settings["erFirstName"], 'site' => get_site_url()));
-            $this->socketIO("POST", "www.orgasmicchef.com", 80, "/easyrecipe/mailing.php", $data);
+            $this->socketIO("POST", "www.easyrecipeplugin.com", 80, "/mailing.php", $data);
         }
         return $this->settings;
     }
