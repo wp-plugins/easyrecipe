@@ -1,10 +1,9 @@
-=== EasyRecipe ===
+=== Easy Recipe ===
 Contributors: Jayce53
-Donate link: http://orgasmicchef.com/easyrecipe/faq/
-Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet
+Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.2
-Tested up to: 3.3.1
-Stable tag: "2.2.6"
+Tested up to: 3.3.2
+Stable tag: "2.2.7"
 License: GPLv2 or later
 
 The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
@@ -53,7 +52,7 @@ Because not only is EasyRecipe an easy way to let the search engines get your re
 
 = How can I request a feature to be added in future versions of EasyRecipe Plugin? =
 
-You can [contact us](http://orgasmicchef.com/easyrecipe/support/) with your requests.  We may not be able to implement every request, but we want to make this the easiest recipe plugin for everyone to use.
+You can [contact us](http://www.easyrecipeplugin.com/support.php) with your requests.  We may not be able to implement every request, but we want to make this the easiest recipe plugin for everyone to use.
 
 = Can You Convert Your Recipes From Plain Text or Another Plugin? =
 
@@ -61,7 +60,7 @@ We CAN but it all depends on what's in the text and/or what other things another
 
 = Where Can I Get Help? =
 
-We'll do our best to help you with any problem you have with EasyRecipe.  You can [contact me](http://orgasmicchef.com/easyrecipe/support/) and we'll answer you as quickly as we can.
+We'll do our best to help you with any problem you have with EasyRecipe.  You can [contact me](http://www.easyrecipeplugin.com/support.php) and we'll answer you as quickly as we can.
 
 == Screenshots ==
 1. The EasyRecipe Plugin icon is located next to the other "Upload/Insert" media icons.
@@ -73,6 +72,11 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
 
 == Changelog ==
+= 2.2.7 =
+* Fix broken formatting link in admin menu bar
+* Fix bad formatting on font change dropdowns
+* Changes for new EasyRecipe site
+
 = 2.2.6 =
 * Fix for broken ratings on some themes
 * Fix incompatibility with some other plugin "Tools"

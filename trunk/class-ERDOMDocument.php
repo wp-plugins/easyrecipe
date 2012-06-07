@@ -190,9 +190,9 @@ class ERDOMDocument extends DOMDocument {
         */
         
         if ($display) {
-            if (strpos($linkBack->nodeValue, "Google Recipe") !== false) {
+            if ($this->version < '2.2.7') {
                 $newLink = $this->createDocumentFragment();
-                $newLink->appendXML('<a class="ERWRPLink" href="http://www.orgasmicchef.com/easyrecipe/" title="EasyRecipe" target="_blank">Wordpress Recipe Plugin</a> and Microformatting by <a href="http://www.orgasmicchef.com/easyrecipe/" title="Wordpress Recipe Plugin" target="_blank">EasyRecipe</a>');
+                $newLink->appendXML('<a class="ERWRPLink" href="http://www.easyrecipeplugin.com/" title="EasyRecipe Wordpress Recipe Plugin" target="_blank">Wordpress Recipe Plugin and Microformatting by <span class="ERAttribution">EasyRecipe</span></a>');
                 while (($node = $linkBack->firstChild) != null) {
                     $linkBack->removeChild($node);
                 }
