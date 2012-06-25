@@ -1,0 +1,237 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Untitled Document</title>
+<link href="../../../wp-admin/css/wp-admin.css" rel="stylesheet" type="text/css" />
+<link href="../../../wp-admin/css/colors-fresh.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+#apDiv1 {
+  position:absolute;
+  left:310px;
+  top:21px;
+  width:1146px;
+  height:571px;
+  z-index:1;
+}
+
+#apDiv2 {
+  position:absolute;
+  left:37px;
+  top:40px;
+  width:963px;
+  height:507px;
+  z-index:1;
+}
+</style>
+<link href="../../../../wp-admin/css/global.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+#apDiv3 {
+  position:absolute;
+  left:2px;
+  top:10px;
+  width:47px;
+  height:36px;
+  z-index:1;
+}
+</style>
+<link href="../easyrecipe-admin.css" rel="stylesheet" type="text/css" />
+<style type="text/css">
+body, td, th {
+  font-family: sans-serif;
+  font-size: 12px;
+}
+
+.form-table td {
+  font-size: 12px;
+  line-height: 20px;
+  margin-bottom: 9px;
+  padding: 8px 10px;
+}
+</style>
+</head>
+
+<body>
+<div id="wpbody">
+  <!-- START PAGE -->
+  <div class="wrap"> <a href="http://www.easyrecipeplugin.com/" target="_blank"><span class="icon32 chef32"></span></a>
+    <h2><span>Easy Recipe Options</span></h2>
+    <p>&nbsp;</p>
+    <form action="options.php" method="post">
+      <input type="hidden" id="ERSiteURL" value="#siteurl#" />
+      #optionsHTML#
+      <div class="metabox-holder">
+      <div class="postbox-container">
+        <div class="meta-box-sortables ui-sortable">
+          <div style="width:620px" class="postbox">
+            <h3 class="hndle">Easy Recipe General Settings</h3>
+            <div class="inside">
+              <table border="0" class="form-table">
+                <tr>
+                  <th scope="row">Support Easy Recipe</th>
+                  <td><label>
+                      <input name="ERSettings[allowLink]" type="checkbox" id="ERAllowLink" #allowLinkChecked# />
+                      Allow us to place a teensy link back to our plugin site</label></td>
+                </tr>
+                <tr>
+                  <th scope="row">List at MyBigRecipeBox</th>
+                  <td><label>
+                      <input name="ERSettings[pingMBRB]" type="checkbox" id="ERPingMBRB" #mbrbLinkChecked# />
+                      Automatically list your recipes at <a href="http://www.mybigrecipebox.com" target="_blank">MyBigRecipeBox.com</a></label></td>
+                </tr>
+                <tr>
+                  <th valign="top" scope="row">Subscribe to the Easy Recipe Mailing List (Optional)</th>
+                  <td><table class="ERMailing" border="0" cellpadding="0" cellspacing="0">
+                      <tr>
+                        <td>First name:</td>
+                        <td><input name="ERSettings[erFirstName]" type="text" id="erFirstName" value="#erFirstName#" /></td>
+                      </tr>
+                      <tr>
+                        <td>Email address:</td>
+                        <td><input name="ERSettings[erEmailAddress]" type="text" id="erEmailAddress" value="#erEmailAddress#" /></td>
+                      </tr>
+                    </table>
+                    Keep up with  upgrades and news about Easy Recipe!<br />
+                    Leave blank if you don't wish to receive email from Easy Recipe.</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div style="width:620px" class="postbox">
+            <h3 class="hndle">Donate</h3>
+            <div class="inside">
+              <table width="100%" border="0" class="form-table">
+                <tr align="center">
+                  <td width="32%"><!--                  <form action="https://www.paypal.com/cgi-bin/webscr" method="post">
+<input type="hidden" name="cmd" value="_s-xclick" />
+<input type="hidden" name="hosted_button_id" value="8B5J9WPT9DJA4" />
+<input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!" />
+<img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+<!-- /form -->
+                    <img style="cursor:pointer" id="btnERPayPal" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" width="147" height="47" /></td>
+                  <td width="68%">Easy Recipe is totally free, but anything you can give to help with support and ongoing development costs will certainly be appreciated</td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div style="width:620px" class="postbox">
+            <h3 class="hndle">Appearance</h3>
+            <div class="inside">
+              <table width="100%" border="0" class="form-table">
+                <tr align="center">
+                  <td width="32%"><input type="button" class="button-primary" id="btnERSLiveFormat" value="Live Formatting" /></td>
+                  <td width="68%">Navigate to a page that contains an Easy Recipe, and click "Format Easy Recipe" in the Admin bar, or click anywhere inside any recipe.<br />
+                    <a href="http://www.easyrecipeplugin.com/video/" target="_blank">Click here to see a formatting tutorial video</a></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+          <div style="width:620px" class="postbox">
+            <h3 class="hndle">Text/Language</h3>
+            <div class="inside">
+              <table border="0" class="form-table">
+                <tr>
+                  <th scope="row">Ingredients heading</th>
+                  <td><input name="ERSettings[ingredientHead]" type="text" id="ERIngredientHead" value="#ingredientHead#" />
+                    <br />
+                    The text you want as the heading above the Ingredients list</td>
+                </tr>
+                <tr>
+                  <th scope="row">Instructions heading</th>
+                  <td><input name="ERSettings[instructionHead]" type="text" id="ERInstructionHead" value="#instructionHead#" />
+                    <br />
+                    The text you want as the heading above the list of instructions</td>
+                </tr>
+
+                  <th class="ERSettingsLabel" scope="row">Notes heading &nbsp;</th>
+                  <td><input name="ERSettings[notesHead]" type="text" id="ERNotesHead" value="#notesHead#" />
+                    <br />
+                    The text you want as the heading above any recipe notes</td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Recipe type</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblRecipeType]" type="text" value="#lblRecipeType#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Author</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblAuthor]" type="text" value="#lblAuthor#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Prep time</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblPrepTime]" type="text" value="#lblPrepTime#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Cook time</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblCookTime]" type="text" value="#lblCookTime#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Total time</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblTotalTime]" type="text" value="#lblTotalTime#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Serves</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblServes]" type="text" value="#lblServes#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Serve size</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblServeSize]" type="text" value="#lblServeSize#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Calories</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblCalories]" type="text" value="#lblCalories#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Sugar</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblSugar]" type="text" value="#lblSugar#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Fat</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblFat]" type="text" value="#lblFat#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Saturated fat</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblSatFat]" type="text" value="#lblSatFat#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Unsaturated fat</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblUnsatFat]" type="text" value="#lblUnsatFat#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Carbs</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblCarbs]" type="text" value="#lblCarbs#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Fiber</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblFiber]" type="text" value="#lblFiber#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Protein</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblProtein]" type="text" value="#lblProtein#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Cholesterol</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblCholesterol]" type="text" value="#lblCholesterol#" /></td>
+                </tr>
+                <tr>
+                  <th class="ERSettingsLabel" scope="row"><em>Rate recipe</em> label &nbsp;</th>
+                  <td><input name="ERSettings[lblRateRecipe]" type="text" value="#lblRateRecipe#" /></td>
+                </tr>
+                <tr>
+                  <th align="right" scope="row">&nbsp;</th>
+                  <td><input name="button" type="submit" class="button-primary" id="ERSSubmit" value="Update Settings" /></td>
+                </tr>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </form>
+  </div>
+  <form id="frmERPayPal" action="https://www.paypal.com/cgi-bin/webscr" target="_blank" method="post">
+    <input type="hidden" name="cmd" value="_s-xclick" />
+    <input type="hidden" name="hosted_button_id" value="8B5J9WPT9DJA4" />
+  </form>
+  <!-- END PAGE -->
+</div>
+</body>
+</html>

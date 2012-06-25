@@ -1,0 +1,1 @@
+(function(b){b(function(){b("#btnERSLiveFormat").click(a);b("#btnERPayPal").click(c)});function a(d){window.open(b("#ERSiteURL").val(),"_blank")}function c(d){b("#frmERPayPal").submit()}})(jQuery);
