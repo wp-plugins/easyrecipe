@@ -2,8 +2,8 @@
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.2
-Tested up to: 3.3.2
-Stable tag: "2.2.7"
+Tested up to: 3.4
+Stable tag: "2.2.8"
 License: GPLv2 or later
 
 The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
@@ -30,7 +30,7 @@ To convert an existing plain text recipe post to EasyRecipe, edit the post, sele
 
 To convert a ZipList or RecipeSEO post to EasyRecipe, edit the post and click the EasyRecipe icon. That's it!  How easy was that?
 
-Requires PHP 5+
+Requires PHP 5+, tinyMCE editor
 
 == Installation ==
 
@@ -72,6 +72,10 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
 
 == Changelog ==
+= 2.2.8 =
+* Fix the recipe name formatting being overridden by some themes
+* Fix for the print button not being displayed with some themes
+
 = 2.2.7 =
 * Fix broken formatting link in admin menu bar
 * Fix bad formatting on font change dropdowns
