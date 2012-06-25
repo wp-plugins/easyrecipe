@@ -4,7 +4,7 @@ Plugin Name: Easy Recipe
 Plugin URI: http://www.easyrecipeplugin.com/
 Description: The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
 Author: The Orgasmic Chef
-Version: 2.2.7
+Version: 2.2.8
 Author URI: http://www.easyrecipeplugin.com
 License: GPLv2 or later
 */
@@ -33,14 +33,17 @@ if (!function_exists('add_action')) {
     exit();
 }
 
-function easyrecipeNeedPHP5() {
-    wp_die("Easy Recipe requires PHP 5+.  Your server is running PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
+if (!function_exists('easyrecipeNeedPHP5')) {
+    function easyrecipeNeedPHP5() {
+        wp_die("Easy Recipe requires PHP 5+.  Your server is running PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
+    }
 }
 
-function easyrecipeNeedDOM() {
-    wp_die("Easy Recipe requires the PHP DOMDocument extension but it has been disabled in your server's PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
+if (!function_exists('easyrecipeNeedDOM')) {
+    function easyrecipeNeedDOM() {
+        wp_die("Easy Recipe requires the PHP DOMDocument extension but it has been disabled in your server's PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
+    }
 }
-
 if (phpversion() < '5') {
     register_activation_hook(__FILE__, "easyrecipeNeedPHP5");
     return;
