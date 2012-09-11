@@ -69,3 +69,6 @@ div.easyrecipe {
 .easyrecipe .ERSIngredients .ERSIngredientsHeader.ERSHeading {
 	clear: none;
 }
+.easyrecipe .ERSInstructions .ERSInstructionsHeader.ERSHeading {
+	clear: none;
+}

@@ -92,7 +92,9 @@ class EasyRecipeSettings {
         'erEmailAddress' => '',
         'erFirstName' => '',
 
-        'customTemplates' => ''
+        'customTemplates' => '',
+        
+        'lastFlushVersion' => 0
     );
     
     private $settings;
@@ -122,7 +124,7 @@ class EasyRecipeSettings {
      */
     public function get($settingName = false) {
         if ($settingName) {
-            return isset($this->settings[$settingName]) ? $this->settings[$settingName] : "";
+            return isset($this->settings[$settingName]) ? $this->settings[$settingName] : null;
         } else {
             return $this->settings;
         }
@@ -217,7 +219,7 @@ class EasyRecipeSettings {
         
         $data->wpurl = get_bloginfo("wpurl");
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.1';
+        $data->pluginversion = '3.1.01';
         $data->license = $this->settings['licenseKey'];
         
         $data->displayPrintChecked = $this->settings["displayPrint"] ? 'checked="checked"' : '';
