@@ -42,7 +42,7 @@ class EasyRecipePlus {
     /*
      * Constants from Ant build
      */
-    private $version = "3.1";
+    private $version = "3.1.01";
     private $pluginName = 'easyrecipe';
     private $settingsName = 'ERSettings';
     private $templateClass = 'EasyRecipeTemplate';
@@ -134,6 +134,9 @@ class EasyRecipePlus {
     function initialise() {
         wp_register_style("easyrecipe-UI", "$this->easyrecipeURL/ui/easyrecipeUI.css", array ('wp-admin', 'wp-pointer'), $this->version);
         
+
+        $this->settings = new $this->settingsClass();
+        
         /*
          * Set up the endpoints in case something else flushes
          */
@@ -141,6 +144,16 @@ class EasyRecipePlus {
         add_rewrite_endpoint('easyrecipe-diagnostics', EP_ROOT);
         
         
+        /*
+         * Check to see if we've been updated since the last time we did a rewrite rules flush,
+         * since an automatic update doesn't call the activation hook when the plugin is re-activated on update
+         */
+        $lastFlushVersion = $this->settings->get('lastFlushVersion');
+        if ($lastFlushVersion != $this->version) {
+            flush_rewrite_rules();
+            $this->settings->put('lastFlushVersion', $this->version);
+            $this->settings->update();
+        }
         /*
          * Everything past here is not needed on admin pages
          */
@@ -155,8 +168,7 @@ class EasyRecipePlus {
         
         add_action('wp_before_admin_bar_render', array ($this, 'adminBarMenu'));
         
-        $this->settings = new $this->settingsClass();
-        
+
         /*
          * Hook into the comment save if we're using EasyRecipe ratings
         */
@@ -279,7 +291,7 @@ class EasyRecipePlus {
             add_action('comment_post', array ($this, 'ratingSave'));
             add_action('comment_text', array ($this, 'ratingDisplay'));
         }
-
+        
         // TODO - would this be better elsewhere?
         if ($this->settings->get('removeMicroformat')) {
             ob_start(array ($this, 'fixMicroformats'));
@@ -990,7 +1002,6 @@ EOD;
      * Check to see if we're activating ERPlus and pick up ER settings if need be
      * If EasyRecipe is an version < 3, set the default style to the legacy style
      */
-    
     function easyrecipeActivated() {
         
         

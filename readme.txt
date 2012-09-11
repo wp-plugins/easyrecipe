@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.2
 Tested up to: 3.4.2
-Stable tag: 3.1
+Stable tag: 3.1.01
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -74,6 +74,10 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.1.01 =
+* Fix print redirect being broken by automatic updates
+* Fix minor glitches in style templates
+
 = 3.1 =
 * This is a major update!
 * Uses microdata (schema.org) instead of microformatting (hrecipe)
