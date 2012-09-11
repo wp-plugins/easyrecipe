@@ -4,16 +4,14 @@
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Untitled Document</title>
 <link href="../formatcode/format.css" rel="stylesheet" type="text/css" />
-<link href="../formatcode/jquery.miniColors.css" rel="stylesheet"
-	type="text/css" />
-<link href="../formatcode/format-spacing.css" rel="stylesheet"
-	type="text/css" />
+<link href="../formatcode/jquery.miniColors.css" rel="stylesheet" type="text/css" />
+<link href="../formatcode/format-spacing1.css" rel="stylesheet" type="text/css" />
 <style type="text/css">
 #apDiv1 {
 	position: absolute;
 	left: 238px;
 	top: 124px;
-	width: 1169px;
+	width: 350px;
 	height: 513px;
 	z-index: 1;
 }
@@ -27,162 +25,47 @@ body, td, th {
 <body>
 <div id="apDiv1"> 
   <!-- START PAGE -->
-  <div class="ERFDialogBox" style="display: none">
+  <div class="ERFDialogBox">
     <div id="ERFTabs">
       <ul>
-        <li><a href="#ERFSimple">Basic</a></li>
-        <li><a href="#ERFAdvanced">Advanced</a></li>
-        <li id="ERFPrintTab"><a href="#ERFPrint">Print Format</a></li>
+        <li id="liERFDisplayTab"><a href="#ERFDisplayTab">Display Format</a></li>
+        <li id="liERFDisplayStyles"><a href="#ERFDisplayStyles">Display Styles</a></li>
+        <li id="liERFPrint"><a href="#ERFPrint">Print Format</a></li>
       </ul>
-      <div id="ERFSimple">
-        <div class="ERFBasicDiv">
-          <div class="ERFBasic">
-            <div class="divERFBFont">
-              <div class="ERFOptionHeader"> <span class="ERFOptionTitle">Font</span> </div>
-            </div>
-            <div class="divERFBBorder">
-              <div class="ERFOptionHeader"> <span class="ERFOptionTitle">Border</span> </div>
-              <div class="divERFBBorderStyles">
-                <div class="lblERFBBorder">Border Style</div>
-                <div class="divERFBBorderStyle">
-                  <select class="ERBorderStyle">
-                    <option>none</option>
-                    <option>dotted</option>
-                    <option>dashed</option>
-                    <option>solid</option>
-                    <option>double</option>
-                    <option>groove</option>
-                    <option>ridge</option>
-                    <option>inset</option>
-                    <option>outset</option>
-                  </select>
-                </div>
-                <div class="ERFMTColorBox divERFBBorderColor">
-                  <input size="8" class="ERBorderColorPick miniColors"
-											maxlength="7" autocomplete="off" />
-                </div>
-                <div class="lblERFBBorderSize">Border Size</div>
-                <div class="divERFBBorderSliderBox"></div>
-              </div>
-            </div>
+      <div id="ERFDisplayTab">
+        <div id="ERFAccordion"> 
+          <!-- START REPEAT SECTIONS -->
+          <h3><a href="#">#section#</a></h3>
+          <div>
+            <div class="ERFMTFont" id="ER_erf_#id#"></div>
+          </div>
+          <!-- END REPEAT SECTIONS --> 
+        </div>
+      </div>
+      <div id="ERFDisplayStyles">
+        <div>Styles set the layout, content and basic formatting of your recipe. You can tweak the look and feel of any style using Live Formatting.</div>
+        <div class="ERFDSStyleSelect">
+          <select id="lbERFStyles">
+            <!-- START REPEAT STYLES -->
+            <option value="#directory#" #selected#>#style#</option>
+            <!-- END REPEAT STYLES -->
+          </select>
+          <div><img src="#stylethumb#" width="190" height="220" /></div>
+          <div id="divERFDSButtons">
+            <input id="btnERFTryStyle" type="button" value="Try Style" disabled="disabled"/>
+            &nbsp; &nbsp;
+            <input id="btnERFSaveStyle" type="button" value="Save as default" />
+            <div class="ERFWait" id="divERFWaitStyle">Wait</div>
           </div>
         </div>
       </div>
-      <div id="ERFAdvanced">
-        <div id="accordion">
-          <h3> <a href="#">Basic Layout</a> </h3>
-          <div class="ERFBasicDiv"></div>
-          <h3> <a href="#">Recipe Name</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFName"></div>
-          </div>
-          <h3> <a href="#">Recipe Details</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFDetails"></div>
-          </div>
-          <h3> <a href="#">Summary</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFSummary"></div>
-          </div>
-          <h3> <a href="#">Ingredients Heading</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFIngredientsHeading"></div>
-          </div>
-          <h3> <a href="#">Ingredients List</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFIngredientsList"></div>
-          </div>
-          <h3> <a href="#">Ingredients Items</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFIngredientsItems"></div>
-          </div>
-          <h3> <a href="#">Ingredients Separators</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFIngredientsSeparators"></div>
-          </div>
-          <h3> <a href="#">Instructions Heading</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFInstructionsHeading"></div>
-          </div>
-          <h3> <a href="#">Instructions List</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFInstructionsList"></div>
-          </div>
-          <h3> <a href="#">Instructions Items</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFInstructionsItems"></div>
-          </div>
-          <h3> <a href="#">Instructions Separators</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFInstructionsSeparators"></div>
-          </div>
-          <h3> <a href="#">Nutrition</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFNutrition"></div>
-          </div>
-          <h3> <a href="#">Notes Heading</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFNotesHeader"></div>
-          </div>
-          <h3> <a href="#">Notes</a> </h3>
-          <div>
-            <div class="ERFMTFont" id="divERFNotes"></div>
-          </div>
-        </div>
-      </div>
-      <div id="ERFPrint">Click on the &quot;Print&quot; button in
-        any Easy Recipe. This will open the print page in a new window, but
-        without the Printer box. Click anywhere inside the recipe to open
-        the formatting options window</div>
+      <div id="ERFPrint">Click on the &quot;Print&quot; button in any EasyRecipe. This will open the print page in a
+        new window, but without the Printer box. Click anywhere inside the recipe to open the print formatting options window</div>
       <div id="ERFButtons">
         <input id="btnERFReset" type="button" value="Reset to Defaults" />
         <input id="btnERFUpdate" type="button" value="Update" />
-        <div id="divERFWait">Wait</div>
+        <div class="ERFWait" id="divERFWait">Wait</div>
       </div>
-    </div>
-  </div>
-  <div style="display: none">
-    <div class="easyrecipe">
-      <table class="ERHDTable" border="0">
-        <tbody>
-          <tr>
-            <td><span class="item ERName"><span class="fn"></span></span></td>
-            <td align="center" valign="top"><div class="ERRatingOuter">
-                <div class="ERRatingInner" style="width: 100%"></div>
-                <div class="review hreview-aggregate"> <span class="rating"><span class="average"></span><span
-											class="count"></span></span> </div>
-              </div></td>
-            <td class="ERHDPrint" valign="top"><div class="btnERPrint"></div></td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="ERClear"></div>
-      <div class="ERHead"> <span class="tag"></span> </div>
-      <div class="ERHead"> <span class="author"></span> </div>
-      <div class="ERHead"> <span class="yield"></span> </div>
-      <div class="ERSummary"> <span class="summary"></span> </div>
-      <div class="ERIngredientsHeader"></div>
-      <ul class="ingredients">
-        <li class="ERSeparator"></li>
-        <li class="ingredient"></li>
-      </ul>
-      <div class="ERInstructionsHeader"></div>
-      <div class="instructions">
-        <div class="ERSeparator"></div>
-        <ol>
-          <li class="instruction"></li>
-        </ol>
-      </div>
-      <div class="nutrition"> <span><span class="servingSize"></span></span><span><span
-						class="calories"></span></span><span><span class="fat"></span></span><span> <span class="saturatedFat"></span> </span><span><span class="unsaturatedFat"></span></span><span><span
-						class="carbohydrates"></span></span><span><span class="sugar"></span></span> <span><span class="fiber"></span></span><span><span
-						class="protein"></span></span><span><span class="cholesterol"></span></span> </div>
-      <div>
-        <div class="ERNotesHeader"></div>
-        <div class="ERNotes"></div>
-      </div>
-      <div class="ERLinkback"></div>
-      <div class="endeasyrecipe" style="display: none;">1</div>
     </div>
   </div>
   <!-- END PAGE --> 

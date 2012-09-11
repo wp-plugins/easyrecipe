@@ -2,11 +2,11 @@
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.2
-Tested up to: 3.4
-Stable tag: "2.2.8"
+Tested up to: 3.4.2
+Stable tag: 3.1
 License: GPLv2 or later
 
-The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
+EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
 
 == Description ==
 
@@ -14,11 +14,11 @@ The most fully featured recipe plugin that doesn't require a degree in geek!
 
 EasyRecipe makes recipe entry a breeze, with features like cut and paste, auto conversion of your plain text recipe posts, live custom formatting, Google Recipe View formatting and preview button, automatic ratings, conversion from other recipe plugins like ZipList and RecipeSEO, and more.
 
-Adding a recipe and getting the [Recipe View](http://googleblog.blogspot.com/2011/02/slice-and-dice-your-recipe-search.html) microformatting correct is not only time consuming but it's also pretty geeky and most cooks prefer to cook and share, not code webpages.
+Adding a recipe and getting the [Recipe View](http://googleblog.blogspot.com/2011/02/slice-and-dice-your-recipe-search.html) microdata correct is not only time consuming but it's also pretty geeky and most cooks prefer to cook and share, not code webpages.
 
 Enter EasyRecipe.
 
-EasyRecipe gives you all the advantages of microformats, without any of the messy coding. We've done all the geeky work for you.
+EasyRecipe gives you all the advantages of microdata, without any of the messy coding. We've done all the geeky work for you.
 
 Enter your post, upload your photos and enter your recipe.  EasyRecipe formats it all and allows your visitors to view your recipe in the format YOU create - there's no messy CSS or PHP editing required.
 
@@ -30,7 +30,7 @@ To convert an existing plain text recipe post to EasyRecipe, edit the post, sele
 
 To convert a ZipList or RecipeSEO post to EasyRecipe, edit the post and click the EasyRecipe icon. That's it!  How easy was that?
 
-Requires PHP 5+, tinyMCE editor
+Requires PHP 5+
 
 == Installation ==
 
@@ -38,17 +38,17 @@ You can download and install the EasyRecipe plugin using the built in WordPress 
 
 Activate the EasyRecipe plugin in the "Plugins" admin panel using the "Activate" link.
 
-To use the plugin, click the Easy Recipe button (the chef icon) on the "Add Post" or "Edit Post" pages, right next to the editor formatting buttons. Then enter (or cut and paste) your recipe into EasyRecipe.  Any ingredient or instruction line beginning with an exclamation mark (!) is formatted as a heading. Click the "Add Recipe" button and it will save your recipe and insert it into your blog post.
+To use the plugin, click the EasyRecipe button (the chef icon) on the "Add Post" or "Edit Post" pages, right next to the editor formatting buttons. Then enter (or cut and paste) your recipe into EasyRecipe.  Any ingredient or instruction line beginning with an exclamation mark (!) is formatted as a heading. Click the "Add Recipe" button and it will save your recipe and insert it into your blog post.
 
 == Frequently Asked Questions ==
 
 = Why do you put a placeholder into my Edit Post page, instead of the actual recipe? =
 
-Because of the way the WordPress editor works, if you make changes to your recipe using the html editor, you're at risk of messing up the microformatting and then you'll be upset with us.  We want you to show up in Google so EasyRecipe requires that you make changes by clicking the placeholder and changing your previous entry.
+Because of the way the WordPress editor works, if you make changes to your recipe using the html editor, you're at risk of messing up the microdata and then you'll be upset with us.  We want you to show up in Google so EasyRecipe requires that you make changes by clicking the placeholder and changing your previous entry.
 
 = Why Is EasyRecipe Better? =
 
-Because not only is EasyRecipe an easy way to let the search engines get your recipes in the format that helps you get the most exposure for your recipes, it really IS easy to use.  Simply cut and paste your recipe in Easy Recipe and hit publish. The options on our EasyRecipe screen are the ones Google looks for.
+Because not only is EasyRecipe an easy way to let the search engines get your recipes in the format that helps you get the most exposure for your recipes, it really IS easy to use.  Simply cut and paste your recipe in EasyRecipe and hit publish. The options on our EasyRecipe screen are the ones Google looks for.
 
 = How can I request a feature to be added in future versions of EasyRecipe Plugin? =
 
@@ -56,25 +56,44 @@ You can [contact us](http://www.easyrecipeplugin.com/support.php) with your requ
 
 = Can You Convert Your Recipes From Plain Text or Another Plugin? =
 
-We CAN but it all depends on what's in the text and/or what other things another plugin has added.  We can't guarantee that you won't need to do a little additional manual editing, but Easy Recipe can usually do 95% of the work for you.
+We CAN but it all depends on what's in the text and/or what other things another plugin has added.  We can't guarantee that you won't need to do a little additional manual editing, but EasyRecipe can usually do 95% of the work for you.
 
 = Where Can I Get Help? =
 
 We'll do our best to help you with any problem you have with EasyRecipe.  You can [contact me](http://www.easyrecipeplugin.com/support.php) and we'll answer you as quickly as we can.
 
 == Screenshots ==
-1. The EasyRecipe Plugin icon is located next to the other "Upload/Insert" media icons.
-2. It's easy to enter the basic information for your recipes: the title, the ingredients, and the instructions for preparing the recipe.
-3. Once you click the "Add Recipe" button, a placeholder image will be inserted into your post where your recipe will go.
-4. Once you preview or publish the post, your recipe will be there with all your microformats... without any extra work from you!
-5. You can use the "Test at Google" button to run Google's Rich Snippet Testing Tool to check how Google will see your recipe.
-6. The formated recipe on your page has ratings from comments and a Print feature.
-7. Readers can rate your recipe in their comments. Easy Recipe uses these to generate an average rating for Google
+1. Simple recipe entry. You don't have to pre-define ingredients, enter quantities separately or worry about taxonomies 
+2. You can optionally enter nutrition data if you want. If you leave it out, EasyRecipe just suppresses that section on your post. 
+3. You can enter optional notes. EasyRecipe is smart enough to hide the notes section on your post if you don't have any.
+4. You can even cut and paste a plain text recipe and have EasyRecipe convert it for you.
+5. Just one of the display styles  available. You can choose from a range of pre-defined styles, or create your own (in [EasyRecipe PLUS](http://www.easyrecipeplugin.com))
+6. If the style isn't quite what you wanted, you can tweak it with EasyRecipe's "Live Formatting". Change the colors, spacing, border, fonts and more right on your blog and see exactly how it will look as you change it. No fussing with CSS or other geeky stuff.
+7. Set up EasyRecipe just how you want it so it's easy to enter your recipes.
+8. Select from a range of pre-defined recipe templates (or make your own with [EasyRecipe PLUS](http://www.easyrecipeplugin.com)). All of the templates can be tweaked with EasyRecipe's Live Formatting
+9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
-= 2.2.8 =
-* Fix the recipe name formatting being overridden by some themes
-* Fix for the print button not being displayed with some themes
+= 3.1 =
+* This is a major update!
+* Uses microdata (schema.org) instead of microformatting (hrecipe)
+* Added template based output
+* Choose from a range of display and print styles
+* Added "Cut and paste" plain text recipe entry
+* Added Swoop integration
+* Added Default Author
+* Added Cuisine type
+* Added Recipe type defaults
+* Added Trans Fat and Sodium to nutrition data
+* Added "Disable ratings"
+* Option to convert fractions (e.g. 1/2 becomes &frac12;)
+= Available in EasyRecipe PLUS: =
+* Multiple recipes per page/post
+* Select the image to use as the "main" image
+* Easy insertion of images and links in recipes
+* Guest posts
+* Import from cookbooks
+* Custom recipe templates
 
 = 2.2.7 =
 * Fix broken formatting link in admin menu bar
@@ -142,7 +161,7 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 
 = 2.1.2 =
 * Fix character encoding - fixes weird characters being displayed
-* Correctly identify Easy Recipe posts - fixes ratings on non-EasyRecipe posts
+* Correctly identify EasyRecipe posts - fixes ratings on non-EasyRecipe posts
 * Check for DOMDocument existence at plugin registration
 * Disable PHP errors for DOM parse and manipulation
 
@@ -166,8 +185,8 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 * Fix Cholesterol typo
 
 = 1.2.4 =
-* Fix Easy Recipe not being inserted into the post on some browsers when there is no initial editor content and/or the cursor is not in the editor body
-* Only ping MyBigRecipeBox.com if the published post contains an Easy Recipe
+* Fix EasyRecipe not being inserted into the post on some browsers when there is no initial editor content and/or the cursor is not in the editor body
+* Only ping MyBigRecipeBox.com if the published post contains an EasyRecipe
 * Fix typo on RecipeSEO posts conversion
 
 = 1.2.3 =
@@ -192,7 +211,7 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 * Fix for image not printing on servers with allow_url_fopen off
 
 = 1.1.1 =
-* Only accept and display comment ratings if the post is an Easy Recipe
+* Only accept and display comment ratings if the post is an EasyRecipe
 
 = 1.1 =
 * Fixed a problem when Wordpress autosave adds spurious paragraphs

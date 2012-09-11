@@ -4,15 +4,14 @@ Plugin Name: Easy Recipe
 Plugin URI: http://www.easyrecipeplugin.com/
 Description: The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
 Author: The Orgasmic Chef
-Version: 2.2.8
-Author URI: http://www.easyrecipeplugin.com
+Version: 3.1
+Author URI: http://www.orgasmicchef.com
 License: GPLv2 or later
 */
 
 /*
-  
-Copyright (c) 2010-2012 Box Hill LLC  
- 
+ Copyright (c) 2010-2012 Box Hill LLC
+
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -33,52 +32,39 @@ if (!function_exists('add_action')) {
     exit();
 }
 
-if (!function_exists('easyrecipeNeedPHP5')) {
-    function easyrecipeNeedPHP5() {
-        wp_die("Easy Recipe requires PHP 5+.  Your server is running PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
+if (!function_exists('easyrecipePlusNeedPHP5')) {
+
+    function easyrecipePlusNeedPHP5() {
+        wp_die("EasyRecipe requires PHP 5+.  Your server is running PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
     }
 }
 
-if (!function_exists('easyrecipeNeedDOM')) {
-    function easyrecipeNeedDOM() {
-        wp_die("Easy Recipe requires the PHP DOMDocument extension but it has been disabled in your server's PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
+if (!function_exists('easyrecipePlusNeedDOM')) {
+
+    function easyrecipePlusNeedDOM() {
+        wp_die("EasyRecipe requires the PHP DOMDocument extension but it has been disabled in your server's PHP" . phpversion() . '<br /><a href="/wp-admin/plugins.php">Go back</a>');
     }
 }
+
 if (phpversion() < '5') {
-    register_activation_hook(__FILE__, "easyrecipeNeedPHP5");
+    register_activation_hook(__FILE__, "easyrecipePlusNeedPHP5");
     return;
 }
 
-if (!class_exists("DOMDocument")) {
-    register_activation_hook(__FILE__, "easyrecipeNeedDOM");
+if (!class_exists("DOMDocument", false)) {
+    register_activation_hook(__FILE__, "easyrecipePlusNeedDOM");
     return;
 }
 
-/**
- * We only need to load on ajax calls that we want to trap
- */
-
-if (is_admin()) {
-    switch ($GLOBALS["pagenow"]) {
-        case "admin-ajax.php" :
-            if (!isset($_REQUEST["action"]) || ($_REQUEST["action"] != "ERsendDiagnostics" && $_REQUEST["action"] != "customCSS" && $_REQUEST["action"] != "ERconvertRecipe")) {
-                return;
-            }
-            break;
-        
-        case "tools.php" :
-            if (!isset($_REQUEST["page"]) || ($_REQUEST["page"] != "erdiagnostics")) {
-                return;
-            }
-            
-            break;
-    }
-}
-
-if (!class_exists('EasyRecipe')) {
-    require_once 'class-easyrecipe.php';
-    $er = new EasyRecipe();
-    register_activation_hook(__FILE__, array ($er, "easyrecipeActivated"));
-    register_deactivation_hook(__FILE__, array ($er, "easyrecipeDeactivated"));
+if (!class_exists('EasyRecipePlus', false)) {
+    require_once dirname(__FILE__) . '/class-easyrecipeplus.php';
+    $easyrecipe = new EasyRecipePlus();
+    /*
+     * A little weirdness to handle WP's inability to get the plugin basename correct if plugins is a symlink
+     * Only required because our own test servers symlink the plugins directory
+     */
+    $f = basename(dirname(__FILE__)) . '/' . basename(__FILE__);
+    register_activation_hook($f, array ($easyrecipe, "easyrecipeActivated"));
+    register_deactivation_hook($f, array ($easyrecipe, "easyrecipeDeactivated"));
 }
 ?>
