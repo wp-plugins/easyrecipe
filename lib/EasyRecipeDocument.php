@@ -173,6 +173,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         $data = $this->extractData($recipe, $data, $nRecipe);
         $html = $template->replace($data);
         
+
         /**
          * Convert fractions if asked to
          */
@@ -226,25 +227,23 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     function applyStyle(EasyRecipeTemplate $template, $data, $recipe = null) {
         $nRecipe = 0;
         $recipes = ($recipe == null) ? $this->easyrecipes : array ($recipe);
-
         foreach ($recipes as $recipe) {
             $this->easyrecipesHTML[$nRecipe] = $this->formatRecipe($recipe, $template, $data, $nRecipe);
             $placeHolder = $this->createElement("div");
             $placeHolder->setAttribute("id", "_easyrecipe_" . $nRecipe);
             
-            // FIXME - Use try block for live version
-            $recipe->parentNode->replaceChild($placeHolder, $recipe);
-            if (false) {
-                try {
-                    $recipe->parentNode->replaceChild($placeHolder, $recipe);
-                } catch (Exception $e) {
-                }
+
+            try {
+                $recipe->parentNode->replaceChild($placeHolder, $recipe);
+            } catch (Exception $e) {
             }
+            
             $nRecipe++;
         }
         
         $html = $this->getHTML();
         
+
         for ($i = 0; $i < $nRecipe; $i++) {
             $html = str_replace("<div id=\"_easyrecipe_$i\"></div>", $this->easyrecipesHTML[$i], $html);
         }
@@ -599,5 +598,6 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         return $this->getHTML(true);
     }
 }
+
 
 ?>

@@ -42,7 +42,7 @@ class EasyRecipePlus {
     /*
      * Constants from Ant build
      */
-    private $version = "3.1.01";
+    private $version = "3.1.02";
     private $pluginName = 'easyrecipe';
     private $settingsName = 'ERSettings';
     private $templateClass = 'EasyRecipeTemplate';
@@ -57,6 +57,7 @@ class EasyRecipePlus {
     private $easyrecipeDIR;
     private $easyrecipeURL;
     private $siteURL;
+    private $homeURL;
     
     /**
      *
@@ -94,6 +95,7 @@ class EasyRecipePlus {
         $this->easyrecipeURL = WP_PLUGIN_URL . "/$this->pluginName";
         $this->slug = $this->pluginName;
         $this->siteURL = site_url();
+        $this->homeURL = home_url();
         
         
         add_action('admin_menu', array ($this, 'addMenus'));
@@ -140,8 +142,8 @@ class EasyRecipePlus {
         /*
          * Set up the endpoints in case something else flushes
          */
-        add_rewrite_endpoint('easyrecipe-print', EP_ROOT);
-        add_rewrite_endpoint('easyrecipe-diagnostics', EP_ROOT);
+        add_rewrite_endpoint('easyrecipe-print', EP_ALL);
+        add_rewrite_endpoint('easyrecipe-diagnostics', EP_ALL);
         
         
         /*
@@ -621,7 +623,7 @@ EOD;
             /**
              * If it exists on the server's doc root, and it's a file, try reading it
              */
-            if (is_file($fName)) {
+            if (@is_file($fName)) {
                 $img = @file_get_contents($fName);
             }
             /**
@@ -729,7 +731,8 @@ EOD;
          */
         foreach ($posts as $post) {
             
-            if (isset($this->easyrecipes[$post->ID])) { // TODO - this should cache the processed post
+            if (isset($this->easyrecipes[$post->ID])) {
+                $post->post_content = $this->postContent[$post->ID];
                 $newPosts[] = $post;
                 continue;
             }
@@ -795,7 +798,7 @@ EOD;
             $data->style = $this->styleName;
             $data->title = $post->post_title;
             $data->blogname = get_option("blogname"); // TODO - do all this stuff at initialise time?
-            $data->siteURL = $this->siteURL;
+            $data->siteURL = $this->homeURL;
             $data->postID = $post->ID;
             $data->recipeurl = get_permalink($post->ID);
             $data->convertFractions = $this->settings->get('convertFractions');
@@ -810,7 +813,18 @@ EOD;
             $template = new $this->templateClass($templateFile);
             
             
-            $post->post_content = $postDOM->applyStyle($template, $data);
+            /*
+             * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
+             * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
+             */
+            $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
+            /*
+             * Some themes do a get_post() again instead of using the posts as modified by plugins
+             * So make sure our modified post is in cache so the get_post() picks up the modified version not the original
+             * Need to do both add and replace since add doesn't replace and replace doesn't add and we can't be sure if the cache key exists at this point 
+             */
+            wp_cache_add($post->ID, $post, 'posts');
+            wp_cache_replace($post->ID, $post, 'posts');
             
             $newPosts[] = $post;
         }
@@ -928,6 +942,7 @@ EOD;
         $data->wpcapabilities = rtrim($capabilities, ",");
         $data->wpversion = $wp_version;
         $data->wpurl = get_bloginfo("wpurl");
+        $data->home = home_url();
         
         $themeData = get_theme_data(get_stylesheet_directory() . "/style.css");
         $data->wptheme = $themeData["Name"];
@@ -1032,11 +1047,11 @@ EOD;
         /*
          * Setup the endpoints and rewrite the rules 
          */
-        add_rewrite_endpoint('easyrecipe-print', EP_ROOT);
-        add_rewrite_endpoint('easyrecipe-diagnostics', EP_ROOT);
-        add_rewrite_endpoint('easyrecipe-import', EP_ROOT);
-        add_rewrite_endpoint('easyrecipe-style', EP_ROOT);
-        add_rewrite_endpoint('easyrecipe-printstyle', EP_ROOT);
+        add_rewrite_endpoint('easyrecipe-print', EP_ALL);
+        add_rewrite_endpoint('easyrecipe-diagnostics', EP_ALL);
+        add_rewrite_endpoint('easyrecipe-import', EP_ALL);
+        add_rewrite_endpoint('easyrecipe-style', EP_ALL);
+        add_rewrite_endpoint('easyrecipe-printstyle', EP_ALL);
         flush_rewrite_rules();
         
         $data = http_build_query(array ('action' => 'activate', 'site' => get_site_url()));
