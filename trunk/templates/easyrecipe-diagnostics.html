@@ -52,7 +52,12 @@
           </tr>
           #plugindata#
         </table>
-        <h3>Hooks </h3>
+        <h3>EasyRecipe</h3>
+        <pre>
+#ERSettings#
+</pre>
+        <!-- START INCLUDEIF sendHooks -->
+        <h3>Hooks</h3>
         <table class="ERDTable" border="0">
           <tr>
             <th scope="col">Hook</th>
@@ -61,7 +66,9 @@
           </tr>
           #hookdata#
         </table>
+        <!-- END INCLUDEIF sendHooks --> 
       </div>
+      <h3>PHP</h3>
       <div class="ERPHPinfo">#phpinfo#</div>
     </div>
   </div>

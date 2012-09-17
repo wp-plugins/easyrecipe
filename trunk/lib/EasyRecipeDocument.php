@@ -31,7 +31,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     private $easyrecipesHTML = array ();
     private $postImage = false;
     const regexEasyRecipe = '/<div\s+class\s*=\s*["\'](?:[^>]*\s+)?easyrecipe[ \'"]/si';
-    const regexDOCTYPE = '%^<!DOCTYPE.*?</head>\s*<body>\s*(.*?)\s*</body>\s*</html>%si';
+    const regexDOCTYPE = '%^<!DOCTYPE.*?</head>\s*<body>\s*(.*?)</body>\s*</html>\s*%si';
     const regexTime = '/^(?:([0-9]+) *(?:hours|hour|hrs|hr|h))? *(?:([0-9]+) *(?:minutes|minute|mins|min|mns|mn|m))?$/i';
     const regexImg = '%<img ([^>]*?)/?>%si';
     const regexPhotoClass = '/class\s*=\s*["\'](?:[a-z0-9-_]+ )*?photo[ \'"]/si';
@@ -228,7 +228,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         $nRecipe = 0;
         $recipes = ($recipe == null) ? $this->easyrecipes : array ($recipe);
         foreach ($recipes as $recipe) {
-            $this->easyrecipesHTML[$nRecipe] = $this->formatRecipe($recipe, $template, $data, $nRecipe);
+            $this->easyrecipesHTML[$nRecipe] = trim($this->formatRecipe($recipe, $template, $data, $nRecipe));
             $placeHolder = $this->createElement("div");
             $placeHolder->setAttribute("id", "_easyrecipe_" . $nRecipe);
             
@@ -389,14 +389,15 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     /**
      * Get the processed html for the post.
      * Needs to remove the extra stuff saveHTML adds
-     *
+     * The rtrim is needed because pcre regex's can't pick up repeated spaces after repeated "any character" 
+     * 
      * @return string The processed post html
      *        
-     *         FIXME - standardise the way body only is done!
+     * TODO - standardise the way body only is done!
      */
     public function getHTML($bodyOnly = false) {
         $html = $this->saveHTML();
-        return preg_replace(self::regexDOCTYPE, '$1', $html);
+        return rtrim(preg_replace(self::regexDOCTYPE, '$1', $html));
     }
 
     public static function getPrintRecipe($content) {
@@ -496,29 +497,32 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         
         $data->INGREDIENTSECTIONS = array ();
         $section = null;
-        $ingredientsList = $this->getElementByClassName('ingredients', 'ul', $recipe); // FIXME - what if templates don't use ul's for ingredients?
+        // $ingredientsList = $this->getElementByClassName('ingredients', 'ul', $recipe);
+        $ingredientsLists = $this->getElementsByClassName('ingredients', 'ul', $recipe);
         
-        $ingredients = $this->getElementsByClassName("ingredient|ERSeparator", "*", $ingredientsList);
-        
-        foreach ($ingredients as $ingredient) {
-            $hasHeading = $this->hasClass($ingredient, 'ERSeparator');
-            if ($hasHeading || $section == null) {
-                if ($section != null) {
-                    $data->INGREDIENTSECTIONS[] = $section;
+        foreach ($ingredientsLists as $ingredientsList) {
+            $ingredients = $this->getElementsByClassName("ingredient|ERSeparator", "*", $ingredientsList);
+            
+            foreach ($ingredients as $ingredient) {
+                $hasHeading = $this->hasClass($ingredient, 'ERSeparator');
+                if ($hasHeading || $section == null) {
+                    if ($section != null) {
+                        $data->INGREDIENTSECTIONS[] = $section;
+                    }
+                    $section = new stdClass();
+                    $section->INGREDIENTS = array ();
+                    if ($hasHeading) {
+                        $section->heading = $ingredient->nodeValue;
+                        continue;
+                    }
                 }
-                $section = new stdClass();
-                $section->INGREDIENTS = array ();
-                if ($hasHeading) {
-                    $section->heading = $ingredient->nodeValue;
-                    continue;
-                }
+                $item = new stdClass();
+                $item->ingredient = $ingredient->nodeValue;
+                $item->isImage = preg_match('/^\s*(?:\[[^]]+\])*\s*\[img /i', $ingredient->nodeValue) != 0;
+                $section->INGREDIENTS[] = $item;
             }
-            $item = new stdClass();
-            $item->ingredient = $ingredient->nodeValue;
-            $item->isImage = preg_match('/^\s*(?:\[[^]]+\])*\s*\[img /i', $ingredient->nodeValue) != 0;
-            $section->INGREDIENTS[] = $item;
         }
-        // FIXME what if NO ingredients
+        // TODO what if NO ingredients
         $data->INGREDIENTSECTIONS[] = $section;
         
         $data->INSTRUCTIONSTEPS = array ();

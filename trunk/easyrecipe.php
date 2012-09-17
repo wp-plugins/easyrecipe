@@ -4,7 +4,7 @@ Plugin Name: Easy Recipe
 Plugin URI: http://www.easyrecipeplugin.com/
 Description: The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
 Author: The Orgasmic Chef
-Version: 3.1.02
+Version: 3.1.03
 Author URI: http://www.orgasmicchef.com
 License: GPLv2 or later
 */
@@ -56,11 +56,24 @@ if (!class_exists("DOMDocument", false)) {
     return;
 }
 
+/*
+ * Ignore ajax requests that don't concern us
+*/
+global $pagenow;
+if (isset($pagenow)) {
+    if ($pagenow == 'admin-ajax.php') {
+        $action = isset($_REQUEST['action']) ? $_REQUEST['action'] : '';
+        if (stripos($action, 'easyrecipe') !== 0) {
+            return;
+        }
+    }
+}
+
 if (!class_exists('EasyRecipePlus', false)) {
     require_once dirname(__FILE__) . '/class-easyrecipeplus.php';
     $easyrecipe = new EasyRecipePlus();
     /*
-     * A little weirdness to handle WP's inability to get the plugin basename correct if plugins is a symlink
+     * A little weirdness to handle WP's inability to get the plugin basename correct if wp-content/plugins is a symlink
      * Only required because our own test servers symlink the plugins directory
      */
     $f = basename(dirname(__FILE__)) . '/' . basename(__FILE__);

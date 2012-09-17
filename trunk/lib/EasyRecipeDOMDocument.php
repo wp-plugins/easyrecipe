@@ -151,7 +151,7 @@ if (!class_exists('EasyRecipeDOMDocument', false)) {
         public function getChildrenByTagName($node, $tag = "*") {
             $nodes = array ();
             for ($child = $node->firstChild; $child; $child = $child->nextSibling) {
-                if (is_a($child, 'DOMElement')) {
+                if ($child instanceof DOMElement) {
                     if ($tag == "*" || $tag == $child->tagName) {
                         $nodes[] = $child;
                     }
