@@ -184,6 +184,7 @@ class EasyRecipeSettings {
                     break;
                 
                 default :
+                    // TODO - check that $settings[$key] exists
                     $this->settings[$key] = trim(wp_filter_nohtml_kses($settings[$key]));
                     break;
             }
@@ -219,7 +220,7 @@ class EasyRecipeSettings {
         
         $data->wpurl = get_bloginfo("wpurl");
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.1.02';
+        $data->pluginversion = '3.1.03';
         $data->license = $this->settings['licenseKey'];
         
         $data->displayPrintChecked = $this->settings["displayPrint"] ? 'checked="checked"' : '';

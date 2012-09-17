@@ -42,7 +42,7 @@ class EasyRecipePlus {
     /*
      * Constants from Ant build
      */
-    private $version = "3.1.02";
+    private $version = "3.1.03";
     private $pluginName = 'easyrecipe';
     private $settingsName = 'ERSettings';
     private $templateClass = 'EasyRecipeTemplate';
@@ -84,6 +84,7 @@ class EasyRecipePlus {
     private $guestPosters = array ();
 
     function __construct() {
+        global $pagenow;
         
         
         /*
@@ -112,19 +113,20 @@ class EasyRecipePlus {
             return;
         }
         
+        add_action('wp_ajax_easyrecipeCustomCSS', array ($this, 'updateCustomCSS'));
+        add_action('wp_ajax_easyrecipeSaveStyle', array ($this, 'saveStyle'));
+        
+
         add_action("load-post.php", array ($this, 'loadPostAdmin'));
         add_action("load-post-new.php", array ($this, 'loadPostAdmin'));
         
         add_action('admin_enqueue_scripts', array ($this, 'enqueAdminScripts'));
         add_action('publish_post', array ($this, 'pingMBRB'), 10, 2);
         add_filter('plugin_action_links', array ($this, 'pluginActionLinks'), 10, 2);
-        add_filter('wp_insert_post_data', array ($this, 'postSave'), 10, 2);
+//        add_filter('wp_insert_post_data', array ($this, 'postSave'), 10, 2);
         
-        add_action('wp_ajax_EasyRecipeConvert', array ($this, 'convertRecipe'));
-        add_action('wp_ajax_EasyRecipeSupport', array ($this, 'sendSupport'));
-        
-        add_action('wp_ajax_customCSS', array ($this, 'updateCustomCSS'));
-        add_action('wp_ajax_saveStyle', array ($this, 'saveStyle'));
+        add_action('wp_ajax_easyrecipeConvert', array ($this, 'convertRecipe'));
+        add_action('wp_ajax_easyrecipeSupport', array ($this, 'sendSupport'));
         
         add_action('update-custom_easyrecipe-update', array ($this, 'forceUpdate'));
     }
@@ -142,8 +144,8 @@ class EasyRecipePlus {
         /*
          * Set up the endpoints in case something else flushes
          */
-        add_rewrite_endpoint('easyrecipe-print', EP_ALL);
-        add_rewrite_endpoint('easyrecipe-diagnostics', EP_ALL);
+        // add_rewrite_endpoint('easyrecipe-print', EP_ALL);
+        // add_rewrite_endpoint('easyrecipe-diagnostics', EP_ALL);
         
         
         /*
@@ -156,6 +158,8 @@ class EasyRecipePlus {
             $this->settings->put('lastFlushVersion', $this->version);
             $this->settings->update();
         }
+        
+
         /*
          * Everything past here is not needed on admin pages
          */
@@ -228,6 +232,9 @@ class EasyRecipePlus {
     }
 
     /**
+     * Called before the post admin page is loaded
+     * Queue up all the stuff we need
+     * Remove the post from the object cache
      */
     function loadPostAdmin() {
         wp_enqueue_style("easyrecipe-UI");
@@ -240,6 +247,14 @@ class EasyRecipePlus {
         add_filter('mce_buttons', array ($this, 'mceButtons'));
         add_action('admin_footer', array ($this, 'addDialogHTML'));
         
+        /*
+         * Remove the object cache for this post because we may have cached the post as modified by thePosts() below.
+         * Normally this wouldn't be a problem since object caches aren't normaly persistent and don't survive a page load, 
+         * but they may be persistent if there's a caching plugin installed (e.g. W3 Total Cache)
+         */
+        if (isset($_REQUEST['post'])) {
+            wp_cache_delete($_REQUEST['post'], 'posts');
+        }
     }
 
     
@@ -379,15 +394,30 @@ class EasyRecipePlus {
         $customCSS = trim($this->settings->get("custom{$print}CSS"));
         if ($customCSS != '') {
             $customCSS = json_decode(stripslashes($customCSS));
+            if (!$customCSS) { // TODO- handle this error better
+                $customCSS = array();
+            }
         } else {
             $customCSS = array ();
         }
+        
         $extraCSS = trim($this->settings->get("extra{$print}CSS"));
         $css = '';
         if ($customCSS != '' || $extraCSS != '') {
             $css = "<style type=\"text/css\">\n";
             foreach ($customCSS as $selector => $style) {
                 $style = addslashes($style);
+                /*
+                 * Make the selectors VERY specific to override theme CSS
+                 */
+                if (stripos($selector, ".easyrecipe") === 0) {
+                    $selector = "html body div" . $selector;
+                } else if (stripos($selector, "div.easyrecipe") === 0) {
+                    $selector = "html body " . $selector;
+                } else if (stripos($selector, "html body") === false) {
+                    $selector = "html body " . $selector;
+                }
+                
                 $css .= "$selector { $style }\n";
             }
             $css .= $extraCSS;
@@ -421,6 +451,7 @@ class EasyRecipePlus {
             $this->settings->put('style', $style);
             $this->settings->update();
         }
+        die('OK');
     }
 
     /**
@@ -437,6 +468,10 @@ class EasyRecipePlus {
             $this->settings->put($setting, $css);
             $this->settings->update();
         }
+        /*
+         * The return isn't necessary but it helps with unit testing
+         */
+        die('OK');
     }
 
     /**
@@ -450,10 +485,22 @@ class EasyRecipePlus {
         
         $styleData = $isPrint ? $this->printStyleData : $this->styleData;
         
+        /*
+         * Get the formatting data for each formattable element
+         * Add more specificity to each target so it should override any specific theme CSS 
+         */
         $formats = @json_decode($styleData->formatting);
         if ($formats) {
             foreach ($formats as $format) {
                 $item = new stdClass();
+                if (stripos($format->target, ".easyrecipe") === 0) {
+                    $format->target = "html body div" . $format->target;
+                } else if (stripos($format->target, "div.easyrecipe") === 0) {
+                    $format->target = "html body " . $format->target;
+                } else if (stripos($format->target, "html body") === false) {
+                    $format->target = "html body " . $format->target;
+                }
+                
                 $item->section = $format->section;
                 $format->id = $item->id = $id++;
                 $data->SECTIONS[] = $item;
@@ -494,7 +541,7 @@ class EasyRecipePlus {
         }
         $formats = json_encode($formats);
         $formats = str_replace("'", '\'', $formats);
-        $formatError = $formatError ? 'true' : 'false';
+        
         $print = $isPrint ? 'true' : 'false';
         $thumbs = json_encode($styleThumbs);
         $html .= <<<EOD
@@ -505,7 +552,6 @@ if (typeof EASYRECIPE == "undefined") {
   EASYRECIPE = {};
 }
 EASYRECIPE.isPrint = $print;
-EASYRECIPE.formatError = $formatError;
 EASYRECIPE.formatting = '$formats';
 EASYRECIPE.customCSS = '$customCSS';
 EASYRECIPE.pluginsURL = '$this->pluginsURL';
@@ -689,33 +735,31 @@ EOD;
     
     /**
      * Check if this is one of our rewrite endpoints
+     * Process these manually because add_rewrite_endpoint() is useless if pretty permalinks aren't enabled
      */
     function checkRewrites() {
-        global $wp_query;
+        
+        $endpointRegex = '%^/easyrecipe-(print|diagnostics)(?:/([^?/]+))?%';
         
         /*
-         * Printing?  The post to print is in the queryvar
+         * Just return if it's nothing we're interested in
          */
-        
-        if (preg_match('/^([\d]+)-([\d+])$/', get_query_var('easyrecipe-print'), $regs)) {
-            $this->printRecipe($regs[1], $regs[2]);
-        }
-        
-        
-        /*
-         * Everything past this point needs an admin
-         */
-        if (!current_user_can('administrator')) {
+        if (!preg_match($endpointRegex, $_SERVER['REQUEST_URI'], $regs)) {
             return;
         }
-        
-        /*
-         * Showing what diagnostics will be sent?
-         * Only allow admins to do that
-         */
-        if (isset($wp_query->query_vars['easyrecipe-diagnostics'])) {
-            $this->diagnosticsShowData();
-            exit();
+        switch ($regs[1]) {
+            case 'print' :
+                if (preg_match('/^([\d]+)-([\d+])$/', $regs[2], $regs)) {
+                    $this->printRecipe($regs[1], $regs[2]);
+                }
+                break;
+            
+            case 'diagnostics' :
+                if (current_user_can('administrator')) {
+                    $this->diagnosticsShowData();
+                }
+                break;
+            
         }
     }
     
@@ -837,6 +881,8 @@ EOD;
      * If they exist, strip them out
      */
     function postSave($data, $postarr) {
+        return $data;
+        
         if (strpos($data['post_content'], 'easyrecipeWrapper') !== false) {
             $content = stripslashes($data['post_content']);
             $dom = new $this->documentClass($content);
@@ -917,14 +963,20 @@ EOD;
         
         $data = new stdClass();
         /*
-     * Get the php info
-     */
+         * Get the php info
+         */
         $existingOP = ob_get_clean();
         ob_start();
         phpinfo();
         $phpinfo = ob_get_clean();
         preg_match('%<body>(.*)</body>%si', $phpinfo, $regs);
         $data->phpinfo = $regs[1];
+        
+        /*
+         * Get our own settings
+         */
+        $data->ERSettings = $this->settings->get();
+        
         $data->email = get_bloginfo("admin_email");
         
         $capabilities = "";
@@ -973,7 +1025,7 @@ EOD;
         </tr>\n
 EOD;
         }
-        
+        /*
         $hooks = $wp_filter;
         ksort($hooks);
         $data->hookdata = "";
@@ -992,6 +1044,8 @@ EOD;
                 }
             }
         }
+        */
+        
         echo $existingOP;
         return $data;
     }
@@ -1004,10 +1058,11 @@ EOD;
         $data->easyrecipeURL = $this->easyrecipeURL;
         $data->version = $this->version;
         
+        $data->ERSettings = print_r($data->ERSettings, true);
+        
         /* @var $template EasyRecipePlusTemplate */
         $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-diagnostics.html");
-        $html = $template->replace($data);
-        
+        $html = $template->replace($data, constant("$this->templateClass::PRESERVEWHITESPACE"));
         echo $html;
         
         exit();
@@ -1047,11 +1102,11 @@ EOD;
         /*
          * Setup the endpoints and rewrite the rules 
          */
-        add_rewrite_endpoint('easyrecipe-print', EP_ALL);
-        add_rewrite_endpoint('easyrecipe-diagnostics', EP_ALL);
-        add_rewrite_endpoint('easyrecipe-import', EP_ALL);
-        add_rewrite_endpoint('easyrecipe-style', EP_ALL);
-        add_rewrite_endpoint('easyrecipe-printstyle', EP_ALL);
+        // add_rewrite_endpoint('easyrecipe-print', EP_ALL);
+        // add_rewrite_endpoint('easyrecipe-diagnostics', EP_ALL);
+        // add_rewrite_endpoint('easyrecipe-import', EP_ALL);
+        // add_rewrite_endpoint('easyrecipe-style', EP_ALL);
+        // add_rewrite_endpoint('easyrecipe-printstyle', EP_ALL);
         flush_rewrite_rules();
         
         $data = http_build_query(array ('action' => 'activate', 'site' => get_site_url()));
@@ -1144,10 +1199,15 @@ EOD;
         $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-convert.html");
         echo $template->replace($data);
         
+        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-htmlwarning.html");
+        echo $template->getTemplateHTML();
+        
         /*
          * Get the basic data template
-         * We need to preserve comments here because the template is processed by the javascript engine and it needs the INCLUDEIF/REPEATS 
+         * We need to preserve comments here because the template is processed by the javascript template engine and it needs the INCLUDEIF/REPEATS 
          */
+        
+        /* @var $template EasyRecipePlusTemplate */
         $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-template.html");
         $class = $this->templateClass;
         

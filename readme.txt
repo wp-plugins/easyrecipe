@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.2
 Tested up to: 3.4.2
-Stable tag: 3.1.02
+Stable tag: 3.1.03
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -74,6 +74,12 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.1.03 =
+* Fix print not working on some blogs
+* Fix weird stuff happening when W3 Total Cache installed
+* Workaround for recipes that have been manually modified and have a non EasyRecipe standard structure
+* Made live formatting CSS more specific so themes are less likely to override custom formatting  
+
 = 3.1.02 =
 * Fix for themes that ignore modification of posts by plugins and displayed unformatted recipes (Thanks Nicole!)
 * Fix for print on blogs with non-root Wordpress installs
