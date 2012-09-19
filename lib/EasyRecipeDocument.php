@@ -389,11 +389,11 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     /**
      * Get the processed html for the post.
      * Needs to remove the extra stuff saveHTML adds
-     * The rtrim is needed because pcre regex's can't pick up repeated spaces after repeated "any character" 
-     * 
+     * The rtrim is needed because pcre regex's can't pick up repeated spaces after repeated "any character"
+     *
      * @return string The processed post html
      *        
-     * TODO - standardise the way body only is done!
+     *         TODO - standardise the way body only is done!
      */
     public function getHTML($bodyOnly = false) {
         $html = $this->saveHTML();
@@ -527,25 +527,28 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         
         $data->INSTRUCTIONSTEPS = array ();
         $section = null;
-        $instructionsList = $this->getElementByClassName('instructions', 'div', $recipe);
-        $instructions = $this->getElementsByClassName("instruction|ERSeparator", "*", $instructionsList);
-        foreach ($instructions as $instruction) {
-            $hasHeading = $this->hasClass($instruction, 'ERSeparator');
-            if ($hasHeading || $section == null) {
-                if ($section != null) {
-                    $data->INSTRUCTIONSTEPS[] = $section;
+        // $instructionsList = $this->getElementByClassName('instructions', 'div', $recipe);
+        $instructionsLists = $this->getElementsByClassName('instructions', 'div', $recipe);
+        foreach ($instructionsLists as $instructionsList) {
+            $instructions = $this->getElementsByClassName("instruction|ERSeparator", "*", $instructionsList);
+            foreach ($instructions as $instruction) {
+                $hasHeading = $this->hasClass($instruction, 'ERSeparator');
+                if ($hasHeading || $section == null) {
+                    if ($section != null) {
+                        $data->INSTRUCTIONSTEPS[] = $section;
+                    }
+                    $section = new stdClass();
+                    $section->INSTRUCTIONS = array ();
+                    if ($hasHeading) {
+                        $section->heading = $instruction->nodeValue;
+                        continue;
+                    }
                 }
-                $section = new stdClass();
-                $section->INSTRUCTIONS = array ();
-                if ($hasHeading) {
-                    $section->heading = $instruction->nodeValue;
-                    continue;
-                }
+                $item = new stdClass();
+                $item->instruction = $instruction->nodeValue;
+                $item->isImage = preg_match('/^\s*(?:\[[^]]+\])*\s*\[img /i', $instruction->nodeValue) != 0;
+                $section->INSTRUCTIONS[] = $item;
             }
-            $item = new stdClass();
-            $item->instruction = $instruction->nodeValue;
-            $item->isImage = preg_match('/^\s*(?:\[[^]]+\])*\s*\[img /i', $instruction->nodeValue) != 0;
-            $section->INSTRUCTIONS[] = $item;
         }
         // FIXME - allow for NO instructions
         $data->INSTRUCTIONSTEPS[] = $section;

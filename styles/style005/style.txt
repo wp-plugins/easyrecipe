@@ -19,7 +19,7 @@ Formatting: [\
 {"section":"Instructions Heading","target":".easyrecipe .ERSInstructionsHeader","type":"font"},\
 {"section":"Instructions Section Heading","target":".easyrecipe .ERSInstructions .ERSSectionHead","type":"font"},\
 {"section":"Instructions Items","target":".easyrecipe .ERSInstructions .instruction","type":"list"},\
-{"section":"Notes Heading","target":".easyrecipe .ERSNutrionDetails","type":"font"},\
+{"section":"Notes Heading","target":".easyrecipe .ERSNotesHeader","type":"font"},\
 {"section":"Notes","target":".easyrecipe .ERSNotesDiv .ERSNotes","type":"font"},\
 {"section":"Nutrition Heading","target":".easyrecipe .ERSNutritionHeader","type":"font"},\
 {"section":"Nutrition","target":".easyrecipe .ERSNutrionDetails","type":"font"}\
