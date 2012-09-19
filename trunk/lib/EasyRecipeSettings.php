@@ -220,7 +220,7 @@ class EasyRecipeSettings {
         
         $data->wpurl = get_bloginfo("wpurl");
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.1.04';
+        $data->pluginversion = '3.1.05';
         $data->license = $this->settings['licenseKey'];
         
         $data->displayPrintChecked = $this->settings["displayPrint"] ? 'checked="checked"' : '';
