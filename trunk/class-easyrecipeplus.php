@@ -42,7 +42,7 @@ class EasyRecipePlus {
     /*
      * Constants from Ant build
      */
-    private $version = "3.1.03";
+    private $version = "3.1.04";
     private $pluginName = 'easyrecipe';
     private $settingsName = 'ERSettings';
     private $templateClass = 'EasyRecipeTemplate';
@@ -82,6 +82,8 @@ class EasyRecipePlus {
     private $languages;
     private static $plugins = array ();
     private $guestPosters = array ();
+    private $isEndpoint;
+    private $endpointRegex;
 
     function __construct() {
         global $pagenow;
@@ -109,25 +111,32 @@ class EasyRecipePlus {
      * Set up stuff we need if we're on an admin page
      */
     function initialiseAdmin() {
-        if (!current_user_can('administrator')) {
+        /*
+         * Need to be able to edit posts at a minimum
+         */
+        if (!current_user_can('edit_posts')) {
             return;
         }
         
-        add_action('wp_ajax_easyrecipeCustomCSS', array ($this, 'updateCustomCSS'));
-        add_action('wp_ajax_easyrecipeSaveStyle', array ($this, 'saveStyle'));
+        /*
+         * Only someone who can edit plugins can change the styling
+         */
+        if (current_user_can('edit_plugins')) {
+            add_action('wp_ajax_easyrecipeCustomCSS', array ($this, 'updateCustomCSS'));
+            add_action('wp_ajax_easyrecipeSaveStyle', array ($this, 'saveStyle'));
+        }
         
-
         add_action("load-post.php", array ($this, 'loadPostAdmin'));
         add_action("load-post-new.php", array ($this, 'loadPostAdmin'));
         
         add_action('admin_enqueue_scripts', array ($this, 'enqueAdminScripts'));
         add_action('publish_post', array ($this, 'pingMBRB'), 10, 2);
         add_filter('plugin_action_links', array ($this, 'pluginActionLinks'), 10, 2);
-//        add_filter('wp_insert_post_data', array ($this, 'postSave'), 10, 2);
+        // add_filter('wp_insert_post_data', array ($this, 'postSave'), 10, 2);
         
         add_action('wp_ajax_easyrecipeConvert', array ($this, 'convertRecipe'));
-        add_action('wp_ajax_easyrecipeSupport', array ($this, 'sendSupport'));
         
+        add_action('wp_ajax_easyrecipeSupport', array ($this, 'sendSupport'));
         add_action('update-custom_easyrecipe-update', array ($this, 'forceUpdate'));
     }
 
@@ -141,12 +150,6 @@ class EasyRecipePlus {
 
         $this->settings = new $this->settingsClass();
         
-        /*
-         * Set up the endpoints in case something else flushes
-         */
-        // add_rewrite_endpoint('easyrecipe-print', EP_ALL);
-        // add_rewrite_endpoint('easyrecipe-diagnostics', EP_ALL);
-        
         
         /*
          * Check to see if we've been updated since the last time we did a rewrite rules flush,
@@ -159,7 +162,10 @@ class EasyRecipePlus {
             $this->settings->update();
         }
         
-
+        $this->endpointRegex = '%/easyrecipe-(print|diagnostics)(?:/([^?/]+))?%';
+        
+        $this->isEndpoint = preg_match('%/easyrecipe-(print|diagnostics|style|printstyle)(?:/([^?/]+))?%', $_SERVER['REQUEST_URI']);
+        
         /*
          * Everything past here is not needed on admin pages
          */
@@ -168,24 +174,25 @@ class EasyRecipePlus {
         }
         
         add_action('wp_enqueue_scripts', array ($this, 'enqueueScripts'));
-        add_action('template_redirect', array ($this, 'checkRewrites'), -1);
-        
-        add_action('the_posts', array ($this, 'thePosts'), 0);
-        
-        add_action('wp_before_admin_bar_render', array ($this, 'adminBarMenu'));
         
 
-        /*
-         * Hook into the comment save if we're using EasyRecipe ratings
-        */
-        if ($this->settings->get('ratings') == 'EasyRecipe') {
-            add_action('comment_post', array ($this, 'ratingSave'));
+        if ($this->isEndpoint) {
+            add_action('template_redirect', array ($this, 'checkRewrites'), -1);
+        } else {
+            add_action('the_posts', array ($this, 'thePosts'), 0);
+            add_action('wp_before_admin_bar_render', array ($this, 'adminBarMenu'));
+            
+            /*
+             * Hook into the comment save if we're using EasyRecipe ratings
+             */
+            if ($this->settings->get('ratings') == 'EasyRecipe') {
+                add_action('comment_post', array ($this, 'ratingSave'));
+            }
         }
-        
         /*
          * Override the default style for preview?
          */
-        if (isset($_REQUEST['style']) && current_user_can("administrator")) {
+        if (isset($_REQUEST['style']) && current_user_can("edit_plugins")) {
             $this->styleName = $_REQUEST['style'];
         } else {
             $this->styleName = $this->settings->get('style');
@@ -349,7 +356,7 @@ class EasyRecipePlus {
          * Load format dialogs and UI CSS if logged in as admin
          * Use our own version of an unobtrusive jQuery UI theme to prevent interference from themes and plugins that override standard stuff
          */
-        if (current_user_can("administrator")) {
+        if (current_user_can("edit_plugins")) {
             
             /*
              * Use an unobtrusive grey scheme for the formatting dialog so it doesn't visually overpower the recipe's styling
@@ -395,7 +402,7 @@ class EasyRecipePlus {
         if ($customCSS != '') {
             $customCSS = json_decode(stripslashes($customCSS));
             if (!$customCSS) { // TODO- handle this error better
-                $customCSS = array();
+                $customCSS = array ();
             }
         } else {
             $customCSS = array ();
@@ -442,7 +449,7 @@ class EasyRecipePlus {
      * Process a "Save style" from Live Formatting
      */
     public function saveStyle() {
-        if (current_user_can("administrator")) {
+        if (current_user_can("edit_plugins")) {
             $style = isset($_POST['style']) ? $_POST['style'] : '';
             if (!isset($this->settings)) {
                 $this->settings = new $this->settingsClass();
@@ -458,7 +465,7 @@ class EasyRecipePlus {
      * Process the update from the format javascript via ajax
      */
     public function updateCustomCSS() {
-        if (current_user_can("administrator")) {
+        if (current_user_can("edit_plugins")) {
             $css = isset($_POST['css']) ? $_POST['css'] : "";
             if (!isset($this->settings)) {
                 $this->settings = new $this->settingsClass();
@@ -567,7 +574,7 @@ EOD;
          * Display formatting JS is handled by enqueue scripts
          * The print page exits before enqueues get output so add the script manually now
          */
-        if ($isPrint && current_user_can("administrator")) {
+        if ($isPrint && current_user_can("edit_plugins")) {
             $html .= sprintf('<script type="text/javascript" src="%s/js/easyrecipe-format.js?version=%s"></script>', $this->easyrecipeURL, $this->version);
         }
         return $html;
@@ -708,7 +715,7 @@ EOD;
         $data->jqueryuijs = self::JQUERYUIJS;
         $data->jqueryuicss = self::JQUERYUICSS;
         
-        if (current_user_can('administrator')) {
+        if (current_user_can('edit_posts')) {
             $data->isAdmin = true;
             $data->formatDialog = $this->getFormatDialog(true);
         } else {
@@ -739,14 +746,13 @@ EOD;
      */
     function checkRewrites() {
         
-        $endpointRegex = '%^/easyrecipe-(print|diagnostics)(?:/([^?/]+))?%';
-        
         /*
          * Just return if it's nothing we're interested in
          */
-        if (!preg_match($endpointRegex, $_SERVER['REQUEST_URI'], $regs)) {
+        if (!preg_match($this->endpointRegex, $_SERVER['REQUEST_URI'], $regs)) {
             return;
         }
+        
         switch ($regs[1]) {
             case 'print' :
                 if (preg_match('/^([\d]+)-([\d+])$/', $regs[2], $regs)) {
@@ -769,6 +775,9 @@ EOD;
      * @param array $posts            
      */
     function thePosts($posts) {
+        /* @var $wp_rewrite WP_Rewrite */
+        global $wp_rewrite;
+        
         $newPosts = array ();
         /*
          * Process each post and replace placeholders with relevant data
@@ -843,6 +852,16 @@ EOD;
             $data->title = $post->post_title;
             $data->blogname = get_option("blogname"); // TODO - do all this stuff at initialise time?
             $data->siteURL = $this->homeURL;
+            $data->sitePrintURL = $data->siteURL;
+            if (!$wp_rewrite->using_permalinks()) {
+                $uri = $_SERVER['REQUEST_URI'];
+                if (strpos($uri, '?') !== false) {
+                    $data->sitePrintURL .= "$uri&";
+                } else {
+                    $data->sitePrintURL .= "$uri?";
+                }
+            }
+            
             $data->postID = $post->ID;
             $data->recipeurl = get_permalink($post->ID);
             $data->convertFractions = $this->settings->get('convertFractions');

@@ -108,3 +108,6 @@ div.easyrecipe {
 	margin-top: 10px;
 	text-align: center;
 }
+.easyrecipe .ERSIngredients .ERSIngredientsHeader.ERSHeading {
+	clear: none;
+}
