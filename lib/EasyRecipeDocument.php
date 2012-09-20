@@ -107,7 +107,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
          * so we need to know if this post has already been formatted. This is a pretty icky way of doing it since it relies
          * on the style template having a specific title attribute on the endeasyrecipe div - need to make this more robust
          */
-        $this->isFormatted = ($node !== null && $node->getAttribute('title') != '#style#'); 
+        $this->isFormatted = ($node !== null && $node->hasAttribute('title')); 
     }
 
     /**

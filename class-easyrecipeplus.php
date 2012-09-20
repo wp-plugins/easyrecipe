@@ -42,7 +42,7 @@ class EasyRecipePlus {
     /*
      * Constants from Ant build
      */
-    private $version = "3.1.06";
+    private $version = "3.1.07";
     private $pluginName = 'easyrecipe';
     private $settingsName = 'ERSettings';
     private $templateClass = 'EasyRecipeTemplate';
