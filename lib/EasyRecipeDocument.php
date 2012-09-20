@@ -25,11 +25,14 @@ if (!class_exists('EasyRecipeDOMDocument', false)) {
 class EasyRecipeDocument extends EasyRecipeDOMDocument {
     public $isEasyRecipe = false;
     public $recipeVersion = 0;
+    public $isFormatted;
     private $easyrecipeDiv;
     private $hasFractions = false;
     private $easyrecipes = array ();
     private $easyrecipesHTML = array ();
     private $postImage = false;
+    
+    
     const regexEasyRecipe = '/<div\s+class\s*=\s*["\'](?:[^>]*\s+)?easyrecipe[ \'"]/si';
     const regexDOCTYPE = '%^<!DOCTYPE.*?</head>\s*<body>\s*(.*?)</body>\s*</html>\s*%si';
     const regexTime = '/^(?:([0-9]+) *(?:hours|hour|hrs|hr|h))? *(?:([0-9]+) *(?:minutes|minute|mins|min|mns|mn|m))?$/i';
@@ -93,9 +96,18 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
          */
         $this->isEasyRecipe = true;
         
+        /* @var $node DOMElement */
         $node = $this->getElementByClassName("endeasyrecipe", "div", $this->easyrecipes[0], false);
         
         $this->recipeVersion = $node->nodeValue;
+        
+        /*
+         * See if this post has already been formatted.  
+         * Wordpress replaces the parent post_content with the autosave post content (as already formatted by us) on a preview.
+         * so we need to know if this post has already been formatted. This is a pretty icky way of doing it since it relies
+         * on the style template having a specific title attribute on the endeasyrecipe div - need to make this more robust
+         */
+        $this->isFormatted = ($node !== null && $node->getAttribute('title') != '#style#'); 
     }
 
     /**
