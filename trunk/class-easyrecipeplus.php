@@ -42,7 +42,7 @@ class EasyRecipePlus {
     /*
      * Constants from Ant build
      */
-    private $version = "3.1.05";
+    private $version = "3.1.06";
     private $pluginName = 'easyrecipe';
     private $settingsName = 'ERSettings';
     private $templateClass = 'EasyRecipeTemplate';
@@ -799,11 +799,23 @@ EOD;
                 $newPosts[] = $post;
                 continue;
             }
-            
+
             /**
              * Mark this post as an easyrecipe so that the comment and rating processing know
              */
             $this->easyrecipes[$post->ID] = true;
+            
+            /*
+             * Make sure we haven't already formatted this post. This can happen in preview mode where WP replaces the post_content
+             * of the parent with the autosave content which we've already processed.
+             * If this is the case, save the formatted code and mark this post as having been processed
+             * TODO - are there implications for the object cache for themes that re-read posts?  
+             */
+            if ($postDOM->isFormatted) {
+                $this->postContent[$post->ID] = $post->post_content;
+                $newPosts[] = $post;
+                continue;
+            }
             
             /**
              * Fix possibly broken times in older posts
