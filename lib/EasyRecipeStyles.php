@@ -26,15 +26,6 @@ class EasyRecipeStyles {
     private static $pluginName = 'easyrecipe';
 
     /**
-     *
-     * @param string $styleName
-     *            The name of the style
-     * @param boolean $isPrint
-     *            Set TRUE to get print style, FALSE to get display style
-     * @return stdClass
-     */
-    
-    /**
      * Returns the data for style "$styleName".
      * If $styleName begins with an underscore, it's a custom style
      *
@@ -47,7 +38,6 @@ class EasyRecipeStyles {
      * @return stdClass Style data object
      */
     static public function getStyleData($styleName, $customTemplates, $isPrint = false) {
-        $seenStart = false;
         $isFormatting = false;
         $isFonts = false;
         $pluginURL = WP_PLUGIN_URL . '/' . self::$pluginName;
@@ -60,7 +50,7 @@ class EasyRecipeStyles {
             $url = $pluginURL;
             $styleDirectory = $styleName;
         }
-        
+
         $styleData = new stdClass();
         $styleData->style = '';
         $styleData->author = '';
@@ -69,15 +59,15 @@ class EasyRecipeStyles {
         $styleData->formatting = '[]';
         $styleData->fonts = '';
         $styleData->directory = $styleName;
-        
+
         // FIXME - what if no style.txt?
-        
+
         if ($isPrint) {
             $dir = 'print';
         } else {
             $dir = '';
         }
-        
+
         $lines = @file("$directory/{$dir}styles/$styleDirectory/style.txt");
         if ($lines !== false) {
             foreach ($lines as $line) {
@@ -85,7 +75,7 @@ class EasyRecipeStyles {
                 if ($line == '') {
                     continue;
                 }
-                
+
                 if ($isFormatting) {
                     if ($line[strlen($line) - 1] == "\\") {
                         $styleData->formatting .= rtrim($line, "\\");
@@ -139,7 +129,7 @@ class EasyRecipeStyles {
         } catch (Exception $e) {
             return $names;
         }
-        
+
         foreach ($stylesDir as $dir) {
             if (!$dir->isDir()) {
                 continue;
@@ -151,7 +141,7 @@ class EasyRecipeStyles {
             if (!file_exists("$directory/$style/style.txt")) {
                 continue;
             }
-            
+
             $names[] = $isCustom ? "_$style" : $style;
         }
         return $names;
@@ -173,12 +163,12 @@ class EasyRecipeStyles {
          * Do we need to create the styles data?
          */
         if ((!$isPrint && !isset(self::$styles)) || ($isPrint && !isset(self::$printStyles))) {
-            
+
             $directory = WP_PLUGIN_DIR . '/' . self::$pluginName;
             $directory = $isPrint ? "$directory/printstyles" : "$directory/styles";
-            
+
             $names = array_merge($names, self::getStyleNames($directory));
-            
+
             sort($names);
             foreach ($names as $name) {
                 $style = self::getStyleData($name, $customTemplates, $isPrint);
@@ -190,9 +180,8 @@ class EasyRecipeStyles {
         } else {
             self::$styles = $styles;
         }
-        
+
         return $isPrint ? self::$printStyles : self::$styles;
     }
 }
 
-?>
