@@ -360,4 +360,3 @@ if (!class_exists('EasyRecipeDOMDocument', false)) {
         }
     }
 }
-?>

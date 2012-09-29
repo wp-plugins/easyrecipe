@@ -1,16 +1,16 @@
 === Easy Recipe ===
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
-Requires at least: 3.2
+Requires at least: 3.3
 Tested up to: 3.4.2
-Stable tag: 3.1.07
+Stable tag: 3.1.08
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
 
 == Description ==
 
-The most fully featured recipe plugin that doesn't require a degree in geek! 
+The most fully featured recipe plugin that doesn't require a degree in geek!
 
 EasyRecipe makes recipe entry a breeze, with features like cut and paste, auto conversion of your plain text recipe posts, live custom formatting, Google Recipe View formatting and preview button, automatic ratings, conversion from other recipe plugins like ZipList and RecipeSEO, and more.
 
@@ -22,7 +22,7 @@ EasyRecipe gives you all the advantages of microdata, without any of the messy c
 
 Enter your post, upload your photos and enter your recipe.  EasyRecipe formats it all and allows your visitors to view your recipe in the format YOU create - there's no messy CSS or PHP editing required.
 
-And of course there's a print button that allows your visitors to print your recipes in a format you can change to be just how you want it. 
+And of course there's a print button that allows your visitors to print your recipes in a format you can change to be just how you want it.
 
 It's quick. It's easy. The recipes look great.  Your recipes will have ratings and print features and most importantly you have a much better chance for your recipes showing up in Google's Recipe View search results.
 
@@ -63,8 +63,8 @@ We CAN but it all depends on what's in the text and/or what other things another
 We'll do our best to help you with any problem you have with EasyRecipe.  You can [contact me](http://www.easyrecipeplugin.com/support.php) and we'll answer you as quickly as we can.
 
 == Screenshots ==
-1. Simple recipe entry. You don't have to pre-define ingredients, enter quantities separately or worry about taxonomies 
-2. You can optionally enter nutrition data if you want. If you leave it out, EasyRecipe just suppresses that section on your post. 
+1. Simple recipe entry. You don't have to pre-define ingredients, enter quantities separately or worry about taxonomies
+2. You can optionally enter nutrition data if you want. If you leave it out, EasyRecipe just suppresses that section on your post.
 3. You can enter optional notes. EasyRecipe is smart enough to hide the notes section on your post if you don't have any.
 4. You can even cut and paste a plain text recipe and have EasyRecipe convert it for you.
 5. Just one of the display styles  available. You can choose from a range of pre-defined styles, or create your own (in [EasyRecipe PLUS](http://www.easyrecipeplugin.com))
@@ -74,6 +74,18 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.1.08 =
+* Added Ziplist save button option (Plus version)
+* Added configurable title on guest post details page (Plus version)
+* Added "Force jQuery library load" option to handle badly behaved themes and plugins
+* Allow blank custom labels
+* Workaround for Internet Explorer bugs when displaying errors on the Settings page
+* Various CSS tweaks to better handle more themes
+* Fix for print and preview pages when W3 Total Cache Object cache is enabled
+* Fix headings displaying when they shouldn't when multiple recipes in a single post (Plus version)
+* Fix for custom labels for Ingredients and Instructions on the Legacy display style
+* Fix for apostrophes in settings
+
 = 3.1.07 =
 * Only display warning once when switching to HTML editor
 * Fix previews
@@ -88,8 +100,8 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 * Minor tweak or the Tastefully Simple print style
 * Fixed print for blogs that don't use permalinks
 * Fix for Notes Heading not opening in live formatting for the Celebration style
-* Fix excerpt and other fields inadvertently being written on a save from the HTML editor 
- 
+* Fix excerpt and other fields inadvertently being written on a save from the HTML editor
+
 = 3.1.03 =
 * Fix print not working on some blogs
 * Fix weird stuff happening when W3 Total Cache installed
@@ -138,7 +150,7 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 
 = 2.2.5 =
 * Fix for the Live Formatting window opening too high on the page on small screens
- 
+
 = 2.2.4 =
 * Fix corrupt css images
 
@@ -149,18 +161,18 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 * Added ZipList conversion
 * Updated RecipeSEO conversion
 * Added meta tag for MyBigRecipeBox.com crawler permissions
-* Fixed some options not being correctly saved 
+* Fixed some options not being correctly saved
 * Fix "Recipe Details" formatting not saved
 * Fix "Carbs" label not displaying
 
 = 2.2.1 =
-* Fix My Big Recipe Box ping (hung on publish) 
+* Fix My Big Recipe Box ping (hung on publish)
 
 = 2.2.0 =
-* Fix fatal error in extra CSS processing 
+* Fix fatal error in extra CSS processing
 
 = 2.1.9 =
-* Fix changelog 
+* Fix changelog
 
 = 2.1.8 =
 * Updated for WP 3.3.1

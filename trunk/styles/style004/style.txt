@@ -8,6 +8,7 @@ Formatting: [\
 {"section":"Recipe","target":".easyrecipe","type":"recipe"},\
 {"section":"Recipe Name","target":".easyrecipe .ERSName","type":"font"},\
 {"section":"Print Button","target":".easyrecipe .ERSPrintBtnSpan .ERSPrintBtn","type":"button"},\
+{"section":"Save Button","target":".easyrecipe .ERSSaveBtnSpan .ERSSaveBtn","type":"button"},\
 {"section":"Recipe Details","target":".easyrecipe .ERSDetails","type":"font"},\
 {"section":"Summary","target":".easyrecipe .ERSSummary","type":"font"},\
 {"section":"Ingredients Heading","target":".easyrecipe .ERSIngredients .ERSIngredientsHeader","type":"font"},\
@@ -21,3 +22,4 @@ Formatting: [\
 {"section":"Nutrition Heading","target":".easyrecipe .ERSNutritionHeader","type":"font"},\
 {"section":"Nutrition","target":".easyrecipe .nutrition","type":"font"}\
 ]
+

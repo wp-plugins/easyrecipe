@@ -151,6 +151,7 @@ if (!class_exists('EasyRecipeTemplate', false)) {
 
             $currentPosition = 0;
             $this->opText = '';
+            $inText = $this->inText;
 
             /**
              * We return from within this loop when we have nothing left to process
@@ -159,19 +160,19 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                 /**
                  * Look for stuff to replace and find the first of them
                  */
-                $firstPosition = strlen($this->inText);
-                $varPosition = strpos($this->inText, $this->delimiter, $currentPosition);
+                $firstPosition = strlen($inText);
+                $varPosition = strpos($inText, $this->delimiter, $currentPosition);
                 if ($varPosition !== false) {
                     $firstPosition = $varPosition;
                     $firstType = self::VARIABLEREPLACE;
                 }
-                $repeatPosition = strpos($this->inText, '<!-- START REPEAT ', $currentPosition);
+                $repeatPosition = strpos($inText, '<!-- START REPEAT ', $currentPosition);
                 if ($repeatPosition !== false && $repeatPosition < $firstPosition) {
                     $firstPosition = $repeatPosition;
                     $firstType = self::REPEATREPLACE;
                 }
 
-                $includeifPosition = strpos($this->inText, '<!-- START INCLUDEIF ', $currentPosition);
+                $includeifPosition = strpos($inText, '<!-- START INCLUDEIF ', $currentPosition);
                 if ($includeifPosition !== false && $includeifPosition < $firstPosition) {
                     $firstPosition = $includeifPosition;
                     $firstType = self::INCLUDEIF;
@@ -180,8 +181,8 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                 /**
                  * If there's nothing to do, just return what we've got
                  */
-                if ($firstPosition == strlen($this->inText)) {
-                    $this->opText .= substr($this->inText, $currentPosition);
+                if ($firstPosition == strlen($inText)) {
+                    $this->opText .= substr($inText, $currentPosition);
                     if (!self::$translate || !class_exists('EasyDOMDocument')) {
                         return $this->cleanWhitespace($this->opText, $options);
                     }
@@ -212,7 +213,7 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                  * Copy over everything up to the first thing we need to process
                  */
                 $length = $firstPosition - $currentPosition;
-                $this->opText .= substr($this->inText, $currentPosition, $length);
+                $this->opText .= substr($inText, $currentPosition, $length);
                 $currentPosition = $firstPosition;
                 /**
                  * Get the thing to be replaced
@@ -228,7 +229,7 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                          * Only check a smallish substring for efficiency
                          * This limits include condition names to 20 characters
                          */
-                        $subString = substr($this->inText, $currentPosition, 60);
+                        $subString = substr($inText, $currentPosition, 60);
 
                         if (preg_match('/<!-- START INCLUDEIF (!?)([_a-z][_0-9a-z]{0,31}) -->/i', $subString, $regs)) {
                             $negate = $regs[1];
@@ -243,7 +244,7 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                         $endInclude = "<!-- END INCLUDEIF $negate$includeCondition -->";
 
                         $endIncludeLength = strlen($endInclude);
-                        $endPosition = strpos($this->inText, $endInclude);
+                        $endPosition = strpos($inText, $endInclude);
                         if ($endPosition == false) {
                             trigger_error("'$endInclude' not found", E_USER_NOTICE);
                             $this->opText .= "<";
@@ -261,9 +262,9 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                         if ($condition === $trueFalse) {
                             $startInclude = "<!-- START INCLUDEIF $negate$includeCondition -->";
                             $startIncludeLength = strlen($startInclude);
-                            $this->inText = substr($this->inText, 0, $currentPosition) . substr($this->inText, $currentPosition + $startIncludeLength, $endPosition - $currentPosition - $startIncludeLength) . substr($this->inText, $endPosition + $endIncludeLength);
+                            $inText = substr($inText, 0, $currentPosition) . substr($inText, $currentPosition + $startIncludeLength, $endPosition - $currentPosition - $startIncludeLength) . substr($inText, $endPosition + $endIncludeLength);
                         } else {
-                            $this->inText = substr($this->inText, 0, $currentPosition) . substr($this->inText, $endPosition + $endIncludeLength);
+                            $inText = substr($inText, 0, $currentPosition) . substr($inText, $endPosition + $endIncludeLength);
                         }
                         break;
 
@@ -273,7 +274,7 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                      * FIXME - fall back to caller's vars if it doesn't exist
                      */
                     case self::VARIABLEREPLACE :
-                        $s = substr($this->inText, $currentPosition, 34);
+                        $s = substr($inText, $currentPosition, 34);
                         if (!preg_match("/^$this->delimiter([_a-z][_0-9a-z]{0,31})$this->delimiter/im", $s, $regs)) {
                             $this->opText .= $this->delimiter;
                             $currentPosition++;
@@ -306,7 +307,7 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                      * Look for a valid START REPEAT in the next 45 characters
                      */
                     case self::REPEATREPLACE :
-                        $s = substr($this->inText, $currentPosition, 45);
+                        $s = substr($inText, $currentPosition, 45);
                         if (!preg_match('/<!-- START REPEAT ([_a-zA-Z][_0-9a-zA-Z]{0,19}) -->/m', $s, $regs)) {
                             $this->opText .= '<';
                             $currentPosition++;
@@ -326,7 +327,7 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                          * Now try to find the end of this repeat
                          */
                         $currentPosition += strlen($rptName) + 22;
-                        $rptEnd = strpos($this->inText, "<!-- END REPEAT $rptName -->", $currentPosition);
+                        $rptEnd = strpos($inText, "<!-- END REPEAT $rptName -->", $currentPosition);
                         if ($rptEnd === false) {
                             $this->opText .= '<!-- START REPEAT $rptName -->';
                             trigger_error("END REPEAT not found for $rptName", E_USER_NOTICE);
@@ -338,7 +339,7 @@ if (!class_exists('EasyRecipeTemplate', false)) {
                          * For each item in the repeated array, process as a new template
                          */
                         $rptLength = $rptEnd - $currentPosition;
-                        $rptString = substr($this->inText, $currentPosition, $rptLength);
+                        $rptString = substr($inText, $currentPosition, $rptLength);
                         $rptVars = $data->$rptName;
                         for ($i = 0; $i < count($rptVars); $i++) {
                             $saveTranslate = self::$translate;
@@ -357,4 +358,3 @@ if (!class_exists('EasyRecipeTemplate', false)) {
         }
     }
 }
-?>
