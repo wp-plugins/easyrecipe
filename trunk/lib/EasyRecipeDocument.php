@@ -490,6 +490,9 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         $data->preptimeISO = $this->getISOTime($data->preptime);
         $data->cooktimeISO = $this->getISOTime($data->cooktime);
         $data->totaltimeISO = $this->getISOTime($data->totaltime);
+        $data->hasTimes = (isset($data->preptime) || isset($data->cooktime) || isset($data->totaltime));
+
+
         $data->yield = $this->getElementValueByClassName("yield", "span", $recipe);
         $data->summary = $this->getElementValueByClassName("summary", "span", $recipe);
 

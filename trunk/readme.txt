@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.3
 Tested up to: 3.4.2
-Stable tag: 3.1.08
+Stable tag: 3.1.09
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -74,6 +74,15 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.1.09 =
+* Converting from plain text now recognises custom labels as recipe markers (Ingredients, Instructions and Notes)
+* Styles now override a theme's custom background on bullets
+* Changes to better handle badly behaved themes and plugins
+* Clean up "Tastefully Simple" style when there are no times present
+* Fix for glitches when previewing
+* Fix for Live Formatting resetting formats if a section was missing in the receipe used to format
+* Changes to better handle broken Mastercook import files (Plus)
+
 = 3.1.08 =
 * Added Ziplist save button option (Plus version)
 * Added configurable title on guest post details page (Plus version)
@@ -84,7 +93,7 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 * Fix for print and preview pages when W3 Total Cache Object cache is enabled
 * Fix headings displaying when they shouldn't when multiple recipes in a single post (Plus version)
 * Fix for custom labels for Ingredients and Instructions on the Legacy display style
-* Fix for apostrophes in settings
+* Fix for apostrophes and quotes in settings
 
 = 3.1.07 =
 * Only display warning once when switching to HTML editor
