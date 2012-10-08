@@ -40,9 +40,9 @@ body, td, th {
 </head>
 
 <body>
-<div id="apDiv2">
+<div id="apDiv2"> 
   <!-- START PAGE -->
-
+  
   <div id="divERSHeader">
     <div class="ERSHdr1"> EasyRecipe #erplus# Settings </div>
     <div class="ERSHdr2"> Before using EasyRecipe, enter your preferred settings so your recipes will be displayed exactly as YOU want them.<br />
@@ -120,16 +120,16 @@ body, td, th {
                         <input name="#settingsname#[ratings]" type="radio" value="EasyRecipe" #ratingEasyRecipeChecked# />
                         EasyRecipe</label>
                       <br />
-
+                      
                       <!-- START IGNORE -->
-
+                      
                       <input type="radio" name="radio" id="radio" value="radio" />
                       <a href="http://rating-widget.com/">Rating Widget</a><br />
                       <input type="radio" name="radio" id="radio" value="radio" />
                       <a href="http://disqus.com/">Disqus Comments</a><br />
-
+                      
                       <!-- END IGNORE -->
-
+                      
                       <label>
                         <input name="#settingsname#[ratings]" type="radio" value="Disabled" #ratingDisabledChecked# />
                         Disable</label></td>
@@ -146,25 +146,26 @@ body, td, th {
                       <label>
                         <input type="radio" name="#settingsname#[saveButton]" value="Ziplist" #saveButtonZiplistChecked# />
                         Ziplist</label>
-
-                      <!-- START IGNORE -->
+                      
+                      <!-- START IGNORE --> 
                       <br />
                       <label>
                         <input type="radio" name="#settingsname#[saveButton]" value="SaltyFig"  #saveButtonSaltyFigChecked#  />
                         Salty Fig</label>
-
+                      
                       <!-- END IGNORE -->
-
+                      
                       <div class="ERSPartnerKey #ziplistclass#" id="divERSZiplistSettings" >Your Ziplist partner key<br />
                         <input name="#settingsname#[ziplistPartnerKey]" type="text" value="#ziplistPartnerKey#" />
+                        <div id="divERSZiplistLink" class="ERSDisplayNone"><a href="http://www.ziplist.com/partner_signup" target="_blank">Get a Ziplist partner key</a></div>
                       </div>
-
+                      
                       <!-- START IGNORE -->
-
+                      
                       <div class="ERSPartnerKey #saltyfigclass#" id="divERSSaltyFigSettings" >Your Salty Fig partner key<br />
                         <input name="#settingsname#[saltyfigPartnerKey]" type="text" value="#saltyfigPartnerKey#" />
                       </div>
-
+                      
                       <!-- END IGNORE --></td>
                   </tr>
                   <tr>
@@ -312,15 +313,15 @@ body, td, th {
           <div id="divERSStyleTabs" class="ERSStyleTabs">
             <ul>
               <!-- START REPEAT STYLETABS -->
-
+              
               <li><a href="#divERSStyle-tab#styleTab#">#styleTab#</a></li>
               <!-- END REPEAT STYLETABS -->
             </ul>
             <!-- START REPEAT STYLETABS -->
-
-            <div id="divERSStyle-tab#styleTab#">
+            
+            <div id="divERSStyle-tab#styleTab#"> 
               <!-- START REPEAT STYLES -->
-
+              
               <div class="ERSStyle #selected#">
                 <input type="hidden" value="#directory#" />
                 <div class="ERSStyleName"> #style# </div>
@@ -328,10 +329,10 @@ body, td, th {
                 <div class="ERSStyleDesc"> #description# </div>
               </div>
               <!-- END REPEAT STYLES -->
-
+              
               <div class="clearer"> &nbsp; </div>
             </div>
-            <!-- END REPEAT STYLETABS -->
+            <!-- END REPEAT STYLETABS --> 
           </div>
         </div>
         <div id="divERSPrintStyles">
@@ -341,15 +342,15 @@ body, td, th {
           <div id="divERSPrintStyleTabs" class="ERSStyleTabs">
             <ul>
               <!-- START REPEAT PRINTSTYLETABS -->
-
+              
               <li><a href="#divERSPrintStyle-tab#styleTab#">#styleTab#</a></li>
               <!-- END REPEAT PRINTSTYLETABS -->
             </ul>
             <!-- START REPEAT PRINTSTYLETABS -->
-
-            <div id="divERSPrintStyle-tab#styleTab#">
+            
+            <div id="divERSPrintStyle-tab#styleTab#"> 
               <!-- START REPEAT PRINTSTYLES -->
-
+              
               <div class="ERSStyle #selected#">
                 <input type="hidden" value="#directory#" />
                 <div class="ERSStyleName"> #style# </div>
@@ -357,16 +358,16 @@ body, td, th {
                 <div class="ERSStyleDesc"> #description# </div>
               </div>
               <!-- END REPEAT PRINTSTYLES -->
-
+              
               <div class="clearer"> &nbsp; </div>
             </div>
-            <!-- END REPEAT PRINTSTYLETABS -->
+            <!-- END REPEAT PRINTSTYLETABS --> 
           </div>
         </div>
         <div id="divERSGuestPosts">
           <div class="ERSHdrExplain"> <span class="xlate">EasyRecipe allows vistors to post recipes</span><br />
             <span class="xlate">Guest posters don't have to register or login</span>. <a href="http://www.easyrecipeplugin.com/guest-posts.php" target="_blank">Learn more...</a> </div>
-          <div>
+          <div> 
             <!-- START INCLUDEIF isPlus -->
             <table>
               <tr>
@@ -413,7 +414,7 @@ body, td, th {
                   </select></td>
               </tr>
             </table>
-            <!-- END INCLUDEIF isPlus -->
+            <!-- END INCLUDEIF isPlus --> 
             <!-- START INCLUDEIF !isPlus -->
             <div class="ERSPlusFeature">
               <div><strong>This feature is available in</strong></div>
@@ -421,7 +422,7 @@ body, td, th {
               <div><a href="http://www.easyrecipeplugin.com/" target="_blank">Click here</a> to find out how to get this feature<br />
                 and all the other Plus goodies <em>for only $14.95!</em></div>
             </div>
-            <!-- END INCLUDEIF !isPlus -->
+            <!-- END INCLUDEIF !isPlus --> 
           </div>
         </div>
         <div id="divERSImport">
@@ -445,7 +446,7 @@ body, td, th {
               <label>
                 <input type="radio" name="rbERSImportSource" value="text" />
                 Plain text</label>
-              <!-- END INCLUDEIF debugonly -->
+              <!-- END INCLUDEIF debugonly --> 
             </div>
           </div>
           <!-- START INCLUDEIF !isPlus -->
@@ -455,7 +456,7 @@ body, td, th {
             <div><a href="http://www.easyrecipeplugin.com/" target="_blank">Click here</a> to find out how to get this feature<br />
               and all the other Plus goodies <em>for only $14.95!</em></div>
           </div>
-          <!-- END INCLUDEIF !isPlus -->
+          <!-- END INCLUDEIF !isPlus --> 
           <!-- START INCLUDEIF isPlus -->
           <div id="divERSImportUploader"></div>
           <div id="divERSImportConfirm">
@@ -470,7 +471,7 @@ body, td, th {
             <div class="xlate">Creating Posts</div>
             <div id="divERSImportCreateSpinner">&nbsp;</div>
           </div>
-          <!-- END INCLUDEIF isPlus -->
+          <!-- END INCLUDEIF isPlus --> 
         </div>
         <div id="divERSSupport">
           <div class="ERSHdrExplain">If EasyRecipe isn't working for you, or not working as you expect, we're keen to help.<br />
@@ -498,6 +499,7 @@ body, td, th {
                 <span class="ERSExplain"><span class="xlate">Checking this option sends details about your server and Wordpress configuration along with your support question. It often makes it much easier for us to resolve problems.
                 We don't collect any personal information - it's just geeky system setup details</span>.<br />
                 <a href="#wpurl#/easyrecipe-diagnostics/" target="_blank"><span class="xlate">Click here to see what gets sent</span></a></span>.</td>
+            </tr>
             <tr>
               <td colspan="2" id="tdERSendSupport" style="text-align:center"><input type="button" id="btnERSendSupport" style="width:auto" value="Submit" />
                 <span id="ERDSending"><img src="#easyrecipeURL#/images/spinner02.gif" width="16" height="16" />Sending data... please wait</span> <span id="ERDOK">Your support query has been sent and received.<br />
@@ -515,18 +517,17 @@ body, td, th {
               <input type="checkbox" name="#settingsname#[forcejQuery]" #forcejQueryChecked# />
             </label>
             <br>
-<span class="ERSExplain xlate">This attempts to fix problems caused by badly behaved themes and plugins. <a href="http://www.easyrecipeplugin.com/load_jquery.php" target="_blank">More information...</a></span>
-          </div>
+            <span class="ERSExplain xlate">This attempts to fix problems caused by badly behaved themes and plugins. <a href="http://www.easyrecipeplugin.com/load_jquery.php" target="_blank">More information...</a></span> </div>
           <div id="divERSCustomTemplates">
             <label><span class="xlate">Custom styles template directory</span><br />
               <span class="ERSExplain xlate">The directory where your custom templates are stored. It MUST NOT be writable by the web server process. <a href="http://www.easyrecipeplugin.com/custom-styles.php" target="_blank">More information...</a></span><br />
               <!-- START INCLUDEIF isPlus -->
               <input class="ERSTextField" type="text" name="#settingsname#[customTemplates]" value="#customTemplates#" />
-              <!-- END INCLUDEIF isPlus -->
+              <!-- END INCLUDEIF isPlus --> 
               <!-- START INCLUDEIF !isPlus -->
               <input disabled="disabled" class="ERSTextField" type="text" name="#settingsname#[customTemplates]" value="#customTemplates#" />
               <span class="ERSExplain xlate">Custom style templates are available in <a href="http://www.easyrecipeplugin.com/" target="_blank">EasyRecipe Plus</a></span><br />
-              <!-- END INCLUDEIF !isPlus -->
+              <!-- END INCLUDEIF !isPlus --> 
             </label>
           </div>
           <div id="divERSExtraCSS">
@@ -561,7 +562,7 @@ body, td, th {
     EASYRECIPE.wpurl = '#wpurl#';
     EASYRECIPE.license = '#license#';
     //]]>
-    </script> <!-- END PAGE -->
+    </script> <!-- END PAGE --> 
 </div>
 </body>
 </html>
