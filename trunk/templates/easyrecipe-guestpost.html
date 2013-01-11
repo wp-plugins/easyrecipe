@@ -1,0 +1,64 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Untitled Document</title>
+<link href="../css/easyrecipe-guestpost.css" rel="stylesheet" type="text/css">
+<style type="text/css">
+#apDiv1 {
+	position: absolute;
+	left: 225px;
+	top: 55px;
+	width: 858px;
+	height: 547px;
+	z-index: 1;
+	font: 12px Arial, Helvetica, sans-serif;
+}
+</style>
+</head>
+
+<body>
+<div id="apDiv1"> 
+  <!-- START PAGE -->
+  <div class="ERGuestPostSubmit easyrecipeUI">
+    <form method="post" action="#next#">
+      <input type="hidden" value="#postID#" name="postID" />
+      <input type="hidden" value="#nonce#" name="nonce" />
+      <input type="hidden" value="#name#" id="inpERGPAuthor" name="ERGuestPost[egpname]" />
+      <input type="hidden" value="#email#" name="ERGuestPost[egpemail]" />
+      <input type="hidden" value="#url#" name="ERGuestPost[egpurl]" />
+      <div id="divERGPPost">
+        <div class="ERGPLabel"> Post title: <span class="ERGPError" id="spnERGPTitleErr"></span> </div>
+        <div>
+          <input type="text" id="fldERGPTitle" name="ERGuestPost[title]" />
+        </div>
+        <div class="ERGPLabel">Hint: Click on the chef's hat icon to enter the recipe part of your post</div>
+        <div id="divERGPEditor">#editor#</div>
+        <div id="divERGPComment" class="ERGPLabel"> Leave me a private message (not for publication):
+          <div>
+            <textarea name="ERGuestPost[egpcomment]" id="taERGPComment"></textarea>
+          </div>
+        </div>
+        <div id="divERGPSave" class="ERGPLabel">
+          <input type="submit" class="ERGPButton" id="btnERGPSave" value="Submit Post" />
+        </div>
+      </div>
+    </form>
+  </div>
+  #uploadDialog# #linksDialog# 
+  <!-- START INCLUDEIF gpHideFooter -->
+  <style type="text/css">
+#comments  {
+	display: none !important;
+}
+#footer,footer {
+	position:relative;
+	top:-1000px;
+	height:0;
+}
+</style>
+  <!-- END INCLUDEIF gpHideFooter --> 
+  <!-- END PAGE --> 
+</div>
+</body>
+</html>

@@ -1,5 +1,5 @@
 Style: Tastefully Simple
-Version: 1.0
+Version: 1.1
 Author: EasyRecipe
 Description: Uncomplicated style with a photo
 Thumbnail: images/thumb.gif
@@ -22,4 +22,3 @@ Formatting: [\
 {"section":"Nutrition Heading","target":".easyrecipe .nutrition .ERSNutritionHeader","type":"font"},\
 {"section":"Nutrition Details","target":".easyrecipe .nutrition .ERSNutrionDetails","type":"font"}\
 ]
-

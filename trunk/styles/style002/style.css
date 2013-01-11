@@ -6,86 +6,82 @@ div.easyrecipe {
 	background: #FFF;
 }
 .ERComment {
-    margin-bottom: 10px !important;
+	margin-bottom: 10px !important;
 }
 .ERComment .ERRateBG {
-    width: 95px;
-    height: 15px;
-    cursor: pointer;
-    float: left;
-    background: url(images/greystar15.png) repeat-x;
+	width: 95px;
+	height: 15px;
+	cursor: pointer;
+	float: left;
+	background: url(images/greystar15.png) repeat-x;
 }
 .ERComment .ERRateStars {
-    width: 95px;
-    height: 15px;
-    cursor: pointer;
-    background: url(images/yellowstar15.png) repeat-x;
+	width: 95px;
+	height: 15px;
+	cursor: pointer;
+	background: url(images/yellowstar15.png) repeat-x;
 }
 .easyrecipe .ERSName {
 	font: 150% Verdana, Geneva, sans-serif;
 	margin-bottom: 15px;
 }
 .easyrecipe .ERSTop {
-    margin-top: 10px;
-    position: relative;
+	margin-top: 10px;
+	position: relative;
 }
 .easyrecipe .ERSTopRight {
-    float: right;
-    width: 40%;
-    text-align: center;
-    max-width: 215px;
+	float: right;
+	width: 40%;
+	text-align: center;
+	max-width: 215px;
+	z-index:2;
 }
-
 .ERSRatingComment {
-    background: url(images/greystar15.png) repeat-x;
-    width: 95px;
-    height: 15px;
-    margin-right: 20px;
+	background: url(images/greystar15.png) repeat-x;
+	width: 95px;
+	height: 15px;
+	margin-right: 20px;
 }
-
 .easyrecipe .ERSHeadItems {
-    font-size: 14px;
-    color: #666;
-    margin-top: 10px;
-    margin-bottom: 10px;
+	font-size: 14px;
+	color: #666;
+	margin-top: 10px;
+	margin-bottom: 10px;
 }
 .easyrecipe .ERSTimes {
-    border-top: 1px dotted #666;
-    border-bottom: 1px dotted #666;
-    width: 60%;
-    padding-top: 5px;
-    padding-bottom: 5px;
-    margin-bottom: 10px;
+	border-top: 1px dotted #666;
+	border-bottom: 1px dotted #666;
+	width: 60%;
+	padding-top: 5px;
+	padding-bottom: 5px;
+	margin-bottom: 10px;
 }
 .easyrecipe .ERSTimes .ERSTime {
-    width: 33%;
-    text-align: center;
-    float: left;
-    font-weight: bold;
+	width: 33%;
+	text-align: center;
+	float: left;
+	font-weight: bold;
 }
 .easyrecipe .ERSTimes .ERSTimeItem {
-    font-size: 10px;
-    font-weight: normal;
+	font-size: 10px;
+	font-weight: normal;
 }
 .easyrecipe .ERSTimeRight {
-    border-left: 1px solid #ccc;
+	border-left: 1px solid #ccc;
 }
 .easyrecipe .ERSTopRight img {
 	border: 2px solid #999;
 	width: 205px;
 }
-
 .easyrecipe .ERSSummary {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
 .easyrecipe .divERSHeadItems {
-    margin-bottom: 10px;
+	margin-bottom: 10px;
 }
-
 .easyrecipe .ERSTimes .ERSTime .ERSTimeHeading {
 	margin-bottom: 4px;
 }
-
 .easyrecipe .ERSSavePrint {
 	margin-top: 10px;
 	text-align: center;
@@ -93,4 +89,3 @@ div.easyrecipe {
 .easyrecipe .ERSIngredients .ERSIngredientsHeader.ERSHeading {
 	clear: none;
 }
-

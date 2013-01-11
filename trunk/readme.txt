@@ -2,8 +2,8 @@
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.3
-Tested up to: 3.4.2
-Stable tag: 3.1.09
+Tested up to: 3.5.0
+Stable tag:  3.2.1199
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -74,6 +74,13 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1199 =
+* Added the Fooderific.com interface
+* Fix print for sites that are not installed in the root directory
+* Fix print for browsers that hijack the 404 page
+* Fix fisplay of non-ASCII characters in custom labels
+* Fixes for WP 3.5 compatibility
+
 = 3.1.09 =
 * Converting from plain text now recognises custom labels as recipe markers (Ingredients, Instructions and Notes)
 * Styles now override a theme's custom background on bullets

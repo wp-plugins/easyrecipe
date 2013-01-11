@@ -1,6 +1,7 @@
 <?php
 
 
+
 /*
 Copyright (c) 2010-2012 Box Hill LLC
 
@@ -18,56 +19,33 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
-if (!class_exists('EasyRecipeDocument', false)) {
-    require_once dirname(__FILE__) . '/lib/EasyRecipeDocument.php';
-}
-if (!class_exists('EasyRecipeTemplate', false)) {
-    require_once dirname(__FILE__) . '/lib/EasyRecipeTemplate.php';
-}
 
-if (!class_exists('EasyRecipeSettings', false)) {
-    require_once dirname(__FILE__) . '/lib/EasyRecipeSettings.php';
-}
-if (!class_exists('EasyRecipetyles', false)) {
-    require_once dirname(__FILE__) . '/lib/EasyRecipeStyles.php';
-}
 
-class EasyRecipePlus {
-    const JQUERYJS = "https://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js";
+class EasyRecipe {
+    public static $EasyRecipeDir;
+    public static $EasyRecipeURL;
+
+    private $pluginVersion = '3.2.1199';
+
+    private $pluginName = 'EasyRecipe';
+
+    private $slug = 'easyrecipe/easyrecipe';
+
+    const JQUERYJS = "https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js";
     const JQUERYUIJS = "https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js";
     const JQUERYUICSS = "http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css";
-    const UPDATEURL = "http://www.easyrecipeplugin.com/checkUpdates1.php";
+    const UPDATEURL = "http://www.easyrecipeplugin.com/checkUpdates1.php"; // FIXME - change to checkVersion
+
+    const DIAGNOSTICS_URL = 'http://www.easyrecipeplugin.com/diagnostics.php';
+
     const SWOOPJS = '<script type="text/javascript" id="spxw_script" src="http://ardrone.swoop.com/js/spxw.js" data-domain="%s" data-theme="red" data-serverbase="http://ardrone.swoop.com/"></script>';
 
-    /*
-    * Constants from Phing build
-    */
-    private $version = "3.1.09";
-    private $pluginName = 'easyrecipe';
-    private $settingsName = 'ERSettings';
-    private $templateClass = 'EasyRecipeTemplate';
-    private $documentClass = 'EasyRecipeDocument';
-    private $stylesClass = 'EasyRecipeStyles';
-    private $settingsClass = 'EasyRecipeSettings';
-    /*
-    * For convenience
-    */
-    private $pluginsURL;
-    private $pluginsDIR;
-    private $easyrecipeDIR;
-    private $easyrecipeURL;
-    private $siteURL;
-    private $homeURL;
 
-    /**
-     *
-     * @var EasyRecipePlusSettings
-     */
+    /** @var EasyRecipeSettings */
     private $settings;
-    /**
-     *
-     * @var EasyRecipePlusStyles
-     */
+
+    private $postContent;
+
     private $styles;
     private $easyrecipes = array();
     private $formatting = false;
@@ -76,7 +54,6 @@ class EasyRecipePlus {
     private $styleData;
     private $printStyleData;
     private $haveProcessed = array();
-    private $slug;
     private $isGuest = false;
     private $postMeta;
     private $languages;
@@ -87,31 +64,67 @@ class EasyRecipePlus {
 
     private $loadJSInFooter = false;
 
-    function __construct() {
+    /**
+     * @var EasyRecipeFooderific
+     */
+    private $fooderific = null;
+
+    function __construct($pluginDir, $pluginURL) {
         global $pagenow;
 
 
+        self::$EasyRecipeDir = $pluginDir;
+        self::$EasyRecipeURL = $pluginURL;
+
         /*
-        * For convenience
-        */
-        $this->pluginsURL = WP_PLUGIN_URL;
-        $this->pluginsDIR = WP_PLUGIN_DIR;
-        $this->easyrecipeDIR = WP_PLUGIN_DIR . "/$this->pluginName";
-        $this->easyrecipeURL = WP_PLUGIN_URL . "/$this->pluginName";
-        $this->slug = $this->pluginName;
+         * For convenience
+         */
         $this->siteURL = site_url();
         $this->homeURL = home_url();
+
 
         if (isset($_REQUEST['ERDEBUG'])) {
             error_reporting(E_ALL);
             ini_set('display_errors', 1);
         }
 
+        /**
+         * Delay adding any hooks until we check other plugiuns
+         */
+        add_action('plugins_loaded', array($this, 'pluginsLoaded'));
+
+    }
+
+    /**
+     * If this is EasyRecipe Free, make sure we don't already have EasyRecipe Plus running
+     * If not, go ahead and add our hooks
+     */
+    function pluginsLoaded() {
+        $plugins = get_option('active_plugins', array());
+
+        /**
+         * If EasyRecipe Plus is installed and active, this plugin can be uninstalled
+         */
+        if (in_array("easyrecipeplus/easyrecipeplus.php", $plugins)) {
+            add_action('admin_notices', array($this, 'showPlusActive'));
+            return;
+        }
+
+
         add_action('admin_menu', array($this, 'addMenus'));
         add_action('admin_init', array($this, 'initialiseAdmin'));
         add_action('init', array($this, 'initialise'));
 
     }
+
+    function showPlusActive() {
+        echo <<<EOD
+<div id="message" class="updated">
+<p>EasyRecipe Plus is installed and active. You can now safely uninstall the free version of EasyRecipe</p>
+</div>
+EOD;
+    }
+
 
     /**
      * Set up stuff we need if we're on an admin page
@@ -144,6 +157,30 @@ class EasyRecipePlus {
 
         add_action('wp_ajax_easyrecipeSupport', array($this, 'sendSupport'));
         add_action('update-custom_easyrecipe-update', array($this, 'forceUpdate'));
+
+        $this->settings = EasyRecipeSettings::getInstance();
+
+        /**
+         *  Schedule a site scan.  A request for a site scan also sets the fooderificEnabled setting to TRUE
+         */
+        add_action('wp_ajax_easyrecipeScanSchedule', array($this, 'fdScanSchedule'));
+
+        /**
+         * If Fooderific is enabled, then hook into stuff it needs
+         */
+        if ($this->settings->enableFooderific) {
+            /**
+             * Actually run the scan
+             */
+            add_action(EasyRecipeFooderific::FOODERIFIC_SCAN, array($this, 'fdScanRun'), 10, 1);
+
+
+            /**
+             * Hook into post updates and status transitions as late as possible
+             */
+            add_action('save_post', array($this, 'fdPostChanged'), 32000, 2);
+            add_action('transition_post_status', array($this, 'fdPostStatusChanged'), 32000, 3);
+        }
     }
 
 
@@ -151,22 +188,11 @@ class EasyRecipePlus {
      * Set up stuff we'll need on non-admin pages and stuff we'll need in both admin and non-admin
      */
     function initialise() {
-        wp_register_style("easyrecipe-UI", "$this->easyrecipeURL/ui/easyrecipeUI.css", array('wp-admin', 'wp-pointer'), $this->version);
+        wp_register_style("easyrecipe-UI", self::$EasyRecipeURL . "/ui/easyrecipeUI.css", array('wp-admin', 'wp-pointer'), $this->pluginVersion);
 
 
-        $this->settings = new $this->settingsClass();
+        $this->settings = EasyRecipeSettings::getInstance();
 
-
-        /*
-        * Check to see if we've been updated since the last time we did a rewrite rules flush,
-        * since an automatic update doesn't call the activation hook when the plugin is re-activated on update
-        */
-        $lastFlushVersion = $this->settings->get('lastFlushVersion');
-        if ($lastFlushVersion != $this->version) {
-            flush_rewrite_rules();
-            $this->settings->put('lastFlushVersion', $this->version);
-            $this->settings->update();
-        }
 
         $this->endpointRegex = '%/easyrecipe-(print|diagnostics)(?:/([^?/]+))?%';
 
@@ -191,7 +217,7 @@ class EasyRecipePlus {
             /*
             * Hook into the comment save if we're using EasyRecipe ratings
             */
-            if ($this->settings->get('ratings') == 'EasyRecipe') {
+            if ($this->settings->ratings == 'EasyRecipe') {
                 add_action('comment_post', array($this, 'ratingSave'));
             }
         }
@@ -201,7 +227,7 @@ class EasyRecipePlus {
         if (isset($_REQUEST['style']) && current_user_can("edit_plugins")) {
             $this->styleName = $_REQUEST['style'];
         } else {
-            $this->styleName = $this->settings->get('style');
+            $this->styleName = $this->settings->style;
         }
 
         /*
@@ -218,7 +244,9 @@ class EasyRecipePlus {
      * Add the "EasyRecipe Format" option to the admin bar if the current user is an admin
      */
     function adminBarMenu() {
+        /** @var $wp_admin_bar WP_Admin_Bar */
         global $wp_admin_bar;
+
         $root_menu = array('parent' => false, 'id' => 'ERFormatMenu', 'title' => 'EasyRecipe Format', 'href' => admin_url('#'), 'meta' => array('onclick' => 'EASYRECIPE.openFormat(); return false'));
         $wp_admin_bar->add_menu($root_menu);
     }
@@ -228,25 +256,20 @@ class EasyRecipePlus {
      */
     function loadSettingsPage() {
         wp_enqueue_style("easyrecipe-UI");
-        wp_enqueue_style("easyrecipe-settings", "$this->easyrecipeURL/css/easyrecipe-settings.css", array('easyrecipe-UI'), $this->version);
+        wp_enqueue_style("easyrecipe-settings", self::$EasyRecipeURL . "/css/easyrecipe-settings.css", array('easyrecipe-UI'), $this->pluginVersion);
 
-        wp_enqueue_script('easyrecipe-settings', "$this->easyrecipeURL/js/easyrecipe-settings.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs', 'jquery-ui-button'), $this->version, true);
+        wp_enqueue_script('easyrecipe-settings', self::$EasyRecipeURL . "/js/easyrecipe-settings.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs',
+                                                                                                              'jquery-ui-button'), $this->pluginVersion, true);
 
 
-        /*
-        * Check to make sure we don't have both the free and Plus versions active
-        */
-        if (is_plugin_active('easyrecipeplus/easyrecipeplus.php')) {
-            add_action('admin_notices', array($this->settings,'bothActive'));
-        }
-        $this->settings = new $this->settingsClass();
+        $this->settings = EasyRecipeSettings::getInstance();
     }
 
     /**
      */
     function addMenus() {
-        $this->settings = new $this->settingsClass();
-        $hook = add_menu_page('EasyRecipe Settings', 'EasyRecipe', 'manage_options', $this->pluginName, array($this->settings, 'showPage'), "$this->pluginsURL/$this->pluginName/images/chef16.png");
+        $this->settings = EasyRecipeSettings::getInstance();
+        $hook = add_menu_page('EasyRecipe Settings', 'EasyRecipe', 'manage_options', $this->pluginName, array($this->settings, 'showPage'), self::$EasyRecipeURL . "/images/chef16.png");
         add_action("load-$hook", array($this, 'loadSettingsPage'));
     }
 
@@ -257,9 +280,16 @@ class EasyRecipePlus {
      */
     function loadPostAdmin() {
         wp_enqueue_style("easyrecipe-UI");
-        wp_enqueue_style("easyrecipe-entry", "$this->easyrecipeURL/css/easyrecipe-entry.css", array('easyrecipe-UI'), $this->version);
+        wp_enqueue_style("easyrecipe-entry", self::$EasyRecipeURL . "/css/easyrecipe-entry.css", array('easyrecipe-UI'), $this->pluginVersion);
 
-        wp_enqueue_script('easyrecipe-entry', "$this->easyrecipeURL/js/easyrecipe-entry.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button', 'jquery-ui-tabs'), $this->version, true);
+        wp_enqueue_script('jquery-ui-dialog');
+        wp_enqueue_script('jquery-ui-autocomplete');
+        wp_enqueue_script('jquery-ui-button');
+        wp_enqueue_script('jquery-ui-tabs');
+        wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button',
+                                                                                                        'jquery-ui-tabs'), $this->pluginVersion, true);
+
+        wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js");
 
         add_filter('tiny_mce_before_init', array($this, 'mcepreInitialise'));
         add_filter('mce_external_plugins', array($this, 'mcePlugins'));
@@ -278,6 +308,54 @@ class EasyRecipePlus {
 
 
     /**
+     *  FOODERIFIC
+     *
+     *  A site scan has been requested.  If Fooderific is not currently enabled, then enable it
+     *  Then schedule the scan and save the time if it was actually scheduled
+     *
+     */
+    function fdScanSchedule() {
+
+        $this->settings->enableFooderific = true;
+
+        $fooderific = new EasyRecipeFooderific();
+        if ($fooderific->scanSchedule()) {
+            $this->settings->lastScanStarted = time();
+        }
+        $this->settings->update();
+
+        $result = new stdClass();
+        $result->status = 'OK';
+        $result->lastScan = $this->settings->lastScanStarted;
+        die(json_encode($result));
+    }
+
+    /**
+     * Actually run the site scan
+     */
+    function fdSiteScan() {
+        $fooderific = new EasyRecipeFooderific();
+        $fooderific->scanRun();
+    }
+
+
+    /**
+     * A post has changed - schedule a FOODERIFIC scan.
+     */
+    function fdPostChanged($postID, $post = null) {
+        $fooderific = new EasyRecipeFooderific();
+        $fooderific->postChanged($postID, $post);
+    }
+
+    /**
+     * A post's status has changed. Let the Fooderific code ecide what to do
+     */
+    function fdPostStatusChanged($newStatus, $oldStatus, $post) {
+        $fooderific = new EasyRecipeFooderific();
+        $fooderific->postStatusChanged($newStatus, $oldStatus, $post);
+    }
+
+    /**
      * Normally Wordpress only checks for plugin updates twice a day
      * The EasyRecipe Settings page always checks for new updates and if one is available it links to the WP plugin update page
      * However Wordpress won't update a plugin if it thinks the current installed version is up to date (which it will if it hasn't checked since the update became available)
@@ -286,6 +364,7 @@ class EasyRecipePlus {
      * The rationale for doing this is that if a user is on the Support page, we ought to make sure she has the latest version before submitting a support ticket
      */
     function forceUpdate() {
+        /** @global  $wpdb wpdb */
         global $wpdb;
 
         $wpdb->query("DELETE FROM $wpdb->options WHERE option_name = '_site_transient_update_plugins'");
@@ -296,6 +375,7 @@ class EasyRecipePlus {
 
         header("Location: $url");
     }
+
 
 
     function enqueAdminScripts($hook) {
@@ -319,7 +399,7 @@ class EasyRecipePlus {
          * Allow the user to load it if they specify 'loadjq' in the URL querystring since conflicting plugins may well
          * prevent the EasyRecipe Settings page from functioning
          */
-        if ($this->settings->get('forcejQuery') || (current_user_can('edit_plugins') && isset($_REQUEST['loadjq']))) {
+        if ($this->settings->forcejQuery || (current_user_can('edit_plugins') && isset($_REQUEST['loadjq']))) {
             wp_deregister_script('jquery');
             wp_register_script('jquery', self::JQUERYJS, false);
             wp_enqueue_script('jquery');
@@ -328,39 +408,40 @@ class EasyRecipePlus {
         * Set the translate switch if this isn't in the US
         */
         if (get_locale() != 'en_US') {
-            call_user_func(array($this->templateClass, 'setTranslate'), 'easyrecipe');
+            EasyRecipeTemplate::setTranslate('easyrecipe');
         }
 
 
 
-        if ($this->settings->get('ratings') == 'EasyRecipe') {
+        if ($this->settings->ratings == 'EasyRecipe') {
             add_action('comment_form', array($this, 'commentForm'), -1);
             add_action('comment_post', array($this, 'ratingSave'));
             add_action('comment_text', array($this, 'ratingDisplay'));
         }
 
-        // TODO - would this be better elsewhere?
-        if ($this->settings->get('removeMicroformat')) {
+        if ($this->settings->removeMicroformat) {
             ob_start(array($this, 'fixMicroformats'));
         }
 
-        $this->styleData = call_user_func(array($this->stylesClass, 'getStyleData'), $this->styleName, $this->settings->get('customTemplates'));
-        wp_enqueue_style('easyrecipestyle-reset', "$this->easyrecipeURL/css/easyrecipe-style-reset.css", array(), $this->version);
-        wp_enqueue_style("easyrecipebuttonUI", "$this->easyrecipeURL/ui/easyrecipe-buttonUI.css", array('easyrecipestyle-reset'), $this->version);
+//        $this->styleData = call_user_func(array($this->stylesClass, 'getStyleData'), $this->styleName, $this->settings->get('customTemplates'));
+        $this->styleData = EasyRecipeStyles::getStyleData($this->styleName, $this->settings->customTemplates);
+
+        wp_enqueue_style('easyrecipestyle-reset', self::$EasyRecipeURL . "/css/easyrecipe-style-reset.css", array(), $this->pluginVersion);
+        wp_enqueue_style("easyrecipebuttonUI", self::$EasyRecipeURL . "/ui/easyrecipe-buttonUI.css", array('easyrecipestyle-reset'), $this->pluginVersion);
         /*
            * If the style directory starts with an underscore, it's a custom style
         */
         if ($this->styleData->directory[0] == '_') {
-            wp_enqueue_style("easyrecipestyle", "/easyrecipe-style/style.css/", array('easyrecipestyle-reset'), "$this->version.{$this->styleData->version}");
+            wp_enqueue_style("easyrecipestyle", "/easyrecipe-style/style.css/", array('easyrecipestyle-reset'), "$this->pluginVersion.{$this->styleData->version}");
         } else {
-            wp_enqueue_style("easyrecipestyle", "$this->easyrecipeURL/styles/$this->styleName/style.css", array('easyrecipestyle-reset'), "$this->version.{$this->styleData->version}");
+            wp_enqueue_style("easyrecipestyle", self::$EasyRecipeURL . "/styles/$this->styleName/style.css", array('easyrecipestyle-reset'), "$this->pluginVersion.{$this->styleData->version}");
         }
 
-        if (file_exists("$this->easyrecipeDIR/styles/$this->styleName/style.js")) {
-            wp_enqueue_script('easyrecipestyle', "$this->easyrecipeURL/styles/$this->styleName/style.js", array($this->pluginName), "$this->version.{$this->styleData->version}", $this->loadJSInFooter);
+        if (file_exists(self::$EasyRecipeDir . "/styles/$this->styleName/style.js")) {
+            wp_enqueue_script('easyrecipestyle', self::$EasyRecipeURL . "/styles/$this->styleName/style.js", array($this->pluginName), "$this->pluginVersion.{$this->styleData->version}", $this->loadJSInFooter);
         }
 
-        wp_enqueue_script($this->pluginName, "$this->easyrecipeURL/js/easyrecipe.js", array('jquery', 'jquery-ui-button'), $this->version, $this->loadJSInFooter);
+        wp_enqueue_script($this->pluginName, self::$EasyRecipeURL . "/js/easyrecipe.js", array('jquery', 'jquery-ui-button'), $this->pluginVersion, $this->loadJSInFooter);
 
         /*
          * Load any fonts used by the style
@@ -382,14 +463,16 @@ class EasyRecipePlus {
             /*
              * Use an unobtrusive grey scheme for the formatting dialog so it doesn't visually overpower the recipe's styling
             */
-            wp_enqueue_style("easyrecipe-FormatUI", "$this->easyrecipeURL/formatui/easyrecipeFormatUI.css", array(), $this->version);
-            wp_enqueue_style("easyrecipeformat", "$this->easyrecipeURL/css/easyrecipe-format.css", array('easyrecipe-FormatUI'), $this->version);
+            wp_enqueue_style("easyrecipe-FormatUI", self::$EasyRecipeURL . "/formatui/easyrecipeFormatUI.css", array(), $this->pluginVersion);
+            wp_enqueue_style("easyrecipeformat", self::$EasyRecipeURL . "/css/easyrecipe-format.css", array('easyrecipe-FormatUI'), $this->pluginVersion);
 
-            wp_enqueue_script('easyrecipeformat', "$this->easyrecipeURL/js/easyrecipe-format.js", array('jquery', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-accordion', 'jquery-ui-dialog', 'jquery-ui-tabs', 'jquery-ui-button', 'json2'), $this->version, $this->loadJSInFooter);
+            wp_enqueue_script('easyrecipeformat', self::$EasyRecipeURL . "/js/easyrecipe-format.js", array('jquery', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-accordion',
+                                                                                                             'jquery-ui-dialog', 'jquery-ui-tabs', 'jquery-ui-button',
+                                                                                                             'json2'), $this->pluginVersion, $this->loadJSInFooter);
             add_action('wp_footer', array($this, 'addFormatDialog'), 0);
         }
 
-        if ($this->settings->get('enableSwoop')) {
+        if ($this->settings->enableSwoop) {
             add_action('wp_footer', array($this, 'addSwoop'), 32767);
         }
     }
@@ -409,17 +492,18 @@ class EasyRecipePlus {
         return $page;
     }
 
+
     /**
      * Get the custom and extra CSS
      *
      * Custom CSS is from Live Formatting and is json encoded
-     * Extra CSS is from th settings page and is plain text
+     * Extra CSS is from the settings page and is plain text
      *
      * @param string $print
-     *            'print' if this for print fromatting
+     * @return string
      */
     private function getCSS($print = '') {
-        $customCSS = trim($this->settings->get("custom{$print}CSS"));
+        $customCSS = trim($this->settings->{"custom{$print}CSS"});
         if ($customCSS != '') {
             $customCSS = json_decode(stripslashes($customCSS));
             if (!$customCSS) { // TODO- handle this error better
@@ -429,7 +513,8 @@ class EasyRecipePlus {
             $customCSS = array();
         }
 
-        $extraCSS = trim($this->settings->get("extra{$print}CSS"));
+        // todo - check this construct works
+        $extraCSS = trim($this->settings->{"extra{$print}CSS"});
         $css = '';
         if ($customCSS != '' || $extraCSS != '') {
             $css = "<style type=\"text/css\">\n";
@@ -480,8 +565,8 @@ class EasyRecipePlus {
 
 
         // TODO - figure out a standards compliant way to do this
-        $mbrb = $this->settings->get("pingMBRB") === true ? 'on' : 'off';
-        echo "<meta name=\"mybigrecipebox\" content=\"$mbrb\" />\n";
+//        $mbrb = $this->settings->pingMBRB === true ? 'on' : 'off';
+//        echo "<meta name=\"mybigrecipebox\" content=\"$mbrb\" />\n";
     }
 
     public function addExtraCSS() {
@@ -493,13 +578,19 @@ class EasyRecipePlus {
      */
     public function saveStyle() {
         if (current_user_can("edit_plugins")) {
-            $style = isset($_POST['style']) ? $_POST['style'] : '';
             if (!isset($this->settings)) {
-                $this->settings = new $this->settingsClass();
+                $this->settings = EasyRecipeSettings::getInstance();
             }
+
+
+            // FIXME - check that the new system works OK!
+            $this->settings->style = isset($_POST['style']) ? $_POST['style'] : '';
+            $this->settings->update();
+            /*
             $settings = get_option($this->settingsName, array());
             $this->settings->put('style', $style);
             $this->settings->update();
+            */
         }
         die('OK');
     }
@@ -509,14 +600,14 @@ class EasyRecipePlus {
      */
     public function updateCustomCSS() {
         if (current_user_can("edit_plugins")) {
-            $css = isset($_POST['css']) ? $_POST['css'] : "";
             if (!isset($this->settings)) {
-                $this->settings = new $this->settingsClass();
+                $this->settings = EasyRecipeSettings::getInstance();
             }
-            $settings = get_option($this->settingsName, array());
+            // FIXME - check this works!
             $setting = isset($_POST['isPrint']) ? "customPrintCSS" : "customCSS";
-            $this->settings->put($setting, $css);
+            $this->settings->{$setting} = isset($_POST['css']) ? $_POST['css'] : "";
             $this->settings->update();
+
         }
         /*
         * The return isn't necessary but it helps with unit testing
@@ -564,8 +655,9 @@ class EasyRecipePlus {
         /*
         * Get all the styles we have
         */
+//        $styles = call_user_func(array($this->stylesClass, 'getStyles'), $this->settings->get('customTemplates'), $isPrint);
+        $styles = EasyRecipeStyles::getStyles($this->settings->customTemplates, $isPrint);
 
-        $styles = call_user_func(array($this->stylesClass, 'getStyles'), $this->settings->get('customTemplates'), $isPrint);
         $data->STYLES = array();
         $styleThumbs = array();
         foreach ($styles as $style) {
@@ -577,11 +669,11 @@ class EasyRecipePlus {
             $data->STYLES[] = $item;
         }
         $data->stylethumb = $styleData->thumbnail;
-        /* @var $template EasyRecipePlusTemplate */
-        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-format.html");
+
+        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-format.html");
         $html = $template->replace($data);
 
-        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-fontchange.html");
+        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fontchange.html");
         $fontChangeHTML = $template->replace($data);
         $fontChangeHTML = str_replace("\r", "", $fontChangeHTML);
         $fontChangeHTML = str_replace("\n", " ", $fontChangeHTML);
@@ -589,7 +681,7 @@ class EasyRecipePlus {
         $fontChangeHTML = trim(preg_replace('/> \s+</i', '> <', $fontChangeHTML));
         $ajaxURL = admin_url('admin-ajax.php');
         $cssType = $isPrint ? 'customPrintCSS' : 'customCSS';
-        $customCSS = $this->settings->get($cssType);
+        $customCSS = $this->settings->$cssType;
         if ($customCSS == '') {
             $customCSS = '{}';
         }
@@ -598,6 +690,7 @@ class EasyRecipePlus {
 
         $print = $isPrint ? 'true' : 'false';
         $thumbs = json_encode($styleThumbs);
+        $url = self::$EasyRecipeURL;
         $html .= <<<EOD
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -608,9 +701,8 @@ if (typeof EASYRECIPE == "undefined") {
 EASYRECIPE.isPrint = $print;
 EASYRECIPE.formatting = '$formats';
 EASYRECIPE.customCSS = '$customCSS';
-EASYRECIPE.pluginsURL = '$this->pluginsURL';
-EASYRECIPE.easyrecipeURL = '$this->easyrecipeURL';
-EASYRECIPE.version = '$this->version';
+EASYRECIPE.easyrecipeURL = '$url';
+EASYRECIPE.version = '$this->pluginVersion';
 EASYRECIPE.ajaxURL = '$ajaxURL';
 EASYRECIPE.styleThumbs = '$thumbs';
 EASYRECIPE.fontChangeHTML = '$fontChangeHTML';
@@ -622,7 +714,7 @@ EOD;
         * The print page exits before enqueues get output so add the script manually now
         */
         if ($isPrint && current_user_can("edit_plugins")) {
-            $html .= sprintf('<script type="text/javascript" src="%s/js/easyrecipe-format.js?version=%s"></script>', $this->easyrecipeURL, $this->version);
+            $html .= sprintf('<script type="text/javascript" src="%s/js/easyrecipe-format.js?version=%s"></script>', self::$EasyRecipeURL, $this->pluginVersion);
         }
         return $html;
     }
@@ -632,7 +724,7 @@ EOD;
     }
 
     function addSwoop() {
-        printf(self::SWOOPJS, $this->settings->get('swoopSiteID'));
+        printf(self::SWOOPJS, $this->settings->swoopSiteID);
     }
 
     /*
@@ -663,7 +755,7 @@ EOD;
         }
 
 
-        $postDOM = new $this->documentClass($post->post_content);
+        $postDOM = new EasyRecipeDocument($post->post_content);
 
         if (!$postDOM->isEasyRecipe) {
             return;
@@ -675,25 +767,25 @@ EOD;
         */
         if ($postDOM->isFormatted) {
             $post = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "posts WHERE ID = $postID");
-            $postDOM = new $this->documentClass($post->post_content);
+            $postDOM = new EasyRecipeDocument($post->post_content);
 
             if (!$postDOM->isEasyRecipe) {
                 return;
             }
         }
 
-        $this->settings = new $this->settingsClass();
+        $this->settings = EasyRecipeSettings::getInstance();
         if (isset($_GET['style'])) {
             $this->styleName = $_GET['style'];
         } else {
-            $this->styleName = $this->settings->get('printStyle');
+            $this->styleName = $this->settings->printStyle;
         }
 
 
-        $this->printStyleData = call_user_func(array($this->stylesClass, 'getStyleData'), $this->styleName, $this->settings->get('customTemplates'), true);
-
+//        $this->printStyleData = call_user_func(array($this->stylesClass, 'getStyleData'), $this->styleName, $this->settings->get('customTemplates'), true);
+        $this->printStyleData = EasyRecipeStyles::getStyleData($this->styleName, $this->settings->customTemplates, true);
         if (get_locale() != 'en_US') {
-            call_user_func(array($this->templateClass, 'setTranslate'), 'easyrecipe');
+            EasyRecipeTemplate::setTranslate('easyrecipe');
         }
 
         /**
@@ -705,21 +797,21 @@ EOD;
             $postDOM->fixTimes("preptime");
             $postDOM->fixTimes("cooktime");
             $postDOM->fixTimes("duration");
-            $postDOM->setParentValueByClassName("cholestrol", $this->settings->get('lblCholesterol'), "Cholestrol");
+            $postDOM->setParentValueByClassName("cholestrol", $this->settings->lblCholesterol, "Cholestrol");
         }
 
         $data = new stdClass();
         $data->hasRating = false;
 
         $this->settings->getLabels($data);
-        $data->hasLinkback = $this->settings->get('allowLink');
+        $data->hasLinkback = $this->settings->allowLink;
         $data->title = $post->post_title;
         $data->blogname = get_option("blogname");
         $data->recipeurl = get_permalink($post->ID);
 
         $data->customCSS = $this->getCSS('Print');
 
-        $data->easyrecipeURL = $this->easyrecipeURL;
+        $data->easyrecipeURL = self::$EasyRecipeURL;
 
         $recipe = $postDOM->getRecipe($recipeIX);
         $photoURL = $postDOM->findPhotoURL($recipe);
@@ -790,23 +882,28 @@ EOD;
 
         if ($data->style[0] == '_') {
         } else {
-            $data->css = $this->easyrecipeURL . "/printstyles/$data->style";
-            $templateFile = "$this->easyrecipeDIR/printstyles/$data->style/style.html";
+            $data->css = self::$EasyRecipeURL . "/printstyles/$data->style";
+            $templateFile = self::$EasyRecipeDir . "/printstyles/$data->style/style.html";
         }
 
-        $data->css .= "/style.css?version=$this->version.{$this->printStyleData->version}";
+        $data->css .= "/style.css?version=$this->pluginVersion.{$this->printStyleData->version}";
 
-        /* @var $template EasyRecipePlusTemplate */
-        $template = new $this->templateClass($templateFile);
+        $template = new EasyRecipeTemplate($templateFile);
+
+        /**
+         * Brain dead IE shows "friendly" error pages (i.e. it's non-compliant) so we need to force a 200
+         */
+        header("HTTP/1.1 200 OK");
 
         echo $postDOM->formatRecipe($recipe, $template, $data);
+
+
         exit();
     }
 
 
     /**
      * Check if this is one of our rewrite endpoints
-     * Process these manually because add_rewrite_endpoint() is useless if pretty permalinks aren't enabled
      */
     function checkRewrites() {
 
@@ -835,8 +932,8 @@ EOD;
 
 
     /**
-     *
-     * @param array $posts
+     * @param $posts
+     * @return array
      */
     function thePosts($posts) {
         /* @var $wp_rewrite WP_Rewrite */
@@ -855,8 +952,7 @@ EOD;
             }
 
 
-            /* @var $postDOM EasyRecipePlusDocument */
-            $postDOM = new $this->documentClass($post->post_content);
+            $postDOM = new EasyRecipeDocument($post->post_content);
 
             if (!$postDOM->isEasyRecipe) {
                 $newPosts[] = $post;
@@ -889,7 +985,7 @@ EOD;
                 $postDOM->fixTimes("preptime");
                 $postDOM->fixTimes("cooktime");
                 $postDOM->fixTimes("duration");
-                $postDOM->setParentValueByClassName("cholestrol", $this->settings->get('lblCholesterol'), "Cholestrol");
+                $postDOM->setParentValueByClassName("cholestrol", $this->settings->lblCholesterol, "Cholestrol");
             }
 
             $data = new stdClass();
@@ -900,7 +996,7 @@ EOD;
              * difference
              */
 
-            if ($this->settings->get('ratings') == 'EasyRecipe') {
+            if ($this->settings->ratings == 'EasyRecipe') {
                 $comments = get_comments(array('status' => 'approve', 'post_id' => $post->ID));
                 $totalRating = 0;
                 $data->ratingCount = 0;
@@ -923,53 +1019,46 @@ EOD;
             $this->settings->getLabels($data);
 
 
-            switch ($this->settings->get('saveButton')) {
-                case 'Ziplist' :
-                    $data->saveButtonJS = self::ZIPLISTJS;
-                    $data->saveButton = sprintf(self::ZIPLISTBUTTON, $this->settings->get('ziplistPartnerKey'), urlencode(get_permalink($post->ID)));
-                    $data->hasSave = true;
-                    break;
-            }
-            $data->hasLinkback = $this->settings->get('allowLink');
-            $data->displayPrint = $this->settings->get('displayPrint');
+
+            $data->hasLinkback = $this->settings->allowLink;
+            $data->displayPrint = $this->settings->displayPrint;
             $data->style = $this->styleName;
             $data->title = $post->post_title;
             $data->blogname = get_option("blogname"); // TODO - do all this stuff at initialise time?
             $data->siteURL = $this->homeURL;
-            $data->sitePrintURL = $data->siteURL;
-            if (!$wp_rewrite->using_permalinks()) {
-                $uri = $_SERVER['REQUEST_URI'];
-                if (strpos($uri, '?') !== false) {
-                    $data->sitePrintURL .= "$uri&";
-                } else {
-                    $data->sitePrintURL .= "$uri?";
-                }
+
+            /**
+             * If the site isn't using permalinks then just pass the print stuff as a qurerystring param
+             */
+            if ($wp_rewrite->using_permalinks()) {
+                $data->sitePrintURL = $data->siteURL;
+            } else {
+                $data->sitePrintURL = $data->siteURL . "?";
             }
 
             $data->postID = $post->ID;
             $data->recipeurl = get_permalink($post->ID);
-            $data->convertFractions = $this->settings->get('convertFractions');
+            $data->convertFractions = $this->settings->convertFractions;
 
             if ($this->styleName[0] == '_') {
                 $styleName = substr($this->styleName, 1);
-                $templateFile = $this->settings->get('customTemplates') . "/styles/$styleName/style.html";
+                $templateFile = $this->settings->customTemplates . "/styles/$styleName/style.html";
             } else {
-                $templateFile = "$this->easyrecipeDIR/styles/$this->styleName/style.html";
+                $templateFile = self::$EasyRecipeDir . "/styles/$this->styleName/style.html";
             }
-            /* @var $template EasyRecipePlusTemplate */
-            $template = new $this->templateClass($templateFile);
+            $template = new EasyRecipeTemplate($templateFile);
 
 
-            /*
-            * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
-            * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
-            */
+            /**
+             * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
+             * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
+             */
             $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
-            /*
-            * Some themes do a get_post() again instead of using the posts as modified by plugins
-            * So make sure our modified post is in cache so the get_post() picks up the modified version not the original
-               * Need to do both add and replace since add doesn't replace and replace doesn't add and we can't be sure if the cache key exists at this point
-            */
+            /**
+             * Some themes do a get_post() again instead of using the posts as modified by plugins
+             * So make sure our modified post is in cache so the get_post() picks up the modified version not the original
+             * Need to do both add and replace since add doesn't replace and replace doesn't add and we can't be sure if the cache key exists at this point
+             */
             wp_cache_add($post->ID, $post, 'posts');
             wp_cache_replace($post->ID, $post, 'posts');
 
@@ -981,20 +1070,23 @@ EOD;
     /**
      * Check to see if the post content contains the wrappers we use to facilitate line insertion above & below a recipe
      *
-     * If they exist, strip them out
+     * If they exist, strip them out FIXME
      */
-    function postSave($data, $postarr) {
+    function postSave($data, /** @noinspection PhpUnusedParameterInspection */
+                      $postarr) {
+
+        /*
+                if (strpos($data['post_content'], 'easyrecipeWrapper') !== false) {
+                    $content = stripslashes($data['post_content']);
+                    $dom = new $this->documentClass($content);
+                    $content = $dom->stripWrappers();
+                    if ($content !== null) {
+                        $data['post_content'] = $content;
+                    }
+                }
+        */
         return $data;
 
-        if (strpos($data['post_content'], 'easyrecipeWrapper') !== false) {
-            $content = stripslashes($data['post_content']);
-            $dom = new $this->documentClass($content);
-            $content = $dom->stripWrappers();
-            if ($content !== null) {
-                $data['post_content'] = $content;
-            }
-        }
-        return $data;
     }
 
     function commentForm($postID) {
@@ -1006,7 +1098,7 @@ EOD;
             return;
         }
 
-        $rateLabel = $this->settings->get('lblRateRecipe');
+        $rateLabel = $this->settings->lblRateRecipe;
 
         echo <<<EOD
 <span class="ERComment">
@@ -1061,168 +1153,6 @@ EOD;
         return $links;
     }
 
-    function diagnosticsGet() {
-        global $wp_version, $wp_filter;
-
-        $data = new stdClass();
-        /*
-        * Get the php info
-        */
-        $existingOP = ob_get_clean();
-        ob_start();
-        phpinfo();
-        $phpinfo = ob_get_clean();
-        preg_match('%<body>(.*)</body>%si', $phpinfo, $regs);
-        $data->phpinfo = $regs[1];
-
-        /*
-        * Get our own settings
-        */
-        $data->ERSettings = $this->settings->get();
-
-        $data->email = get_bloginfo("admin_email");
-
-        $capabilities = "";
-        get_currentuserinfo();
-
-        $user = $GLOBALS['current_user'];
-
-        if (isset($user->caps)) {
-            foreach ($user->caps as $cap => $allowed) {
-                if ($allowed) {
-                    $capabilities .= "$cap,";
-                }
-            }
-        }
-        $data->wpcapabilities = rtrim($capabilities, ",");
-        $data->wpversion = $wp_version;
-        $data->wpurl = get_bloginfo("wpurl");
-        $data->home = home_url();
-
-        $themeData = get_theme_data(get_stylesheet_directory() . "/style.css");
-        $data->wptheme = $themeData["Name"];
-        $data->wpthemeversion = $themeData["Version"];
-        $data->wpthemeurl = $themeData["URI"];
-
-        if (!function_exists('get_plugins')) {
-            require_once (ABSPATH . 'wp-admin/includes/plugin.php');
-        }
-        $plugins = get_plugins();
-        foreach ($plugins as $pluginFile => $null) {
-            $plugins[$pluginFile]["active"] = is_plugin_active($pluginFile) ? "Active" : "Inactive";
-        }
-        usort($plugins, array($this, "sortPlugins"));
-        $data->plugindata = "";
-        foreach ($plugins as $plugin) {
-            $name = $plugin["Title"];
-            $active = $plugin["active"];
-            $version = $plugin["Version"];
-            $url = $plugin["PluginURI"];
-            $style = $active == "Active" ? "" : ' style=color:#888';
-            $data->plugindata .= <<<EOD
-        <tr$style>
-          <td>$name</td>
-          <td>$active</td>
-          <td>$version</td>
-          <td>$url</td>
-        </tr>\n
-EOD;
-        }
-        /*
-        $hooks = $wp_filter;
-        ksort($hooks);
-
-        $data->hookdata = "";
-        foreach ($hooks as $tag => $priorities) {
-            ksort($priorities);
-            foreach ($priorities as $priority => $functions) {
-                ksort($functions);
-                foreach ($functions as $name => $null) {
-                    $data->hookdata .= <<<EOD
-        <tr>
-          <td>$tag</td>
-          <td>$priority</td>
-          <td>$name</td>
-        </tr>\n
-    EOD;
-                }
-            }
-        }
-        */
-
-        echo $existingOP;
-        return $data;
-    }
-
-    /**
-     * Display a page showing what diagnostics data will be sent
-     */
-    function diagnosticsShowData() {
-        $data = $this->diagnosticsGet();
-        $data->easyrecipeURL = $this->easyrecipeURL;
-        $data->version = $this->version;
-
-        $data->ERSettings = print_r($data->ERSettings, true);
-
-        /* @var $template EasyRecipePlusTemplate */
-        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-diagnostics.html");
-        $html = $template->replace($data, constant("$this->templateClass::PRESERVEWHITESPACE"));
-        echo $html;
-
-        exit();
-    }
-
-    /**
-     * Check to see if we're activating ERPlus and pick up ER settings if need be
-     * If EasyRecipe is an version < 3, set the default style to the legacy style
-     */
-    function easyrecipeActivated() {
-
-
-        /*
-        * Get the current settings
-        */
-        $current = get_option('ERSettings');
-        $this->settings = new $this->settingsClass();
-
-        /*
-        * If there are current settings but 'style' doesn't exist then we are updating from v2 to v3 - merge the v2 settings
-        */
-        if ($current !== false) {
-            if (!isset($current['style'])) {
-                $this->settings->mergeV2($current);
-            }
-            $this->settings->update();
-        } else {
-            /*
-            * There were no current settings - this is a new install
-               * Write the defaults
-            */
-            $this->settings->add();
-        }
-
-
-
-        /*
-           * Setup the endpoints and rewrite the rules
-        */
-        // add_rewrite_endpoint('easyrecipe-print', EP_ALL);
-        // add_rewrite_endpoint('easyrecipe-diagnostics', EP_ALL);
-        // add_rewrite_endpoint('easyrecipe-import', EP_ALL);
-        // add_rewrite_endpoint('easyrecipe-style', EP_ALL);
-        // add_rewrite_endpoint('easyrecipe-printstyle', EP_ALL);
-        flush_rewrite_rules();
-
-        $data = http_build_query(array('action' => 'activate', 'site' => get_site_url()));
-        $status = $this->socketIO("POST", "www.easyrecipeplugin.com", 80, "/installed.php", $data);
-    }
-
-    function easyrecipeDeactivated() {
-        flush_rewrite_rules();
-        $data = http_build_query(array('action' => 'deactivate', 'site' => get_site_url()));
-        $status = $this->socketIO("POST", "www.easyrecipeplugin.com", 80, "/installed.php", $data);
-    }
-
     /**
      * Send a support question (and possibly diagnostics) to EasyRecipe support
      */
@@ -1232,12 +1162,62 @@ EOD;
         $data->name = stripslashes($_POST['name']);
         $data->problem = stripslashes($_POST['problem']);
         if (isset($_POST['diagnostics'])) {
-            $data->vars = $this->diagnosticsGet();
+            $diagnostics = new EasyRecipeDiagnostics();
+            $data->vars = $diagnostics->get();
         }
-        $data = "data=" . urlencode(json_encode($data));
-        $status = $this->socketIO("POST", "www.easyrecipeplugin.com", 80, "/diagnostics.php", $data);
+        $data = json_encode($data);
+
+        $args = array('body' => array('data' => $data));
+        $result = wp_remote_post(self::DIAGNOSTICS_URL, $args);
+
+        // FIXME - get correct return code!
+        $status = 'FAIL';
+        if (is_array($result)) {
+            if (isset($result['response']) && $result['response']['code'] == 200) {
+                $status = $result['body'];
+            }
+        }
         echo json_encode(array("status" => $status));
         exit();
+    }
+
+    /**
+     * Display a page showing what diagnostics data will be sent
+     */
+    function diagnosticsShowData() {
+        $diagnostics = new EasyRecipeDiagnostics();
+        $data = $diagnostics->get();
+
+        $data->easyrecipeURL = self::$EasyRecipeURL;
+        $data->version = $this->pluginVersion;
+
+        $settings = EasyRecipeSettings::getInstance();
+        $data->ERSettings = print_r($settings, true);
+
+        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-diagnostics.html");
+        $html = $template->replace($data, EasyRecipeTemplate::PRESERVEWHITESPACE);
+
+        header("HTTP/1.1 200 OK");
+        echo $html;
+
+        exit();
+    }
+
+    /**
+     * Create the settings - it will convert from the FREE settings if this is the PLUS version
+     */
+    function pluginActivated() {
+
+        $this->settings = EasyRecipeSettings::getInstance();
+
+        $data = http_build_query(array('action' => 'activate', 'site' => get_site_url()));
+        $request = wp_remote_post("http://www.easyrecipeplugin.com/installed.php", array('body' => $data, "blocking" => false));
+
+    }
+
+    function pluginDeactivated() {
+        $data = http_build_query(array('action' => 'deactivate', 'site' => get_site_url()));
+        $request = wp_remote_post("http://www.easyrecipeplugin.com/installed.php", array('body' => $data, "blocking" => false));
     }
 
     /**
@@ -1259,8 +1239,8 @@ EOD;
      */
     function mcePlugins($plugins) {
         $plugins = (array)$plugins;
-        $plugins['easyrecipe'] = "$this->pluginsURL/$this->pluginName/js/easyrecipe-mce.js?v=$this->version";
-        $plugins['noneditable'] = "$this->pluginsURL/$this->pluginName/tinymce/noneditable.js?v=$this->version";
+        $plugins['easyrecipe'] = self::$EasyRecipeURL . "/js/easyrecipe-mce.js?v=$this->pluginVersion";
+        $plugins['noneditable'] = self::$EasyRecipeURL . "/tinymce/noneditable.js?v=$this->pluginVersion";
         return $plugins;
     }
 
@@ -1288,34 +1268,31 @@ EOD;
             return;
         }
 
-        /* @var $template EasyRecipePlusTemplate */
-        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-entry.html");
+        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-entry.html");
         echo $template->replace();
 
         $data = new stdClass();
-        $data->easyrecipeURL = $this->easyrecipeURL;
-        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-upgrade.html");
+        $data->easyrecipeURL = self::$EasyRecipeURL;
+        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-upgrade.html");
         echo $template->replace($data);
 
 
         $data = new stdClass();
-        $data->easyrecipeURL = $this->easyrecipeURL;
-        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-convert.html");
+        $data->easyrecipeURL = self::$EasyRecipeURL;
+        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-convert.html");
         echo $template->replace($data);
 
-        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-htmlwarning.html");
+        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-htmlwarning.html");
         echo $template->getTemplateHTML();
 
-        /*
-        * Get the basic data template
-           * We need to preserve comments here because the template is processed by the javascript template engine and it needs the INCLUDEIF/REPEATS
-        */
+        /**
+         * Get the basic data template
+         * We need to preserve comments here because the template is processed by the javascript template engine and it needs the INCLUDEIF/REPEATS
+         */
 
-        /* @var $template EasyRecipePlusTemplate */
-        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-template.html");
-        $class = $this->templateClass;
+        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-template.html");
 
-        $html = $template->getTemplateHTML(constant("$this->templateClass::PRESERVECOMMENTS"));
+        $html = $template->getTemplateHTML(EasyRecipeTemplate::PRESERVECOMMENTS);
         $html = preg_replace('/\n */', ' ', $html);
         $html = trim(str_replace("'", "\"", $html));
 
@@ -1328,32 +1305,33 @@ EOD;
             $testURL = '';
         }
 
-        $author = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->get('author'))));
-        $cuisines = str_replace("'", '\x27', json_encode(explode('|', str_replace('"', '\\"', $this->settings->get('cuisines')))));
-        $recipeTypes = str_replace("'", '\x27', json_encode(explode('|', str_replace('"', '\\"', $this->settings->get('recipeTypes')))));
+        $author = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->author)));
+        $cuisines = str_replace("'", '\x27', json_encode(explode('|', str_replace('"', '\\"', $this->settings->cuisines))));
+        $recipeTypes = str_replace("'", '\x27', json_encode(explode('|', str_replace('"', '\\"', $this->settings->recipeTypes))));
 
-        $ingredients = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->get('lblIngredients'))));
-        $instructions = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->get('lblInstructions'))));
-        $notes = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->get('lblNotes'))));
+        $ingredients = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->lblIngredients)));
+        $instructions = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->lblInstructions)));
+        $notes = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->lblNotes)));
         if (!function_exists('get_upload_iframe_src')) {
             require_once (ABSPATH . 'wp-admin/includes/media.php');
         }
         $upIframeSrc = get_upload_iframe_src();
         $guestPost = $this->isGuest ? 'true' : 'false';
         $wpurl = get_bloginfo('wpurl');
+        $url = self::$EasyRecipeURL;
+        $wpVersion = $GLOBALS['wp_version'];
         echo <<<EOD
 <script type="text/javascript">
 /* <![CDATA[ */
 
 if (typeof EASYRECIPE == "undefined") {
-  EASYRECIPE = {};
+  var EASYRECIPE = {};
 }
 EASYRECIPE.ingredients ='$ingredients';
 EASYRECIPE.instructions ='$instructions';
 EASYRECIPE.notes ='$notes';
-EASYRECIPE.version = '$this->version';
-EASYRECIPE.pluginsURL = '$this->pluginsURL';
-EASYRECIPE.easyrecipeURL = '$this->easyrecipeURL';
+EASYRECIPE.version = '$this->pluginVersion';
+EASYRECIPE.easyrecipeURL = '$url';
 EASYRECIPE.recipeTemplate = '$html';
 EASYRECIPE.testURL = '$testURL';
 EASYRECIPE.author = '$author';
@@ -1362,6 +1340,7 @@ EASYRECIPE.cuisines = '$cuisines';
 EASYRECIPE.upIframeSrc = '$upIframeSrc';
 EASYRECIPE.isGuest = $guestPost;
 EASYRECIPE.wpurl = '$wpurl';
+EASYRECIPE.wpVersion = '$wpVersion';
 /* ]]> */
 </script>
 EOD;
@@ -1371,6 +1350,7 @@ EOD;
     * Return RecipeSEO/ZipList data
     */
     function convertRecipe() {
+        /** @global $wpdb wpdb */
         global $wpdb;
 
         $id = (int)$_POST['id'];
@@ -1453,4 +1433,3 @@ EOD;
         return strcmp($a["Title"], $b["Title"]);
     }
 }
-

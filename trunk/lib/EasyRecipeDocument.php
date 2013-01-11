@@ -18,9 +18,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
-if (!class_exists('EasyRecipeDOMDocument', false)) {
-    require_once dirname(__FILE__) . '/EasyRecipeDOMDocument.php';
-}
 
 class EasyRecipeDocument extends EasyRecipeDOMDocument {
     public $isEasyRecipe = false;
@@ -28,10 +25,12 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     public $isFormatted;
     private $easyrecipeDiv;
     private $hasFractions = false;
-    private $easyrecipes = array ();
-    private $easyrecipesHTML = array ();
+    private $easyrecipes = array();
+    private $easyrecipesHTML = array();
     private $postImage = false;
 
+    private $preEasyRecipe;
+    private $postEasyRecipe;
 
     const regexEasyRecipe = '/<div\s+class\s*=\s*["\'](?:[^>]*\s+)?easyrecipe[ \'"]/si';
     const regexDOCTYPE = '%^<!DOCTYPE.*?</head>\s*<body>\s*(.*?)</body>\s*</html>\s*%si';
@@ -40,14 +39,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     const regexPhotoClass = '/class\s*=\s*["\'](?:[a-z0-9-_]+ )*?photo[ \'"]/si';
 
     /*@formatter:off */
-    private $fractions = array (
-        1 => array (2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'),
-        2 => array (3 => '&#8532;'),
-        3 => array (4 => '&frac34;'),
-        4 => array (5 => '&#8536;'),
-        5 => array (6 => '&#8538;', 8 => '&#8541;'),
-        7 => array (8 => '&#8342;')
-    );
+    private $fractions = array(1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'), 2 => array(3 => '&#8532;'), 3 => array(4 => '&frac34;'),
+                               4 => array(5 => '&#8536;'), 5 => array(6 => '&#8538;', 8 => '&#8541;'), 7 => array(8 => '&#8342;'));
 
     /*
      * @formatter:on
@@ -56,9 +49,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     /**
      * If there's an EasyRecipe in the content, load the HTML and pre-process, else just return
      *
-     * @param $content string
-     *            The post content
-     *
+     * @param $content
+     * @param bool $load
      */
     public function __construct($content, $load = true) {
         /**
@@ -168,18 +160,13 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      *
      * Later versions of tinyMCE may silently remove the <a> tag altogether, so we need to put it back if it's not there
      *
-     * @param $url string
-     *            The print URL
+     * @param $recipe
+     * @param $template
+     * @param $data
+     * @param int $nRecipe
+     * @return string
      */
-
-    /**
-     *
-     * @param $url string
-     *            The post's URL
-     * @param $formatting boolean
-     *            If TRUE, we're an admin so add the option to set the formatting
-     */
-    function formatRecipe($recipe, $template, $data, $nRecipe = 0) {
+    function formatRecipe($recipe, EasyRecipeTemplate $template, $data, $nRecipe = 0) {
         $data = $this->extractData($recipe, $data, $nRecipe);
         $html = $template->replace($data);
 
@@ -188,7 +175,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
          * Convert fractions if asked to
          */
         if ($data->convertFractions) {
-            $html = preg_replace_callback('%(. |^|>)([1-457])/([2-68])([^\d]|$)%', array ($this, 'convertFractionsCallback'), $html);
+            $html = preg_replace_callback('%(. |^|>)([1-457])/([2-68])([^\d]|$)%', array($this, 'convertFractionsCallback'), $html);
         }
 
         /**
@@ -205,9 +192,9 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
          * Don't bother with the regex's if there's no need - saves a few cycles
          */
         if (strpos($html, "[") !== false) {
-            $html = preg_replace_callback('%\[(i|b)\](.*?)\[/\1\]%si', array ($this, "shortCodes"), $html);
-            $html = preg_replace_callback('%\[(img) +(.*?) */?\]%i', array ($this, "shortCodes"), $html);
-            $html = preg_replace_callback('%\[(url) +([^\]]+?)\](.*?)\[/url\]%si', array ($this, "shortCodes"), $html);
+            $html = preg_replace_callback('%\[(i|b)\](.*?)\[/\1\]%si', array($this, "shortCodes"), $html);
+            $html = preg_replace_callback('%\[(img) +(.*?) */?\]%i', array($this, "shortCodes"), $html);
+            $html = preg_replace_callback('%\[(url) +([^\]]+?)\](.*?)\[/url\]%si', array($this, "shortCodes"), $html);
         }
 
         /**
@@ -229,14 +216,14 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     /**
      * Replaces the raw easyrecipe(s) with the formatted version
      *
-     * @param $template EasyRecipePlusTemplate
-     *            The template to use
-     * @param $data Object
-     *            The base data
+     * @param EasyRecipeTemplate $template
+     * @param $originalData
+     * @param null $recipe
+     * @return mixed|string
      */
     function applyStyle(EasyRecipeTemplate $template, $originalData, $recipe = null) {
         $nRecipe = 0;
-        $recipes = ($recipe == null) ? $this->easyrecipes : array ($recipe);
+        $recipes = ($recipe == null) ? $this->easyrecipes : array($recipe);
 
         foreach ($recipes as $recipe) {
             /*
@@ -244,11 +231,13 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
              */
             $data = clone $originalData;
             $this->easyrecipesHTML[$nRecipe] = trim($this->formatRecipe($recipe, $template, $data, $nRecipe));
+
             $placeHolder = $this->createElement("div");
             $placeHolder->setAttribute("id", "_easyrecipe_" . $nRecipe);
 
 
             try {
+                /** @var $recipe DOMNode */
                 $recipe->parentNode->replaceChild($placeHolder, $recipe);
             } catch (Exception $e) {
             }
@@ -362,6 +351,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
 
             $hasNode = false;
             $h = $m = 0;
+            /** @var $node DOMNode */
+            /** @var $child  DOMElement */
             for ($child = $node->firstChild; $child; $child = $child->nextSibling) {
                 if ($child->nodeName == "#text") {
                     if (preg_match('/(?:([0-9]+) *hours?)?(?: *([0-9]+) *min)?/i', $node->nodeValue, $regs)) {
@@ -406,9 +397,10 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * Needs to remove the extra stuff saveHTML adds
      * The rtrim is needed because pcre regex's can't pick up repeated spaces after repeated "any character"
      *
-     * @return string The processed post html
-     *
      *         TODO - standardise the way body only is done!
+     *
+     * @param bool $bodyOnly
+     * @return bool|string
      */
     public function getHTML($bodyOnly = false) {
         $html = $this->saveHTML();
@@ -430,8 +422,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         if (!preg_match(self::regexTime, $t, $regs)) {
             return false;
         }
-        $hr = isset($regs[1]) ? (int) $regs[1] : 0;
-        $mn = isset($regs[2]) ? (int) $regs[2] : 0;
+        $hr = isset($regs[1]) ? (int)$regs[1] : 0;
+        $mn = isset($regs[2]) ? (int)$regs[2] : 0;
 
         $shr = $hr > 0 ? $hr . "H" : "";
         $smn = $mn > 0 ? $mn . "M" : "";
@@ -443,16 +435,19 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     }
 
     function findPhotoURL($recipe) {
-        if ($this->recipeVersion < '3') {
+        $photoURL = false;
+        if ($this->recipeVersion > '3') {
+            $photoURL = $this->getElementAttributeByTagName('link', 'href', "itemprop", 'image', $recipe);
+        }
+        if (!$photoURL) {
             $photoURL = $this->getElementAttributeByClassName('photo', 'src');
             if (!$photoURL) {
                 $images = $this->getElementsByTagName("img");
                 if ($images->length > 0) {
+                    /** @noinspection PhpUndefinedMethodInspection */
                     $photoURL = $images->item(0)->getAttribute('src');
                 }
             }
-        } else {
-            $photoURL = $this->getElementAttributeByTagName('link', 'href', "itemprop", 'image', $recipe);
         }
         return $photoURL;
     }
@@ -512,7 +507,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
 
         $data->notes = $this->getElementValueByClassName("ERNotes", "div", $recipe);
 
-        $data->INGREDIENTSECTIONS = array ();
+        $data->INGREDIENTSECTIONS = array();
         $section = null;
         // $ingredientsList = $this->getElementByClassName('ingredients', 'ul', $recipe);
         $ingredientsLists = $this->getElementsByClassName('ingredients', 'ul', $recipe);
@@ -527,7 +522,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
                         $data->INGREDIENTSECTIONS[] = $section;
                     }
                     $section = new stdClass();
-                    $section->INGREDIENTS = array ();
+                    $section->INGREDIENTS = array();
                     if ($hasHeading) {
                         $section->heading = $ingredient->nodeValue;
                         continue;
@@ -542,7 +537,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         // TODO what if NO ingredients
         $data->INGREDIENTSECTIONS[] = $section;
 
-        $data->INSTRUCTIONSTEPS = array ();
+        $data->INSTRUCTIONSTEPS = array();
         $section = null;
         // $instructionsList = $this->getElementByClassName('instructions', 'div', $recipe);
         $instructionsLists = $this->getElementsByClassName('instructions', 'div', $recipe);
@@ -555,7 +550,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
                         $data->INSTRUCTIONSTEPS[] = $section;
                     }
                     $section = new stdClass();
-                    $section->INSTRUCTIONS = array ();
+                    $section->INSTRUCTIONS = array();
                     if ($hasHeading) {
                         $section->heading = $instruction->nodeValue;
                         continue;
@@ -581,6 +576,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     function stripWrappers() {
         $wrappers = $this->getElementsByClassName("easyrecipeWrapper");
         foreach ($wrappers as $wrapper) {
+            /** @var $wrapper DOMNode */
             /*
              * First take out possible "above" and "below" divs
              */
@@ -622,4 +618,3 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         return $this->getHTML(true);
     }
 }
-

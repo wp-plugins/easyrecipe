@@ -20,4 +20,3 @@ Formatting: [\
 {"section":"Notes Heading","target":".ERNotesHeader","type":"font"},\
 {"section":"Notes","target":".ERNotes","type":"font"}\
 ]
-
