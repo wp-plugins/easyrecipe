@@ -34,6 +34,7 @@ div.easyrecipe {
     width: 40%;
     text-align: center;
     max-width: 215px;
+    z-index:2;
 }
 
 .ERSRatingComment {
@@ -90,4 +91,3 @@ div.easyrecipe {
 	margin-top: 10px;
 	text-align: right;
 }
-

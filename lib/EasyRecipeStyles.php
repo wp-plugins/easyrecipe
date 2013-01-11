@@ -21,9 +21,6 @@ class EasyRecipeStyles {
     const ISPRINT = true;
     private static $styles;
     private static $printStyles;
-    private static $directory;
-    private static $url;
-    private static $pluginName = 'easyrecipe';
 
     /**
      * Returns the data for style "$styleName".
@@ -40,13 +37,13 @@ class EasyRecipeStyles {
     static public function getStyleData($styleName, $customTemplates, $isPrint = false) {
         $isFormatting = false;
         $isFonts = false;
-        $pluginURL = WP_PLUGIN_URL . '/' . self::$pluginName;
+        $pluginURL = EasyRecipe::$EasyRecipeURL;
         if ($styleName[0] == '_') {
             $directory = $customTemplates;
             $url = get_bloginfo('wpurl') . "/easyrecipe-style";
             $styleDirectory = substr($styleName, 1);
         } else {
-            $directory = WP_PLUGIN_DIR . '/' . self::$pluginName;
+            $directory = EasyRecipe::$EasyRecipeDir;
             $url = $pluginURL;
             $styleDirectory = $styleName;
         }
@@ -130,7 +127,9 @@ class EasyRecipeStyles {
             return $names;
         }
 
+
         foreach ($stylesDir as $dir) {
+            /** @var $dir DirectoryIterator */
             if (!$dir->isDir()) {
                 continue;
             }
@@ -144,6 +143,7 @@ class EasyRecipeStyles {
 
             $names[] = $isCustom ? "_$style" : $style;
         }
+
         return $names;
     }
 
@@ -164,7 +164,7 @@ class EasyRecipeStyles {
          */
         if ((!$isPrint && !isset(self::$styles)) || ($isPrint && !isset(self::$printStyles))) {
 
-            $directory = WP_PLUGIN_DIR . '/' . self::$pluginName;
+            $directory = EasyRecipe::$EasyRecipeDir;
             $directory = $isPrint ? "$directory/printstyles" : "$directory/styles";
 
             $names = array_merge($names, self::getStyleNames($directory));
@@ -184,4 +184,3 @@ class EasyRecipeStyles {
         return $isPrint ? self::$printStyles : self::$styles;
     }
 }
-

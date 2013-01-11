@@ -1,5 +1,5 @@
 Style: Tastefully Simple - no photo
-Version: 1.0
+Version: 1.1
 Author: EasyRecipe
 Description: Tastefully simple without a photo
 Preview: images/preview.png
@@ -23,4 +23,3 @@ Formatting: [\
 {"section":"Nutrition Heading","target":".easyrecipe .nutrition .ERSNutritionHeader","type":"font"},\
 {"section":"Nutrition Details","target":".easyrecipe .nutrition .ERSNutrionDetails","type":"font"}\
 ]
-

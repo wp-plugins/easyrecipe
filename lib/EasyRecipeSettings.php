@@ -17,26 +17,11 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
+
+
 class EasyRecipeSettings {
-    /*
-    * Constants from Phing build
-    */
-    private $templateClass = 'EasyRecipeTemplate';
-    private $stylesClass = 'EasyRecipeStyles';
-    private $settingsName = 'ERSettings';
-    private $pluginName = 'easyrecipe';
 
-    /*
-    * For convenience
-    */
-    private $easyrecipeDIR;
-    private $easyrecipeURL;
-
-    /*
-    * Default settings
-    * @formatter:off
-    */
-    private $defaultSettings = array(
+    private static $defaultSettings = array(
 
         'licenseKey' => '',
 
@@ -44,7 +29,7 @@ class EasyRecipeSettings {
 
         'customCSS' => '', 'customPrintCSS' => '', 'extraCSS' => '', 'extraPrintCSS' => '',
 
-        'displayPrint' => true, 'allowLink' => false, 'convertFractions' => true, 'removeMicroformat' => false, 'pingMBRB' => false,
+        'displayPrint' => true, 'allowLink' => false, 'convertFractions' => true, 'removeMicroformat' => false,
 
         'enableSwoop' => false, 'swoopSiteID' => '',
 
@@ -58,7 +43,10 @@ class EasyRecipeSettings {
 
         'ratings' => 'EasyRecipe',
 
-        'lblIngredients' => 'Ingredients', 'lblInstructions' => 'Instructions', 'lblNotes' => 'Notes', 'lblNutrition' => 'Nutrition Information', 'lblAuthor' => 'Author', 'lblCuisine' => 'Cuisine', 'lblRecipeType' => 'Recipe type', 'lblPrepTime' => 'Prep time', 'lblCookTime' => 'Cook time', 'lblTotalTime' => 'Total time', 'lblServes' => 'Serves', 'lblServeSize' => 'Serving size', 'lblCalories' => 'Calories', 'lblSugar' => 'Sugar', 'lblSodium' => 'Sodium', 'lblFat' => 'Fat', 'lblSatFat' => 'Saturated fat', 'lblUnsatFat' => 'Unsaturated fat', 'lblTransFat' => 'Trans fat', 'lblCarbs' => 'Carbohydrates', 'lblFiber' => 'Fiber', 'lblProtein' => 'Protein', 'lblCholesterol' => 'Cholesterol', 'lblRateRecipe' => 'Rate this recipe',
+        'lblIngredients' => 'Ingredients', 'lblInstructions' => 'Instructions', 'lblNotes' => 'Notes', 'lblNutrition' => 'Nutrition Information', 'lblAuthor' => 'Author', 'lblCuisine' => 'Cuisine',
+        'lblRecipeType' => 'Recipe type', 'lblPrepTime' => 'Prep time', 'lblCookTime' => 'Cook time', 'lblTotalTime' => 'Total time', 'lblServes' => 'Serves', 'lblServeSize' => 'Serving size',
+        'lblCalories' => 'Calories', 'lblSugar' => 'Sugar', 'lblSodium' => 'Sodium', 'lblFat' => 'Fat', 'lblSatFat' => 'Saturated fat', 'lblUnsatFat' => 'Unsaturated fat',
+        'lblTransFat' => 'Trans fat', 'lblCarbs' => 'Carbohydrates', 'lblFiber' => 'Fiber', 'lblProtein' => 'Protein', 'lblCholesterol' => 'Cholesterol', 'lblRateRecipe' => 'Rate this recipe',
 
         'gpUserID' => 0, 'gpDetailsPage' => 0, 'gpEntryPage' => 0, 'gpThanksPage' => 0, 'gpHideFooter' => true,
 
@@ -68,159 +56,182 @@ class EasyRecipeSettings {
 
         'forcejQuery' => false,
 
-        'lastFlushVersion' => 0);
+        'enableFooderific' => '',
 
-    private $settings;
-    private $style;
+        'fooderificAPIKey' => '',
 
-    private $printStyle;
-    private $styleData;
-    private $printStyleData;
+        'lastScanStarted' => 0,
+
+        'lastScanFinished' => 0,
+
+        'scanDelay' => 3);
 
 
-    /*
-     * @formatter:on
-    */
-    function __construct() {
-
-        /*
-        * For convenience
-        */
-        $this->easyrecipeDIR = WP_PLUGIN_DIR . "/$this->pluginName";
-        $this->easyrecipeURL = WP_PLUGIN_URL . "/$this->pluginName";
-
-        $settings = get_option($this->settingsName, array());
-        foreach ($this->defaultSettings as $setting => $default) {
-            $this->settings[$setting] = isset($settings[$setting]) ? $settings[$setting] : $default;
-        }
-    }
+    public $licenseKey;
+    public $style;
+    public $printStyle;
+    public $customCSS;
+    public $customPrintCSS;
+    public $extraCSS;
+    public $extraPrintCSS;
+    public $displayPrint;
+    public $allowLink;
+    public $convertFractions;
+    public $removeMicroformat;
+//    public $pingMBRB;
+    public $enableSwoop;
+    public $swoopSiteID;
+    public $saveButton;
+    public $ziplistPartnerKey;
+    public $saltyfigPartnerKey;
+    public $author;
+    public $cuisines;
+    public $recipeTypes;
+    public $ratings;
+    public $lblIngredients;
+    public $lblInstructions;
+    public $lblNotes;
+    public $lblNutrition;
+    public $lblAuthor;
+    public $lblCuisine;
+    public $lblRecipeType;
+    public $lblPrepTime;
+    public $lblCookTime;
+    public $lblTotalTime;
+    public $lblServes;
+    public $lblServeSize;
+    public $lblCalories;
+    public $lblSugar;
+    public $lblSodium;
+    public $lblFat;
+    public $lblSatFat;
+    public $lblUnsatFat;
+    public $lblTransFat;
+    public $lblCarbs;
+    public $lblFiber;
+    public $lblProtein;
+    public $lblCholesterol;
+    public $lblRateRecipe;
+    public $gpUserID;
+    public $gpDetailsPage;
+    public $gpEntryPage;
+    public $gpThanksPage;
+    public $gpHideFooter;
+    public $erSubscribe;
+    public $erEmailAddress;
+    public $erFirstName;
+    public $customTemplates;
+    public $forcejQuery;
+    public $enableFooderific;
+    public $lastScanStarted;
+    public $lastScanFinished;
+    public $scanDelay;
+    public $fooderificAPIKey;
+    /**
+     * @var EasyRecipeSettings
+     */
+    private static $instance;
 
     /**
-     * Return the value of a setting
-     *
-     * @param string $settingName
-     *            The setting to retrieve
-     *
-     * @return mixed The setting value
+     * @static
+     * @return EasyRecipeSettings
      */
+    static function getInstance() {
+        $v32Settings = false;
+        $updateOptions = false;
 
-    /**
-     * @param bool $settingName
-     * @return null
-     */
-    public function get($settingName = false) {
-        if ($settingName) {
-            return isset($this->settings[$settingName]) ? $this->settings[$settingName] : null;
-        } else {
-            return $this->settings;
-        }
-    }
+        /**
+         * If we haven't already instantiated settings, try to do it from the options
+         */
+        if (!self::$instance) {
+            self::$instance = get_option('EasyRecipe', false);
+            /**
+             * If there were no settings stored, see if we need to merge older style settings
+             */
+            if (!self::$instance) {
+                self::$instance = new EasyRecipeSettings();
+                /**
+                 * See if we had existing 3.1 style settings
+                 */
+                $v32Settings = get_option('ERPlusSettings');
+                if (!$v32Settings) {
+                    $v32Settings = get_option('ERSettings');
+                }
+            }
+            /**
+             * Set any defaults which are new in the current version
+             */
+            foreach (self::$defaultSettings as $setting => $default) {
+                if (!isset(self::$instance->$setting)) {
+                    self::$instance->$setting = $default;
+                }
+            }
 
-    /**
-     * Save the settings
-     *
-     * @param array $settings
-     *            key/value array of settings
-     */
-    public function save($settings) {
-        if (!isset($settings)) {
-            return;
-        }
+            /**
+             * Check for a non-existent Fooderific setting and pick up the old MBRB setting if that's there
+             */
+            if (self::$instance->enableFooderific === '' && $v32Settings) {
+                self::$instance->enableFooderific = isset($v32Settings['pingMBRB']) ? $v32Settings['pingMBRB'] : false;
+                $updateOptions = true;
+            }
 
-        $subscribeChange = ($this->settings['erSubscribe']) ? !isset($settings['erSubscribe']) : isset($settings['erSubscribe']);
-
-        $subscribeChange = $subscribeChange || ($settings["erFirstName"] != $this->settings["erFirstName"]);
-        $subscribeChange = $subscribeChange || ($settings["erEmailAddress"] != $this->settings["erEmailAddress"]);
-        $oldEmail = $this->settings["erEmailAddress"];
-
-//        $allowedHTML = array('a' => array('href' => array(), 'target' => array()));
-        foreach ($this->defaultSettings as $key => $nil) {
-            switch ($key) {
-                case 'displayPrint' :
-                case 'allowLink' :
-                case 'convertFractions' :
-                case 'removeMicroformat' :
-                case 'pingMBRB' :
-                case 'enableSwoop' :
-                case 'erSubscribe' :
-                case 'gpHideFooter' :
-                case 'forcejQuery' :
-                    $this->settings[$key] = isset($settings[$key]);
-                    break;
-
-                case 'cuisines' :
-                case 'recipeTypes' :
-                    /*
-                    * Replace CRLF, CR with LF and implode
-                    */
-                    $values = isset($settings[$key]) ? preg_replace('/[\r\n]+/', "\n", trim($settings[$key])) : '';
-                    $this->settings[$key] = stripslashes(preg_replace('/ *\n+ */', '|', $values));
-                    break;
-
-                case 'customCSS' :
-                case 'customPrintCSS' :
-                    break;
-
-                case 'extraCSS' :
-                case 'extraPrintCSS' :
-                    $this->settings[$key] = trim($settings[$key]);
-                    break;
-
-                case 'erFirstName' :
-                case 'erEmailAddress' :
-                    $this->settings[$key] = stripslashes(trim(wp_filter_nohtml_kses($settings[$key])));
-                    break;
-
-                default :
-                    if (isset($settings[$key])) {
-                        //$this->settings[$key] = stripslashes(trim(wp_filter_nohtml_kses($settings[$key])));
-                        $this->settings[$key] = htmlentities(stripslashes(trim($settings[$key])));
+            /**
+             * If we're updating from v3.2, copy those settings which are still relevant
+             * Any not set by the default above are deprecated and we can drop them
+             */
+            if ($v32Settings) {
+                foreach ($v32Settings as $setting => $value) {
+                    if (isset(self::$instance->$setting)) {
+                        self::$instance->$setting = $value;
                     }
-                    break;
+                }
+                $updateOptions = true;
             }
-        }
-        update_option($this->settingsName, $this->settings);
 
-        if ($subscribeChange) {
-            $body = array();
-            if ($this->settings['erSubscribe']) {
-                $body['subscribe'] = 'yes';
-                $body['email'] = $this->settings["erEmailAddress"];
-            } else {
-                $body['subscribe'] = 'no';
-                $body['email'] = $oldEmail;
+            if ($updateOptions) {
+                update_option('EasyRecipe', self::$instance);
             }
-            $body['first'] = $settings["erFirstName"];
-            $body['site'] = get_site_url();
-            $url = "http://www.easyrecipeplugin.com/mailing.php";
-            wp_remote_post($url, array('method' => 'POST', 'timeout' => 20, 'redirection' => 0, 'httpversion' => '1.1', 'blocking' => true, 'headers' => array(), 'body' => $body, 'cookies' => array()));
         }
+        return self::$instance;
     }
 
     /**
-     * Echo the html needed for the admin settings page
+     * Constructor is only ever called from getInstance
      */
+    private function __construct() {
+
+        foreach (self::$defaultSettings as $setting => $default) {
+            $this->{$setting} = $default;
+        }
+    }
+
     public function showPage() {
         if (isset($_POST['action']) && $_POST['action'] == 'save') {
-            $this->save($_POST[$this->settingsName]);
+            $this->save($_POST["EasyRecipe"]);
         }
 
-        $data = (object)$this->settings;
-        $data->settingsname = $this->settingsName;
+        $data = new stdClass();
+        foreach (self::$defaultSettings as $setting => $default) {
+            $data->{$setting} = isset($this->{$setting}) ? $this->{$setting} : $default;
+        }
+
+        $data->settingsname = "EasyRecipe";
 
         $data->wpurl = get_bloginfo("wpurl");
+        $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
+//        $data->fdsiteurl = htmlentities($data->wpurl);
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.1.09';
-        $data->license = $this->settings['licenseKey'];
+        $data->pluginversion = '3.2.1199';
+        $data->license = $this->licenseKey;
 
-        $data->displayPrintChecked = $this->settings["displayPrint"] ? 'checked="checked"' : '';
-        $data->allowLinkChecked = $this->settings["allowLink"] ? 'checked="checked"' : '';
-        $data->convertFractionsChecked = $this->settings["convertFractions"] ? 'checked="checked"' : '';
-        $data->removeMFChecked = $this->settings["removeMicroformat"] ? 'checked="checked"' : '';
-        $data->mbrbLinkChecked = $this->settings["pingMBRB"] ? 'checked="checked"' : '';
-        $data->enableSwoopChecked = $this->settings["enableSwoop"] ? 'checked="checked"' : '';
-        $data->swoopclass = $this->settings["enableSwoop"] ? '' : 'ERSNoSwoop';
-        $data->forcejQueryChecked = $this->settings["forcejQuery"] ? 'checked="checked"' : '';
+        $data->displayPrintChecked = $this->displayPrint ? 'checked="checked"' : '';
+        $data->allowLinkChecked = $this->allowLink ? 'checked="checked"' : '';
+        $data->convertFractionsChecked = $this->convertFractions ? 'checked="checked"' : '';
+        $data->removeMFChecked = $this->removeMicroformat ? 'checked="checked"' : '';
+        $data->fdLinkChecked = $this->enableFooderific ? 'checked="checked"' : '';
+        $data->enableSwoopChecked = $this->enableSwoop ? 'checked="checked"' : '';
+        $data->swoopclass = $this->enableSwoop ? '' : 'ERSNoSwoop';
+        $data->forcejQueryChecked = $this->forcejQuery ? 'checked="checked"' : '';
 
         $data->saveButtonZiplistChecked = $data->saveButtonSaltyFigChecked = $data->saveButtonNoneChecked = '';
         $data->ziplistclass = $data->saltyfigclass = "ERSDisplayNone";
@@ -241,12 +252,11 @@ class EasyRecipeSettings {
                 break;
         }
 
-
         $data->ratingEasyRecipeChecked = $data->ratingDisabledChecked = '';
-        $ratingChecked = "rating" . $this->settings['ratings'] . "Checked";
+        $ratingChecked = "rating" . $this->ratings . "Checked";
         $data->{$ratingChecked} = 'checked="checked"';
-        $data->erSubscribeChecked = $this->settings["erSubscribe"] ? 'checked="checked"' : '';
-        $data->subscribeclass = $this->settings["erSubscribe"] ? '' : 'ERSNoSubscribe';
+        $data->erSubscribeChecked = $this->erSubscribe ? 'checked="checked"' : '';
+        $data->subscribeclass = $this->erSubscribe ? '' : 'ERSNoSubscribe';
 
         /*
          * Set up Swoop stuff
@@ -267,25 +277,27 @@ class EasyRecipeSettings {
         $swoopData->blog_title = get_bloginfo("description");
         $swoopData->rss_url = get_bloginfo("rss_url");
         $swoopData->tz = get_option('timezone_string');
+        /** @noinspection PhpParamsInspection */
         $data->swoopqs = http_build_query($swoopData);
 
-        $data->easyrecipeURL = $this->easyrecipeURL = WP_PLUGIN_URL . "/$this->pluginName";
+        $data->easyrecipeURL = EasyRecipe::$EasyRecipeURL;
         $data->siteurl = get_site_url();
 
         $data->erplus = '';
-        $data->author = $this->settings["author"];
-        $data->cuisines = str_replace('|', "\n", $this->settings["cuisines"]);
-        $data->recipeTypes = str_replace('|', "\n", $this->settings["recipeTypes"]);
-        $data->plus = $this->pluginName == 'easyrecipeplus' ? "Plus" : "";
-        $data->pluginName = $this->settingsName;
+        $data->author = $this->author;
+        $data->cuisines = str_replace('|', "\n", $this->cuisines);
+        $data->recipeTypes = str_replace('|', "\n", $this->recipeTypes);
+        $data->plus = "EasyRecipe" == "easyrecipeplus" ? "Plus" : "";
+        $data->pluginName = "EasyRecipe";
         $optionsHTML = "<input type='hidden' name='option_page' value='EROptionSettings' />";
         $optionsHTML .= '<input type="hidden" name="action" value="update" />';
         $optionsHTML .= wp_nonce_field("EROptionSettings-options", '_wpnonce', true, false);
         $optionsHTML .= wp_referer_field(false);
 
-        $styles = call_user_func(array($this->stylesClass, 'getStyles'), $this->settings['customTemplates']);
+        $styles = EasyRecipeStyles::getStyles($this->customTemplates);
+//        $styles = call_user_func(array ($this->stylesClass, 'getStyles'), $this->settings['customTemplates']);
 
-        $data->styleDirectory = $this->settings['style'];
+        $data->styleDirectory = $this->style;
         $styleNum = 0;
         $styleTab = 1;
         $styleItem = false;
@@ -293,6 +305,7 @@ class EasyRecipeSettings {
         foreach ($styles as $style) {
             if ($styleNum % 3 == 0) {
                 if ($styleItem !== false) {
+                    /** @noinspection PhpUndefinedFieldInspection */
                     $styleItem->styleTab = $styleTab++;
                     $data->STYLETABS[] = $styleItem;
                 }
@@ -307,9 +320,10 @@ class EasyRecipeSettings {
         $styleItem->styleTab = $styleTab;
         $data->STYLETABS[] = $styleItem;
 
-        $styles = call_user_func(array($this->stylesClass, 'getStyles'), $this->settings['customTemplates'], constant("$this->stylesClass::ISPRINT"));
+        $styles = EasyRecipeStyles::getStyles($this->customTemplates, EasyRecipeStyles::ISPRINT);
+        //$styles = call_user_func(array ($this->stylesClass, 'getStyles'), $this->settings['customTemplates'], constant("$this->stylesClass::ISPRINT"));
 
-        $data->printStyleDirectory = $this->settings['printStyle'];
+        $data->printStyleDirectory = $this->printStyle;
         $styleNum = 0;
         $styleTab = 1;
         $styleItem = false;
@@ -317,6 +331,7 @@ class EasyRecipeSettings {
         foreach ($styles as $style) {
             if ($styleNum % 3 == 0) {
                 if ($styleItem !== false) {
+                    /** @noinspection PhpUndefinedFieldInspection */
                     $styleItem->styleTab = $styleTab++;
                     $data->PRINTSTYLETABS[] = $styleItem;
                 }
@@ -332,86 +347,119 @@ class EasyRecipeSettings {
 
         $data->optionsHTML = $optionsHTML;
 
-        $data->customTemplates = $this->settings['customTemplates'];
+        $data->customTemplates = $this->customTemplates;
 
+
+        /**
+         * Figure out what we need to display on the Fooderific tab
+         *
+         * If we had MBRB enabled but this is the first run, show the welcome (firstRun = true) and hide the "retrieving" splash
+         * Otherwise, show the "retrieving" splash
+         */
+        $data->fdFirstRun = false;
+        $data->fdNotEnabled = false;
+        $data->fdAPIKey = $this->fooderificAPIKey;
+        if (!$this->enableFooderific) {
+            $data->fdNotEnabled = true;
+            $data->retrieveclass = 'FDDisplayNone';
+            $data->lastScan = 0;
+        } else if ($this->lastScanStarted == 0) {
+            $data->fdFirstRun = true;
+            $data->retrieveclass = 'FDDisplayNone';
+            $data->lastScan = 0;
+        } else {
+            $data->retrieveclass = '';
+            $tz = date_default_timezone_get();
+            $tzOffet = get_option('gmt_offset');
+            $data->lastScan = date_i18n("j M y g:ia", $this->lastScanStarted + $tzOffet * 3600);
+        }
 
         /*
          * We need to preserve whitespace on this template because newlines in the the textareas are significant
         */
 
-        $template = new $this->templateClass(WP_PLUGIN_DIR . "/$this->pluginName/templates/easyrecipe-settings.html", constant("$this->templateClass::PAGE"), true);
-        $html = $template->replace($data, constant("$this->templateClass::PRESERVEWHITESPACE"));
+        $template = new EasyRecipeTemplate(EasyRecipe::$EasyRecipeDir . "/templates/easyrecipe-settings.html", EasyRecipeTemplate::PAGE, true);
+        $html = $template->replace($data, EasyRecipeTemplate::PRESERVEWHITESPACE);
+
         echo $html;
-
-        $data = new stdClass();
-        $data->easyrecipeURL = $this->easyrecipeURL;
-        $template = new $this->templateClass("$this->easyrecipeDIR/templates/easyrecipe-upgrade.html");
-        echo $template->replace($data);
-
     }
 
+    /**
+     * @param $data stdClass Updates $data with the current custrom label settings
+     */
     public function getLabels($data) {
-        foreach ($this->settings as $key => $value) {
+        foreach (self::$defaultSettings as $key => $nil) {
             if (strncmp($key, 'lbl', 3) === 0) {
-                $data->$key = $value;
+                $data->$key = $this->$key;
             }
         }
     }
 
     /**
-     * This gets called when both the free and Plus versions of EasyRecipe are active
+     * Save the settings
+     * TODO check nonce?
+     * @param $settings Array Key/value array of settings
      */
-    function bothActive() {
-        $msg = __('EasyRecipe Plus is installed and active - congratulations!  You should deactive and delete the free version before continuing');
-        echo "<div class=\"error\"><p>$msg</p></div>";
-    }
+    public function save($settings) {
+        if (!isset($settings)) {
+            return;
+        }
+        foreach (self::$defaultSettings as $key => $value) {
+            switch ($key) {
+                case 'displayPrint' :
+                case 'allowLink' :
+                case 'convertFractions' :
+                case 'removeMicroformat' :
+                case 'enableFooderific' :
+                case 'enableSwoop' :
+                case 'erSubscribe' :
+                case 'gpHideFooter' :
+                case 'forcejQuery' :
+                    $this->$key = isset($settings[$key]);
+                    break;
 
-    /**
-     * Merge current version 2 settings into the version 3 defaults and convert the settings that got changed
-     *
-     * @param array $current
-     *            The current V2 settings
-     */
-    public function mergeV2($current = array()) {
-        /*
-        * Replace defaults with any matching current V2 values
-        */
-        foreach ($this->defaultSettings as $key => $value) {
-            $this->settings[$key] = isset($current[$key]) ? $current[$key] : $value;
+                case 'cuisines' :
+                case 'recipeTypes' :
+                    /*
+                    * Replace CRLF, CR with LF and implode
+                    */
+                    $values = isset($settings[$key]) ? preg_replace('/[\r\n]+/', "\n", trim($settings[$key])) : '';
+                    $this->$key = str_replace('"', "&quot;", stripslashes(preg_replace('/ *\n+ */', '|', $values)));
+                    break;
+
+                case 'customCSS' :
+                case 'customPrintCSS' :
+                    break;
+
+                case 'extraCSS' :
+                case 'extraPrintCSS' :
+                    $this->$key = trim($settings[$key]);
+                    break;
+
+                case 'erFirstName' :
+                case 'erEmailAddress' :
+                    $this->$key = str_replace('"', "&quot;", trim(stripslashes($settings[$key])));
+                    break;
+
+                default :
+                    if (isset($settings[$key])) {
+                        $this->$key = str_replace('"', "&quot;", trim(stripslashes($settings[$key])));
+                    }
+                    break;
+            }
+
         }
 
-        /*
-        * Set the V2 Legacy styles
-        */
-        $this->settings['style'] = 'style000';
-        $this->settings['printStyle'] = 'style000';
-
-        /*
-        * Handle the settings keys that changed or got added
-        */
-
-        if (isset($current['ingredientHead'])) {
-            $this->settings['lblIngredients'] = $current['ingredientHead'];
-        }
-        if (isset($current['instructionHead'])) {
-            $this->settings['lblInstructions'] = $current['instructionHead'];
-        }
-
-        if (isset($current['notesHead'])) {
-            $this->settings['lblNotes'] = $current['notesHead'];
-        }
-//        $this->settings['lblNutrition'] = 'Nutrition Information';
-    }
-
-    public function put($setting, $value) {
-        $this->settings[$setting] = $value;
+        update_option('EasyRecipe', $this);
     }
 
     public function add() {
-        add_option($this->settingsName, $this->settings);
+        add_option('EasyRecipe', $this);
     }
 
     public function update() {
-        update_option($this->settingsName, $this->settings);
+        update_option('EasyRecipe', $this);
     }
+
+
 }

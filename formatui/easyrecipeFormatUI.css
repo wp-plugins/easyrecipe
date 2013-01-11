@@ -96,4 +96,4 @@
  * http://jquery.org/license
  *
  * http://docs.jquery.com/UI/Progressbar#theming
- */.easyrecipeFormatUI .ui-progressbar{height:2em;text-align:left;overflow:hidden}.easyrecipeFormatUI .ui-progressbar .ui-progressbar-value{margin:-1px;height:100%}
+ */.easyrecipeFormatUI .ui-progressbar{height:2em;text-align:left;overflow:hidden}.easyrecipeFormatUI .ui-progressbar .ui-progressbar-value{margin:-1px;height:100%}.easyrecipeFormatUI .ui-accordion .ui-accordion-header .ui-icon{background-image:none}

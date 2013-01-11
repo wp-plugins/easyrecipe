@@ -20,4 +20,3 @@ Formatting: [\
 {"section":"Nutrition Heading","target":".easyrecipe .nutrition .ERSNutritionHeader","type":"font"},\
 {"section":"Nutrition Details","target":".easyrecipe .nutrition .ERSNutrionDetails","type":"font"}\
 ]
-
