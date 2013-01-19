@@ -35,7 +35,7 @@
         <div class="ERSClear">&nbsp;</div>
         <div>
             <!-- START INCLUDEIF hasPhoto -->
-            <div class="ERSPhoto"><img src="#photoURL#" width="205"/></div>
+            <div class="ERSPhoto"><img itemprop="image" src="#photoURL#" width="205"/></div>
             <!-- END INCLUDEIF hasPhoto -->
             <div class="ERSTopRight">
                 <!-- START INCLUDEIF author -->
@@ -73,7 +73,7 @@
                     <span class="ERSSaveBtnSpan">#saveButtonJS##saveButton#</span>
                     <!-- END INCLUDEIF hasSave -->
                     <!-- START INCLUDEIF displayPrint -->
-                    <span class="ERSPrintBtnSpan"><a class="ERSPrintBtn" href="#sitePrintURL#/easyrecipe-print/#postID#-#recipeIX#/" rel="nofollow" target="_blank">Print</a></span>
+                    <span class="ERSPrintBtnSpan"><a class="ERSPrintBtn" href="#sitePrintURL#/easyrecipe-print/#postID#-#recipeIX#/" rel="nofollow" target="_blank">#lblPrint#</a></span>
                     <!-- END INCLUDEIF displayPrint -->
                 </div>
                 <div class="ERSClear"></div>

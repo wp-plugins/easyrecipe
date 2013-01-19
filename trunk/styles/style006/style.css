@@ -72,3 +72,12 @@ div.easyrecipe {
 .easyrecipe .ERSInstructions .ERSInstructionsHeader.ERSHeading {
 	clear: none;
 }
+.easyrecipe .ERSRHS .ERSNutritionBox ul.yield {
+	border-style: none;
+}
+.easyrecipe .ERSRHS .ERSNutritionBox ul {
+		margin: 0px !important;
+}
+.easyrecipe .ERSRHS .ERSNutritionBox .yield li {
+	border-style: none;
+}

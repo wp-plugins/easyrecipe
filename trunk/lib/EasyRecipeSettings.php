@@ -48,6 +48,8 @@ class EasyRecipeSettings {
         'lblCalories' => 'Calories', 'lblSugar' => 'Sugar', 'lblSodium' => 'Sodium', 'lblFat' => 'Fat', 'lblSatFat' => 'Saturated fat', 'lblUnsatFat' => 'Unsaturated fat',
         'lblTransFat' => 'Trans fat', 'lblCarbs' => 'Carbohydrates', 'lblFiber' => 'Fiber', 'lblProtein' => 'Protein', 'lblCholesterol' => 'Cholesterol', 'lblRateRecipe' => 'Rate this recipe',
 
+        'lblPrint' =>'Print', 'lblSave' =>'Save',
+
         'gpUserID' => 0, 'gpDetailsPage' => 0, 'gpEntryPage' => 0, 'gpThanksPage' => 0, 'gpHideFooter' => true,
 
         'erSubscribe' => false, 'erEmailAddress' => '', 'erFirstName' => '',
@@ -64,7 +66,9 @@ class EasyRecipeSettings {
 
         'lastScanFinished' => 0,
 
-        'scanDelay' => 3);
+        'scanDelay' => 3,
+
+        'pluginVersion' => '');
 
 
     public $licenseKey;
@@ -112,6 +116,8 @@ class EasyRecipeSettings {
     public $lblProtein;
     public $lblCholesterol;
     public $lblRateRecipe;
+    public $lblPrint;
+    public $lblSave;
     public $gpUserID;
     public $gpDetailsPage;
     public $gpEntryPage;
@@ -127,6 +133,8 @@ class EasyRecipeSettings {
     public $lastScanFinished;
     public $scanDelay;
     public $fooderificAPIKey;
+    public $pluginVersion;
+
     /**
      * @var EasyRecipeSettings
      */
@@ -221,7 +229,7 @@ class EasyRecipeSettings {
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
 //        $data->fdsiteurl = htmlentities($data->wpurl);
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.2.1199';
+        $data->pluginversion = '3.2.1211';
         $data->license = $this->licenseKey;
 
         $data->displayPrintChecked = $this->displayPrint ? 'checked="checked"' : '';
@@ -382,6 +390,12 @@ class EasyRecipeSettings {
         $html = $template->replace($data, EasyRecipeTemplate::PRESERVEWHITESPACE);
 
         echo $html;
+
+        $data = new stdClass();
+        $data->easyrecipeURL = EasyRecipe::$EasyRecipeURL;
+        $template = new EasyRecipeTemplate(EasyRecipe::$EasyRecipeDir . "/templates/easyrecipe-upgrade.html");
+        echo $template->replace($data);
+
     }
 
     /**

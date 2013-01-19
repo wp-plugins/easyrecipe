@@ -89,3 +89,7 @@ div.easyrecipe {
 .easyrecipe .ERSIngredients .ERSIngredientsHeader.ERSHeading {
 	clear: none;
 }
+/* Make sure the stuff on the left doesn't sit on top of the buttons */
+.easyrecipe .ERSTopRight {
+    z-index: 2;
+}
