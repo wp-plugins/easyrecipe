@@ -25,7 +25,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1199';
+    private $pluginVersion = '3.2.1211';
 
     private $pluginName = 'EasyRecipe';
 
@@ -34,7 +34,7 @@ class EasyRecipe {
     const JQUERYJS = "https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js";
     const JQUERYUIJS = "https://ajax.googleapis.com/ajax/libs/jqueryui/1/jquery-ui.min.js";
     const JQUERYUICSS = "http://ajax.googleapis.com/ajax/libs/jqueryui/1/themes/base/jquery-ui.css";
-    const UPDATEURL = "http://www.easyrecipeplugin.com/checkUpdates1.php"; // FIXME - change to checkVersion
+    const VERSIONCHECKURL = "http://www.easyrecipeplugin.com/checkVersion.php";
 
     const DIAGNOSTICS_URL = 'http://www.easyrecipeplugin.com/diagnostics.php';
 
@@ -59,10 +59,10 @@ class EasyRecipe {
     private $languages;
     private static $plugins = array();
     private $guestPosters = array();
-    private $isEndpoint;
     private $endpointRegex;
 
     private $loadJSInFooter = false;
+
 
     /**
      * @var EasyRecipeFooderific
@@ -100,11 +100,12 @@ class EasyRecipe {
      * If not, go ahead and add our hooks
      */
     function pluginsLoaded() {
-        $plugins = get_option('active_plugins', array());
 
         /**
          * If EasyRecipe Plus is installed and active, this plugin can be uninstalled
+         * Don't do any more  processing at all for this (free) version
          */
+        $plugins = get_option('active_plugins', array());
         if (in_array("easyrecipeplus/easyrecipeplus.php", $plugins)) {
             add_action('admin_notices', array($this, 'showPlusActive'));
             return;
@@ -115,31 +116,47 @@ class EasyRecipe {
         add_action('admin_init', array($this, 'initialiseAdmin'));
         add_action('init', array($this, 'initialise'));
 
-    }
 
-    function showPlusActive() {
-        echo <<<EOD
-<div id="message" class="updated">
-<p>EasyRecipe Plus is installed and active. You can now safely uninstall the free version of EasyRecipe</p>
-</div>
-EOD;
-    }
+        /**
+         * Need this to explicitly allow the datetime & link tags when future posts are published
+         */
+        add_action('publish_future_post', array($this, 'publishFuturePost'), 0, 1);
+        /**
+         * Hook into the fooderific scan run action
+         */
+        add_action(EasyRecipeFooderific::FOODERIFIC_SCAN, array($this, 'fdScan'), 10, 1);
 
+    }
 
     /**
      * Set up stuff we need if we're on an admin page
      */
     function initialiseAdmin() {
-        /*
-        * Need to be able to edit posts at a minimum
-        */
+
+        if ($this->settings->enableFooderific) {
+            /**
+             * Temporary hack to re-scan sites that had done a possibly faulty scan in a previous version
+             */
+            if ($this->settings->lastScanStarted > 0 && $this->settings->lastScanStarted < 1358472207) {
+                $this->fdScanSchedule(false);
+            }
+            /**
+             * Hook into post updates and status transitions as late as possible
+             */
+            add_action('save_post', array($this, 'fdPostChanged'), 32000, 2);
+            add_action('transition_post_status', array($this, 'fdPostStatusChanged'), 32000, 3);
+        }
+
+        /**
+         * Need to be able to edit posts at a minimum
+         */
         if (!current_user_can('edit_posts')) {
             return;
         }
 
-        /*
-        * Only someone who can edit plugins can change the styling
-        */
+        /**
+         * Only someone who can edit plugins can change the styling
+         */
         if (current_user_can('edit_plugins')) {
             add_action('wp_ajax_easyrecipeCustomCSS', array($this, 'updateCustomCSS'));
             add_action('wp_ajax_easyrecipeSaveStyle', array($this, 'saveStyle'));
@@ -151,7 +168,6 @@ EOD;
         add_action('admin_enqueue_scripts', array($this, 'enqueAdminScripts'));
         add_action('publish_post', array($this, 'pingMBRB'), 10, 2);
         add_filter('plugin_action_links', array($this, 'pluginActionLinks'), 10, 2);
-        // add_filter('wp_insert_post_data', array ($this, 'postSave'), 10, 2);
 
         add_action('wp_ajax_easyrecipeConvert', array($this, 'convertRecipe'));
 
@@ -161,26 +177,16 @@ EOD;
         $this->settings = EasyRecipeSettings::getInstance();
 
         /**
-         *  Schedule a site scan.  A request for a site scan also sets the fooderificEnabled setting to TRUE
+         * Show the Fooderific admin wp_pointer
+         */
+        add_action('admin_enqueue_scripts', array($this, 'enqueueFooderificWPPointer'));
+
+        /**
+         *  Add the hook that will schedule a site scan if it's requested
+         *  A request to this also sets the fooderificEnabled setting to TRUE
          */
         add_action('wp_ajax_easyrecipeScanSchedule', array($this, 'fdScanSchedule'));
 
-        /**
-         * If Fooderific is enabled, then hook into stuff it needs
-         */
-        if ($this->settings->enableFooderific) {
-            /**
-             * Actually run the scan
-             */
-            add_action(EasyRecipeFooderific::FOODERIFIC_SCAN, array($this, 'fdScanRun'), 10, 1);
-
-
-            /**
-             * Hook into post updates and status transitions as late as possible
-             */
-            add_action('save_post', array($this, 'fdPostChanged'), 32000, 2);
-            add_action('transition_post_status', array($this, 'fdPostStatusChanged'), 32000, 3);
-        }
     }
 
 
@@ -196,7 +202,6 @@ EOD;
 
         $this->endpointRegex = '%/easyrecipe-(print|diagnostics)(?:/([^?/]+))?%';
 
-        $this->isEndpoint = preg_match('%/easyrecipe-(print|diagnostics|style|printstyle)(?:/([^?/]+))?%', $_SERVER['REQUEST_URI']);
 
         /*
         * Everything past here is not needed on admin pages
@@ -208,8 +213,11 @@ EOD;
         add_action('wp_enqueue_scripts', array($this, 'enqueueScripts'));
 
 
-        if ($this->isEndpoint) {
-            add_action('template_redirect', array($this, 'checkRewrites'), -1);
+        /**
+         * If this is one of our non-existing pages (print, diagnostics or custom styles) hook in early so 404 handlers don't stuff it up
+         */
+        if (preg_match('%/easyrecipe-(print|diagnostics|style|printstyle)(?:/([^?/]+))?%', $_SERVER['REQUEST_URI'])) {
+            add_action('wp_headers', array($this, 'checkRewrites'), -1);
         } else {
             add_action('the_posts', array($this, 'thePosts'), 0);
             add_action('wp_before_admin_bar_render', array($this, 'adminBarMenu'));
@@ -239,6 +247,18 @@ EOD;
         */
         add_action('wp_head', array($this, 'addExtraCSS'), 100);
     }
+
+    /**
+     * EasyRecipe Plus is active - show a message
+     */
+    function showPlusActive() {
+        echo <<<EOD
+<div id="message" class="updated">
+<p>EasyRecipe Plus is installed and active. You can now safely uninstall the free version of EasyRecipe</p>
+</div>
+EOD;
+    }
+
 
     /**
      * Add the "EasyRecipe Format" option to the admin bar if the current user is an admin
@@ -310,11 +330,12 @@ EOD;
     /**
      *  FOODERIFIC
      *
-     *  A site scan has been requested.  If Fooderific is not currently enabled, then enable it
+     *  A site scan has been requested. Normally comes from an ajax call but may be from the temporary hack in initialiseAdmin()
+     * If Fooderific is not currently enabled, then enable it
      *  Then schedule the scan and save the time if it was actually scheduled
      *
      */
-    function fdScanSchedule() {
+    function fdScanSchedule($die = true) {
 
         $this->settings->enableFooderific = true;
 
@@ -324,18 +345,20 @@ EOD;
         }
         $this->settings->update();
 
-        $result = new stdClass();
-        $result->status = 'OK';
-        $result->lastScan = $this->settings->lastScanStarted;
-        die(json_encode($result));
+        if ($die) {
+            $result = new stdClass();
+            $result->status = 'OK';
+            $result->lastScan = $this->settings->lastScanStarted;
+            die(json_encode($result));
+        }
     }
 
     /**
      * Actually run the site scan
      */
-    function fdSiteScan() {
+    function fdScan($postID) {
         $fooderific = new EasyRecipeFooderific();
-        $fooderific->scanRun();
+        $fooderific->scanRun($postID);
     }
 
 
@@ -348,7 +371,7 @@ EOD;
     }
 
     /**
-     * A post's status has changed. Let the Fooderific code ecide what to do
+     * A post's status has changed. Let the Fooderific code decide what to do
      */
     function fdPostStatusChanged($newStatus, $oldStatus, $post) {
         $fooderific = new EasyRecipeFooderific();
@@ -378,10 +401,63 @@ EOD;
 
 
 
+
+    /**
+     * Display the admin pointer about fooderific until it gets dismissed
+     */
+    function enqueueFooderificWPPointer() {
+        if (current_user_can('edit_plugins')) {
+            $dismissed = explode(',', (string)get_user_meta(get_current_user_id(), 'dismissed_wp_pointers', true));
+
+            if (!in_array('easyrecipe-fooderific', $dismissed)) {
+                wp_enqueue_style('wp-pointer');
+                wp_enqueue_script('wp-pointer');
+                wp_enqueue_script('easyrecipe-wppointer', self::$EasyRecipeURL . "/js/easyrecipe-wppointer.js", array('wp-pointer'), $this->pluginVersion);
+
+                add_action('admin_print_footer_scripts', array($this, 'adminPostsFooterFooderific'));
+            }
+        }
+    }
+
+    /**
+     * Enqueues the scripts to handle guest post stuff on the posts page
+     * @param $hook
+     */
     function enqueAdminScripts($hook) {
     }
 
 
+
+
+    /**
+     * Output the stuff for the wp_pointer message after an update
+     * Save the new version so we only display the message once
+     */
+    function adminPostsFooterFooderific() {
+        $this->settings->pluginVersion = $this->pluginVersion;
+        $this->settings->update();
+
+        $data = new stdClass();
+        $data->plus = '';
+        $data->version = '3.2.1211';
+        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
+        $html = str_replace("'", '&apos;', $template->replace($data));
+        $html = str_replace("\r", "", $html);
+        $html = str_replace("\n", " ", $html);
+        echo <<<EOD
+<script type="text/javascript">
+// <![CDATA[
+if (typeof EASYRECIPE === "undefined") {
+    var EASYRECIPE = {};
+}
+EASYRECIPE.wppHTML = '$html';
+EASYRECIPE.wppWidth = 425;
+EASYRECIPE.wppPosition = {edge:'top', align:'center'};
+EASYRECIPE.wppSelector = '#wpadminbar';
+///]]>
+</script>
+EOD;
+    }
 
     /**
      */
@@ -695,8 +771,8 @@ EOD;
 <script type="text/javascript">
 /* <![CDATA[ */
 
-if (typeof EASYRECIPE == "undefined") {
-  EASYRECIPE = {};
+if (typeof EASYRECIPE === "undefined") {
+  var EASYRECIPE = {};
 }
 EASYRECIPE.isPrint = $print;
 EASYRECIPE.formatting = '$formats';
@@ -903,13 +979,13 @@ EOD;
 
 
     /**
-     * Check if this is one of our rewrite endpoints
+     * Check if this is one of our rewrite endpoints (non-existent pages)
      */
     function checkRewrites() {
 
-        /*
-        * Just return if it's nothing we're interested in
-        */
+        /**
+         * Just return if it's nothing we're interested in
+         */
         if (!preg_match($this->endpointRegex, $_SERVER['REQUEST_URI'], $regs)) {
             return;
         }
@@ -1068,6 +1144,26 @@ EOD;
     }
 
     /**
+     * Explicitly allow the itemprop, datetime and link attributes otherwise WP will strip them
+     *
+     * @param $postID
+     */
+    function publishFuturePost($postID) {
+        global $allowedposttags;
+
+        $post = get_post($postID);
+        if (strpos($post->post_content, 'easyrecipe') !== false) {
+            $allowedposttags['time'] = array('itemprop' => true, 'datetime' => true);
+            $allowedposttags['link'] = array('itemprop' => true, 'href' => true);
+            $this->settings = EasyRecipeSettings::getInstance();
+            if ($this->settings->enableFooderific) {
+                $this->fdPostStatusChanged('publish', 'future', $post);
+            }
+        }
+
+    }
+
+    /**
      * Check to see if the post content contains the wrappers we use to facilitate line insertion above & below a recipe
      *
      * If they exist, strip them out FIXME
@@ -1208,7 +1304,12 @@ EOD;
      */
     function pluginActivated() {
 
+        /**
+         * Get the settings and save the current version so we don't trigger the update message on an actual activation
+         */
         $this->settings = EasyRecipeSettings::getInstance();
+        $this->settings->pluginVersion = $this->pluginVersion;
+        $this->settings->update();
 
         $data = http_build_query(array('action' => 'activate', 'site' => get_site_url()));
         $request = wp_remote_post("http://www.easyrecipeplugin.com/installed.php", array('body' => $data, "blocking" => false));
@@ -1324,7 +1425,7 @@ EOD;
 <script type="text/javascript">
 /* <![CDATA[ */
 
-if (typeof EASYRECIPE == "undefined") {
+if (typeof EASYRECIPE === "undefined") {
   var EASYRECIPE = {};
 }
 EASYRECIPE.ingredients ='$ingredients';

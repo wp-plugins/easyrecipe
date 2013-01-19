@@ -25,10 +25,6 @@
 <div id="apDiv1">
     <!-- START PAGE -->
     <div class="easyrecipe" itemscope itemtype="http://schema.org/Recipe">
-        <!-- START INCLUDEIF hasPhoto -->
-        <link itemprop="image" href="#photoURL#"/>
-        <!-- END INCLUDEIF hasPhoto -->
-
         <div class="ERSHeadSection">
             <div class="ERSPrintRating">
                 <div class="ERSSavePrint">
@@ -36,7 +32,7 @@
                     <span class="ERSSaveBtnSpan">#saveButtonJS##saveButton#</span>
                     <!-- END INCLUDEIF hasSave -->
                     <!-- START INCLUDEIF displayPrint -->
-                    <span class="ERSPrintBtnSpan"><a class="ERSPrintBtn" href="#sitePrintURL#/easyrecipe-print/#postID#-#recipeIX#/" rel="nofollow" target="_blank">Print</a></span>
+                    <span class="ERSPrintBtnSpan"><a class="ERSPrintBtn" href="#sitePrintURL#/easyrecipe-print/#postID#-#recipeIX#/" rel="nofollow" target="_blank">#lblPrint#</a></span>
                     <!-- END INCLUDEIF displayPrint -->
                 </div>
                 <!-- START INCLUDEIF hasRating -->
@@ -56,7 +52,7 @@
                 <!-- END INCLUDEIF summary -->
             </div>
             <div class="ERSClear"></div>
-            <div class="ERSImageBox"><img src="#photoURL#" width="480"></div>
+            <div class="ERSImageBox"><img itemprop="image" src="#photoURL#" width="480"></div>
             <!-- START INCLUDEIF author -->
             <div class="ERSBold ERSAuthor">#lblAuthor#: <span itemprop="author">#author#</span></div>
             <!-- END INCLUDEIF author -->

@@ -22,9 +22,6 @@
 <div id="apDiv1">
     <!-- START PAGE -->
     <div class="easyrecipe" itemscope itemtype="http://schema.org/Recipe">
-        <!-- START INCLUDEIF hasPhoto -->
-        <link itemprop="image" href="#photoURL#"/>
-        <!-- END INCLUDEIF hasPhoto -->
         <!-- START INCLUDEIF hasRating -->
         <div class="ERSRatings" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
             <div class="ERSRatingOuter">
@@ -37,14 +34,14 @@
         <div class="ERSClear">&nbsp;</div>
         <div class="ERSTopRight">
             <!-- START INCLUDEIF hasPhoto -->
-            <img src="#photoURL#" width="205"/>
+            <img itemprop="image" src="#photoURL#" width="205"/>
             <!-- END INCLUDEIF hasPhoto -->
             <div class="ERSSavePrint">
                 <!-- START INCLUDEIF hasSave -->
                 <span class="ERSSaveBtnSpan">#saveButtonJS##saveButton#</span>
                 <!-- END INCLUDEIF hasSave -->
                 <!-- START INCLUDEIF displayPrint -->
-                <span class="ERSPrintBtnSpan"><a class="ERSPrintBtn" href="#sitePrintURL#/easyrecipe-print/#postID#-#recipeIX#/" rel="nofollow" target="_blank">Print</a></span>
+                <span class="ERSPrintBtnSpan"><a class="ERSPrintBtn" href="#sitePrintURL#/easyrecipe-print/#postID#-#recipeIX#/" rel="nofollow" target="_blank">#lblPrint#</a></span>
                 <!-- END INCLUDEIF displayPrint -->
             </div>
         </div>

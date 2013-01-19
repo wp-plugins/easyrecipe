@@ -4,7 +4,7 @@ Plugin Name: Easy Recipe
 Plugin URI: http://www.easyrecipeplugin.com/
 Description: The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
 Author: EasyRecipe
-Version: 3.2.1199
+Version: 3.2.1211
 Author URI: http://www.easyrecipeplugin.com
 License: GPLv2 or later
 */
@@ -33,7 +33,6 @@ if (!function_exists('add_action')) {
     echo "Hi there!  I'm just a plugin, not much I can do when called directly.";
     exit();
 }
-
 
 if (!class_exists('EasyRecipe', false)) {
 

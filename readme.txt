@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.3
 Tested up to: 3.5.0
-Stable tag:  3.2.1199
+Stable tag:  3.2.1211
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -74,6 +74,17 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1211 =
+* Improvements to the Fooderific scan
+* Added custom labels for Print and Ziplist Save
+* Workaround for TinyMCE non-editable plugin bug
+* Fix for the Modish style that had incorrect nutrition markup
+* Fix for some styles not marking up images correctly
+* Fix for print/diagnostics where there's a 404 handler
+* Fix for custom notes header in old Legacy style
+* Fix for special characters in Notes
+* Prevent Wordpress stripping times and images on scheduled posts
+
 = 3.2 Build 1199 =
 * Added the Fooderific.com interface
 * Fix print for sites that are not installed in the root directory

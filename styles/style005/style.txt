@@ -1,5 +1,5 @@
 Style: Celebration
-Version: 1.0
+Version: 1.1
 Author: EasyRecipe
 Description: Clean style with a large photo
 Thumbnail: images/thumb.gif

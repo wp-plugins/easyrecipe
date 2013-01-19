@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 class EasyRecipeFooderific {
-    private $myVersion = '3.2.1199';
+    private $myVersion = '3.2.1211';
 
     private $slug = 'EasyRecipe';
 
@@ -29,11 +29,11 @@ class EasyRecipeFooderific {
     /**
      * The maximum time a scan can run for in seconds
      */
-    const SCAN_TIMEOUT = 120;
+    const SCAN_TIMEOUT = 300;
     /**
      * The number of posts to batch up for each send
      */
-    const BATCHSIZE = 10;
+    const BATCHSIZE = 20;
 
     const FOODERIFIC_SCAN = 'fooderific_scan';
     const FOODERIFIC_URL = 'http://www.fooderific.com/plugin/ping.php';
@@ -59,8 +59,10 @@ class EasyRecipeFooderific {
     private $batchSize;
     private $results;
 
+    private $nPostsSent;
 
     private $delay = 0;
+
 
     /**
      * A post has changed - schedule a FOODERIFIC scan.
@@ -71,8 +73,11 @@ class EasyRecipeFooderific {
      */
     function postChanged(/** @noinspection PhpUnusedParameterInspection */
         $postID, $post = null) {
-        if ($post) {
+
+        if ($post && $post->post_status == 'publish') {
+
             wp_schedule_single_event(time(), self::FOODERIFIC_SCAN, array($post->ID));
+//            wp_schedule_single_event(time(), self::FOODERIFIC_SCAN, $post->ID);
             spawn_cron();
         }
     }
@@ -84,9 +89,13 @@ class EasyRecipeFooderific {
      * @param $post
      */
     function postStatusChanged($newStatus, $oldStatus, $post) {
+
         if ($oldStatus == 'publish' || $newStatus == 'publish') {
-            wp_schedule_single_event(time(), self::FOODERIFIC_SCAN, array($post->ID));
-            spawn_cron();
+            if ($oldStatus != $newStatus) {
+
+                wp_schedule_single_event(time(), self::FOODERIFIC_SCAN, array($post->ID));
+                spawn_cron();
+            }
         }
     }
 
@@ -132,27 +141,12 @@ class EasyRecipeFooderific {
      * Process a single post.  Called from either scanRun() or directly via cron for a single post
      * Store the results and send in a batch when we have enough so we don't hit fooderific so hard
      *
-     * @param $post array/integer  Either the post object or the post ID
+     * @param $post object  Either the post object or the post ID
      */
     private function processPost($post) {
         global $wp_version;
 
-        /**
-         * If $post is an integer, we're processing a single post because it just got published or unpublished
-         * Set the batch size to one
-         *
-         * In this case, if a scan is already running, reschedule this process to run in 2 minutes
-         */
-        if (is_int($post)) {
-            if (get_transient(self::FOODERIFIC_SCAN) == 'run') {
-                /** @noinspection PhpParamsInspection */
-                wp_schedule_single_event(time() + 120, self::FOODERIFIC_SCAN, $post);
-                return;
-            }
-            $this->batchSize = 1;
-            $this->results = array();
-            $post = get_post($post);
-        }
+
 
         /**
          * Not interested if the post is passworded
@@ -319,6 +313,7 @@ class EasyRecipeFooderific {
          * If we have enough for a batch, send it
          */
         if (count($this->results) == $this->batchSize) {
+            $this->nPostsSent += count($this->results);
             $args = array('body' => array('data' => serialize($this->results)));
             wp_remote_post(self::FOODERIFIC_URL, $args);
             $this->results = array();
@@ -333,6 +328,7 @@ class EasyRecipeFooderific {
         /* @var $wpdb wpdb */
         global $wpdb;
 
+
         $settings = EasyRecipeSettings::getInstance();
         $this->delay = $settings->scanDelay;
         $this->getRecipePlugins();
@@ -342,7 +338,7 @@ class EasyRecipeFooderific {
          * We're not interested in attachments or revisions. Also probably not interested in other types, but we don't know about custom post types so process anything else
          */
         if ($postID != 0) {
-            $q = "SELECT * FROM {$wpdb->prefix}posts WHERE ID = '$postID' AND post_type <> 'attachment' AND post_type <> 'revision' ORDER BY ID DESC";
+            $q = "SELECT * FROM {$wpdb->prefix}posts WHERE ID = '$postID' AND post_type <> 'attachment' AND post_type <> 'revision'";
             $this->batchSize = 1;
         } else {
             $q = "SELECT * FROM {$wpdb->prefix}posts WHERE post_status = 'publish' AND post_type <> 'attachment' AND post_type <> 'revision' ORDER BY ID DESC";
@@ -350,29 +346,55 @@ class EasyRecipeFooderific {
             $settings->lastScanStarted = time();
             $settings->update();
         }
+
         $posts = $wpdb->get_results($q);
 
+        /**
+         * If this is a scan, notify fooderific that we're starting
+         */
+        if ($postID == 0) {
+            $data = new stdClass();
+            $data->action = 'start';
+            $data->wpurl = get_bloginfo("wpurl");
+            $data->count = count($posts);
+            $args = array('body' => array('data' => serialize($data)));
+            wp_remote_post(self::FOODERIFIC_URL, $args);
+        }
+
+        $this->nPostsSent = 0;
         $this->results = array();
 
+        /**
+         * Flag that we're running in scan so we don't schedule another scan on top of this one
+         * Don't hold for longer than SCAN_TIMEOUT seconds so if the process crashes or has some kind of problem, it's not going to stop another scan later
+         */
+        set_transient(self::FOODERIFIC_SCAN, 'run', self::SCAN_TIMEOUT);
+
+        /**
+         * Also reset the run time limit to SCAN_TIMEOUT seconds so unintended loops or horribly slow processing doesn't tie this up forever
+         */
+        @set_time_limit(self::SCAN_TIMEOUT);
+
         foreach ($posts as $post) {
-            /**
-             * Flag that we're running in scan so we don't schedule another scan on top of this one
-             * Don't hold for longer than SCAN_TIMEOUT seconds so if the process crashes or has some kind of problem, it's not going to stop another scan later
-             */
-            set_transient(self::FOODERIFIC_SCAN, 'run', self::SCAN_TIMEOUT);
-
-            /**
-             * Also reset the run time limit to SCAN_TIMEOUT seconds so unintended loops or horribly slow processing doesn't tie this up forever
-             */
-            @set_time_limit(self::SCAN_TIMEOUT);
-
-
             $this->processPost($post);
         }
         if (count($this->results) > 0) {
+            $this->nPostsSent += count($this->results);
             $args = array('body' => array('data' => serialize($this->results)));
             wp_remote_post(self::FOODERIFIC_URL, $args);
             $this->results = array();
+        }
+
+        /**
+         * If this was a scan, notify fooderific that we're done
+         */
+        if ($postID == 0) {
+            $data = new stdClass();
+            $data->action = 'stop';
+            $data->wpurl = get_bloginfo("wpurl");
+            $data->count = $this->nPostsSent;
+            $args = array('body' => array('data' => serialize($data)));
+            wp_remote_post(self::FOODERIFIC_URL, $args);
         }
 
         delete_transient(self::FOODERIFIC_SCAN);
@@ -385,16 +407,31 @@ class EasyRecipeFooderific {
      * @return bool TRUE if the scan was scheduled, false if it wasn't (because it's already scheduled or running)
      */
     function scanSchedule() {
+
         if (!wp_next_scheduled(self::FOODERIFIC_SCAN)) {
             if (get_transient(self::FOODERIFIC_SCAN) != 'run') {
+
+                /**
+                 * Tell fooderific a scan was scheduled
+                 * Really only for debugging so we can tell if scans aren't being run
+                 */
+                $data = new stdClass();
+                $data->action = 'scheduled';
+                $data->wpurl = get_bloginfo("wpurl");
+                $data->count = 0;
+                $args = array('body' => array('data' => serialize($data)));
+                $postResult = wp_remote_post(self::FOODERIFIC_URL, $args);
+
                 wp_schedule_single_event(time(), self::FOODERIFIC_SCAN, array(0));
                 spawn_cron();
+
                 return true;
+            } else {
             }
+        } else {
         }
         return false;
     }
-
 
 
 }

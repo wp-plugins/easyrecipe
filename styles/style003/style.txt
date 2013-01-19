@@ -1,5 +1,5 @@
 Style: Franconia
-Version: 1.0
+Version: 1.1
 Author: EasyRecipe
 Description: Classic style with a photo on the left
 Thumbnail: images/thumb.gif
