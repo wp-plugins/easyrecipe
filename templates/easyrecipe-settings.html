@@ -257,11 +257,10 @@ body, td, th {
                     <th scope="row"><span class="xlate"><em>Serve size</em> label</span></th>
                     <td><input class="ERSTextField" type="text" name="#settingsname#[lblServeSize]" value="#lblServeSize#" /></td>
                   </tr>
-                                    <tr>
+                  <tr>
                     <th scope="row"><span class="xlate"><em>Calories</em> label</span></th>
                     <td><input class="ERSTextField" type="text" name="#settingsname#[lblCalories]" value="#lblCalories#" /></td>
                   </tr>
-
                 </table></td>
               <td><table>
                   <tr>
@@ -308,7 +307,7 @@ body, td, th {
                     <th scope="row"><span class="xlate"><em>Rate recipe</em> label</span></th>
                     <td><input class="ERSTextField" type="text" name="#settingsname#[lblRateRecipe]" value="#lblRateRecipe#" /></td>
                   </tr>
-                                    <tr>
+                  <tr>
                     <th scope="row"><span class="xlate"><em>Print</em> label</span></th>
                     <td><input class="ERSTextField" type="text" name="#settingsname#[lblPrint]" value="#lblPrint#" /></td>
                   </tr>
@@ -316,7 +315,6 @@ body, td, th {
                     <th scope="row"><span class="xlate"><em>Save</em> label</span></th>
                     <td><input class="ERSTextField" type="text" name="#settingsname#[lblSave]" value="#lblSave#" /></td>
                   </tr>
-
                 </table></td>
             </tr>
           </table>
@@ -536,11 +534,11 @@ body, td, th {
               <label>
                 <input type="radio" name="rbERSImportSource" value="cookn" />
                 Cook'n</label>
-              v10<br />
+              v10 <em>(export as .html)</em><br />
               <label>
                 <input type="radio" name="rbERSImportSource" value="mastercook" />
                 MasterCook</label>
-              <br />
+              <em>(export as .mx2)</em><br />
               <label>
                 <input type="radio" name="rbERSImportSource" value="cookbookwiz" />
                 Cookbook Wizard for Windows</label>
@@ -608,9 +606,12 @@ body, td, th {
                 <span id="ERDSending"><img src="#easyrecipeURL#/images/spinner02.gif" width="16" height="16" />Sending data... please wait</span> <span id="ERDOK">
                 <p>Your support query has been sent and received.</p>
                 <p>We'll get back to you as soon as we have an answer.</p>
-                </span><span id="ERDFail">
+                </span>
+                <span id="ERDFail">
                 <p>The send failed.</p>
                 <p>Try again but if you continue to have problems, leave us a message on our <a href="http://www.easyrecipeplugin.com/support.php" target="_blank">support page</a></p>
+                <p>The error reported was:</p>
+                <p id="ERDErrors"></p>
                 </span></td>
             </tr>
           </table>

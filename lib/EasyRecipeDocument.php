@@ -40,7 +40,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
 
     /*@formatter:off */
     private $fractions = array(1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'), 2 => array(3 => '&#8532;'), 3 => array(4 => '&frac34;'),
-                               4 => array(5 => '&#8536;'), 5 => array(6 => '&#8538;', 8 => '&#8541;'), 7 => array(8 => '&#8342;'));
+                               4 => array(5 => '&#8536;'), 5 => array(6 => '&#8538;', 8 => '&#8541;'), 7 => array(8 => '&#8542;'));
 
     /*
      * @formatter:on
@@ -459,10 +459,10 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
             $data->photoURL = $photoURL;
         }
         $data->recipeIX = $nRecipe;
-        // FIXME - IMPORTANT!! - don't rely on tags!! No gaurantee that templates will use a particular tag for anything
+
         $data->version = $this->recipeVersion;
 
-        $data->name = $this->getElementValueByClassName("ERName", "span", $recipe);
+        $data->name = $this->getElementValueByClassName("ERName", "*", $recipe);
         $data->cuisine = $this->getElementValueByClassName("cuisine", "span", $recipe);
 
         $data->type = $this->getElementValueByClassName("type", "span", $recipe);
@@ -489,7 +489,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
 
 
         $data->yield = $this->getElementValueByClassName("yield", "span", $recipe);
-        $data->summary = $this->getElementValueByClassName("summary", "span", $recipe);
+        $data->summary = $this->getElementValueByClassName("summary", "*", $recipe);
 
         $data->servingSize = $this->getElementValueByClassName("servingSize", "span", $recipe);
         $data->calories = $this->getElementValueByClassName("calories", "span", $recipe);

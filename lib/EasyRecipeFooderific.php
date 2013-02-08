@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 class EasyRecipeFooderific {
-    private $myVersion = '3.2.1215';
+    private $myVersion = '3.2.1226';
 
     private $slug = 'EasyRecipe';
 
@@ -306,6 +306,7 @@ class EasyRecipeFooderific {
         $result->image = $image;
         $result->published = $post->post_date_gmt;
         $result->link = get_permalink($post->ID);
+
 
         $this->results[] = $result;
 

@@ -48,11 +48,13 @@
             <div class="ERSNameSummary">
                 <div itemprop="name" class="item ERSName">#name#</div>
                 <!-- START INCLUDEIF summary -->
-                <div class="ERSSummary">#summary#</div>
+                <div itemprop="description" class="ERSSummary">#summary#</div>
                 <!-- END INCLUDEIF summary -->
             </div>
             <div class="ERSClear"></div>
+            <!-- START INCLUDEIF photoURL -->
             <div class="ERSImageBox"><img itemprop="image" src="#photoURL#" width="480"></div>
+            <!-- END INCLUDEIF photoURL -->
             <!-- START INCLUDEIF author -->
             <div class="ERSBold ERSAuthor">#lblAuthor#: <span itemprop="author">#author#</span></div>
             <!-- END INCLUDEIF author -->
