@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag:  3.2.1226
+Stable tag:  3.2.1230
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -12,7 +12,7 @@ EasyRecipe makes it easy to enter, format and print recipes, as well as automagi
 
 The most fully featured recipe plugin that doesn't require a degree in geek!
 
-EasyRecipe makes recipe entry a breeze, with features like cut and paste, auto conversion of your plain text recipe posts, live custom formatting, Google Recipe View formatting and preview button, automatic ratings, conversion from other recipe plugins like ZipList and RecipeSEO, and more.
+EasyRecipe makes recipe entry a breeze, with features like cut and paste, auto conversion of your plain text recipe posts, live custom formatting, Google Recipe View formatting and preview button, automatic ratings, conversion from other recipe plugins like ZipList, RecipeSEO and Recipe Card.
 
 Adding a recipe and getting the [Recipe View](http://googleblog.blogspot.com/2011/02/slice-and-dice-your-recipe-search.html) microdata correct is not only time consuming but it's also pretty geeky and most cooks prefer to cook and share, not code webpages.
 
@@ -28,7 +28,7 @@ It's quick. It's easy. The recipes look great.  Your recipes will have ratings a
 
 To convert an existing plain text recipe post to EasyRecipe, edit the post, select the Ingredients and Instructions with your mouse and click the EasyRecipe icon. As long as there's an appropriate header above the ingredients and instructions, EasyRecipe can import your post directly.
 
-To convert a ZipList or RecipeSEO post to EasyRecipe, edit the post and click the EasyRecipe icon. That's it!  How easy was that?
+To convert a ZipList, RecipeSEO or Recipe Card post to EasyRecipe, edit the post and click the EasyRecipe icon. That's it!  How easy was that?
 
 Requires PHP 5+
 
@@ -74,6 +74,19 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1230 =
+* Added import from Paprika recipes (Plus version)
+* Added import from Meal-Master recipes (Plus version)
+* Added conversion from Recipe Card recipes
+* Added Recipe Card to the plugins Fooderific recognizes
+* Added underlining to basic formatting
+* Styles with images changed to better handle responsive themes
+* Javascript workarounds for themes that hijack jQuery.widget (e.g. Nevada)
+* Workaround for glitch in the Wordpress SEO plugin
+* Reduced minimum capability for style changes from edit_plugins to edit_theme_options
+* Fix missing image markup on Provencale style
+
+
 = 3.2 Build 1226 =
 * Tested with WP 3.5.1
 * Supress photo section on the Celebration style if no image

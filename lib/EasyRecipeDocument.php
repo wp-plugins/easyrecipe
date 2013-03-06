@@ -115,6 +115,9 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
             case "i" :
                 return "<em>{$match[2]}</em>";
 
+            case "u" :
+                return "<u>{$match[2]}</u>";
+
             case "b" :
                 return "<strong>{$match[2]}</strong>";
 
@@ -192,7 +195,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
          * Don't bother with the regex's if there's no need - saves a few cycles
          */
         if (strpos($html, "[") !== false) {
-            $html = preg_replace_callback('%\[(i|b)\](.*?)\[/\1\]%si', array($this, "shortCodes"), $html);
+            $html = preg_replace_callback('%\[(i|b|u)\](.*?)\[/\1\]%si', array($this, "shortCodes"), $html);
             $html = preg_replace_callback('%\[(img) +(.*?) */?\]%i', array($this, "shortCodes"), $html);
             $html = preg_replace_callback('%\[(url) +([^\]]+?)\](.*?)\[/url\]%si', array($this, "shortCodes"), $html);
         }

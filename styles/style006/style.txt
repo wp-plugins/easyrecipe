@@ -1,5 +1,5 @@
 Style: Modish
-Version: 1.2
+Version: 1.3
 Author: EasyRecipe
 Description: Style with a large photo and nutrition formatting
 Thumbnail: images/thumb.gif

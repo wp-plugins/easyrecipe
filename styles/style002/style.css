@@ -91,5 +91,8 @@ div.easyrecipe {
 }
 /* Make sure the stuff on the left doesn't sit on top of the buttons */
 .easyrecipe .ERSTopRight {
-    z-index: 2;
+	z-index: 2;
+}
+div.easyrecipe div.ERSTopRight img {
+	max-width: 96%;
 }

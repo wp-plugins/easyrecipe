@@ -120,6 +120,7 @@ div.easyrecipe {
 .easyrecipe .ERSPhoto {
 	float: left;
 	width: 205px;
+	max-width: 50%;
 }
 .easyrecipe .ERSPhoto img {
 	border: 2px solid #999;

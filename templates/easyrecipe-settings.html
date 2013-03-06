@@ -40,14 +40,14 @@ body, td, th {
 </head>
 
 <body>
-<div id="apDiv2"> 
+<div id="apDiv2">
   <!-- START PAGE -->
-  
+
   <div id="divERSHeader">
     <div class="ERSHdr1"> EasyRecipe #erplus# Settings </div>
     <div class="ERSHdr2"> Before using Easy<span class="ERSLabel"> </span>Recipe, enter your preferred settings so your recipes will be displayed exactly as YOU want them.<br />
       Once you get it just right, you'll never have to visit this section again. But you can make changes at any time of course.<br />
-      You can also adjust colors, spacing, borders and list styles in EasyRecipe's <a href="http://www.easyrecipeplugin.com/live-formatting.php" target="_blank">Live Formatting</a> </div>
+      You can also adjust colors, spacing, borders and list styles in EasyRecipe's <a href="http://www.easyrecipeplugin.com/support/live-formatting/" target="_blank">Live Formatting</a> </div>
   </div>
   <div class="easyrecipeUI">
     <form id="frmERSForm" method="post" action="" name="frmERSForm">
@@ -121,16 +121,16 @@ body, td, th {
                         <input name="#settingsname#[ratings]" type="radio" value="EasyRecipe" #ratingEasyRecipeChecked# />
                         EasyRecipe</label>
                       <br />
-                      
+
                       <!-- START IGNORE -->
-                      
+
                       <input type="radio" name="radio" value="radio" />
                       <a href="http://rating-widget.com/">Rating Widget</a><br />
                       <input type="radio" name="radio" value="radio" />
                       <a href="http://disqus.com/">Disqus Comments</a><br />
-                      
+
                       <!-- END IGNORE -->
-                      
+
                       <label>
                         <input name="#settingsname#[ratings]" type="radio" value="Disabled" #ratingDisabledChecked# />
                         Disable</label></td>
@@ -152,26 +152,26 @@ body, td, th {
                       <label>
                         <input type="radio" name="#settingsname#[saveButton]" value="Ziplist" #saveButtonZiplistChecked# />
                         Ziplist</label>
-                      
-                      <!-- START IGNORE --> 
+
+                      <!-- START IGNORE -->
                       <br />
                       <label>
                         <input type="radio" name="#settingsname#[saveButton]" value="SaltyFig"  #saveButtonSaltyFigChecked#  />
                         Salty Fig</label>
-                      
+
                       <!-- END IGNORE -->
-                      
+
                       <div class="ERSPartnerKey #ziplistclass#" id="divERSZiplistSettings" >Your Ziplist partner key<br />
                         <input name="#settingsname#[ziplistPartnerKey]" type="text" value="#ziplistPartnerKey#" />
                         <div id="divERSZiplistLink" class="ERSDisplayNone"><a href="http://www.ziplist.com/partner_signup" target="_blank">Get a Ziplist partner key</a></div>
                       </div>
-                      
+
                       <!-- START IGNORE -->
-                      
+
                       <div class="ERSPartnerKey #saltyfigclass#" id="divERSSaltyFigSettings" >Your Salty Fig partner key<br />
                         <input name="#settingsname#[saltyfigPartnerKey]" type="text" value="#saltyfigPartnerKey#" />
                       </div>
-                      
+
                       <!-- END IGNORE --></td>
                   </tr>
                   <tr>
@@ -321,20 +321,20 @@ body, td, th {
         </div>
         <div id="divERSStyles">
           <div class="divERSStyleHdr ERSHdrExplain"> <span class="xlate">The display style you select sets the basic layout and content of your recipes when they're displayed.<br />
-            You can customize your style even further by using <a href="http://www.easyrecipeplugin.com/live-formatting.php" target="_blank">Live Formatting</a></span> </div>
+            You can customize your style even further by using <a href="http://www.easyrecipeplugin.com/support/live-formatting/" target="_blank">Live Formatting</a></span> </div>
           <input class="ERSSelectedStyle" type="hidden" name="#settingsname#[style]" value="#styleDirectory#" />
           <div id="divERSStyleTabs" class="ERSStyleTabs">
             <ul>
               <!-- START REPEAT STYLETABS -->
-              
+
               <li><a href="#divERSStyle-tab#styleTab#">#styleTab#</a></li>
               <!-- END REPEAT STYLETABS -->
             </ul>
             <!-- START REPEAT STYLETABS -->
-            
-            <div id="divERSStyle-tab#styleTab#"> 
+
+            <div id="divERSStyle-tab#styleTab#">
               <!-- START REPEAT STYLES -->
-              
+
               <div class="ERSStyle #selected#">
                 <input type="hidden" value="#directory#" />
                 <div class="ERSStyleName"> #style# </div>
@@ -342,28 +342,28 @@ body, td, th {
                 <div class="ERSStyleDesc"> #description# </div>
               </div>
               <!-- END REPEAT STYLES -->
-              
+
               <div class="clearer"> &nbsp; </div>
             </div>
-            <!-- END REPEAT STYLETABS --> 
+            <!-- END REPEAT STYLETABS -->
           </div>
         </div>
         <div id="divERSPrintStyles">
           <div class="divERSStyleHdr ERSHdrExplain"> <span class="xlate">The print style you select sets the basic layout and content of your recipes when they're printed.<br />
-            You can customize your style even further by using <a href="http://www.easyrecipeplugin.com/live-formatting.php" target="_blank">Live Formatting</a></span> </div>
+            You can customize your style even further by using <a href="http://www.easyrecipeplugin.com/support/live-formatting/" target="_blank">Live Formatting</a></span> </div>
           <input class="ERSSelectedPrintStyle" type="hidden" name="#settingsname#[printStyle]" value="#printStyleDirectory#" />
           <div id="divERSPrintStyleTabs" class="ERSStyleTabs">
             <ul>
               <!-- START REPEAT PRINTSTYLETABS -->
-              
+
               <li><a href="#divERSPrintStyle-tab#styleTab#">#styleTab#</a></li>
               <!-- END REPEAT PRINTSTYLETABS -->
             </ul>
             <!-- START REPEAT PRINTSTYLETABS -->
-            
-            <div id="divERSPrintStyle-tab#styleTab#"> 
+
+            <div id="divERSPrintStyle-tab#styleTab#">
               <!-- START REPEAT PRINTSTYLES -->
-              
+
               <div class="ERSStyle #selected#">
                 <input type="hidden" value="#directory#" />
                 <div class="ERSStyleName"> #style# </div>
@@ -371,13 +371,13 @@ body, td, th {
                 <div class="ERSStyleDesc"> #description# </div>
               </div>
               <!-- END REPEAT PRINTSTYLES -->
-              
+
               <div class="clearer"> &nbsp; </div>
             </div>
-            <!-- END REPEAT PRINTSTYLETABS --> 
+            <!-- END REPEAT PRINTSTYLETABS -->
           </div>
         </div>
-        <div id="divERSFooderific"> 
+        <div id="divERSFooderific">
           <!-- START INCLUDEIF fdNotEnabled -->
           <div id="divFDFirstRun">
             <div id="divFDThanks">Want more traffic to your blog?</div>
@@ -391,7 +391,7 @@ body, td, th {
               <div class="ERSDivCenter"><a href="" id="btnFDStartScan">Enable Fooderific</a></div>
             </div>
           </div>
-          <!-- END INCLUDEIF fdNotEnabled --> 
+          <!-- END INCLUDEIF fdNotEnabled -->
           <!-- START INCLUDEIF fdFirstRun -->
           <div id="divFDFirstRun">
             <div id="divFDThanks">Fooderific is enabled! There's just one more step.</div>
@@ -468,7 +468,7 @@ body, td, th {
         <div id="divERSGuestPosts">
           <div class="ERSHdrExplain"> <span class="xlate">EasyRecipe allows vistors to post recipes</span><br />
             <span class="xlate">Guest posters don't have to register or login</span>. <a href="http://www.easyrecipeplugin.com/guest-posts.php" target="_blank">Learn more...</a> </div>
-          <div> 
+          <div>
             <!-- START INCLUDEIF isPlus -->
             <table>
               <tr>
@@ -515,15 +515,15 @@ body, td, th {
                   </select></td>
               </tr>
             </table>
-            <!-- END INCLUDEIF isPlus --> 
+            <!-- END INCLUDEIF isPlus -->
             <!-- START INCLUDEIF !isPlus -->
             <div class="ERSPlusFeature">
               <div><strong>This feature is available in</strong></div>
               <div><a href="http://www.easyrecipeplugin.com/" target="_blank"><img src="#easyrecipeURL#/images/easyrecipeplus.png" width="314" height="43" border="0" /></a></div>
               <div><a href="http://www.easyrecipeplugin.com/" target="_blank">Click here</a> to find out how to get this feature<br />
-                and all the other Plus goodies <em>for only $14.95!</em></div>
+                and all the other Plus goodies <em>for only $24.95!</em></div>
             </div>
-            <!-- END INCLUDEIF !isPlus --> 
+            <!-- END INCLUDEIF !isPlus -->
           </div>
         </div>
         <div id="divERSImport">
@@ -532,13 +532,21 @@ body, td, th {
           <div id="divERSImportSettings">
             <div id="divERSImportFormats">
               <label>
+                <input type="radio" name="rbERSImportSource" value="paprika" />
+                Paprika</label>
+              <em>(.paprikarecipe)</em><br />
+              <label>
                 <input type="radio" name="rbERSImportSource" value="cookn" />
                 Cook'n</label>
-              v10 <em>(export as .html)</em><br />
+              v10 <em>(.html)</em><br />
               <label>
                 <input type="radio" name="rbERSImportSource" value="mastercook" />
                 MasterCook</label>
-              <em>(export as .mx2)</em><br />
+              <em>(.mx2)</em><br />
+              <label>
+                <input type="radio" name="rbERSImportSource" value="mealmaster" />
+                Meal-Master</label>
+              <em>(.mmf)</em><br />
               <label>
                 <input type="radio" name="rbERSImportSource" value="cookbookwiz" />
                 Cookbook Wizard for Windows</label>
@@ -547,7 +555,7 @@ body, td, th {
               <label>
                 <input type="radio" name="rbERSImportSource" value="text" />
                 Plain text</label>
-              <!-- END INCLUDEIF debugonly --> 
+              <!-- END INCLUDEIF debugonly -->
             </div>
           </div>
           <!-- START INCLUDEIF !isPlus -->
@@ -555,9 +563,9 @@ body, td, th {
             <div><strong>This feature is available in</strong></div>
             <div><a href="http://www.easyrecipeplugin.com/" target="_blank"><img src="#easyrecipeURL#/images/easyrecipeplus.png" width="314" height="43" border="0" /></a></div>
             <div><a href="http://www.easyrecipeplugin.com/" target="_blank">Click here</a> to find out how to get this feature<br />
-              and all the other Plus goodies <em>for only $14.95!</em></div>
+              and all the other Plus goodies <em>for only $24.95!</em></div>
           </div>
-          <!-- END INCLUDEIF !isPlus --> 
+          <!-- END INCLUDEIF !isPlus -->
           <!-- START INCLUDEIF isPlus -->
           <div id="divERSImportUploader"></div>
           <div id="divERSImportConfirm">
@@ -572,7 +580,7 @@ body, td, th {
             <div class="xlate">Creating Posts</div>
             <div id="divERSImportCreateSpinner">&nbsp;</div>
           </div>
-          <!-- END INCLUDEIF isPlus --> 
+          <!-- END INCLUDEIF isPlus -->
         </div>
         <div id="divERSSupport">
           <div class="ERSHdrExplain">If EasyRecipe isn't working for you, or not working as you expect, we're keen to help.<br />
@@ -606,8 +614,7 @@ body, td, th {
                 <span id="ERDSending"><img src="#easyrecipeURL#/images/spinner02.gif" width="16" height="16" />Sending data... please wait</span> <span id="ERDOK">
                 <p>Your support query has been sent and received.</p>
                 <p>We'll get back to you as soon as we have an answer.</p>
-                </span>
-                <span id="ERDFail">
+                </span> <span id="ERDFail">
                 <p>The send failed.</p>
                 <p>Try again but if you continue to have problems, leave us a message on our <a href="http://www.easyrecipeplugin.com/support.php" target="_blank">support page</a></p>
                 <p>The error reported was:</p>
@@ -630,23 +637,23 @@ body, td, th {
               <span class="ERSExplain xlate">The directory where your custom templates are stored. It MUST NOT be writable by the web server process. <a href="http://www.easyrecipeplugin.com/custom-styles.php" target="_blank">More information...</a></span><br />
               <!-- START INCLUDEIF isPlus -->
               <input class="ERSTextField" type="text" name="#settingsname#[customTemplates]" value="#customTemplates#" />
-              <!-- END INCLUDEIF isPlus --> 
+              <!-- END INCLUDEIF isPlus -->
               <!-- START INCLUDEIF !isPlus -->
               <input disabled="disabled" class="ERSTextField" type="text" name="#settingsname#[customTemplates]" value="#customTemplates#" />
               <span class="ERSExplain xlate">Custom style templates are available in <a href="http://www.easyrecipeplugin.com/" target="_blank">EasyRecipe Plus</a></span><br />
-              <!-- END INCLUDEIF !isPlus --> 
+              <!-- END INCLUDEIF !isPlus -->
             </label>
           </div>
           <div id="divERSExtraCSS">
             <div> <span class="xlate">Extra CSS</span><br />
-              <span class="ERSExplain xlate">Most formatting can be done by using styles and <a href="http://www.easyrecipeplugin.com/live-formatting.php" target="_blank">Live Formatting</a> but you can add extra display CSS here if needed.</span> </div>
+              <span class="ERSExplain xlate">Most formatting can be done by using styles and <a href="http://www.easyrecipeplugin.com/support/live-formatting/" target="_blank">Live Formatting</a> but you can add extra display CSS here if needed.</span> </div>
             <div>
               <textarea name="#settingsname#[extraCSS]">#extraCSS#</textarea>
             </div>
           </div>
           <div id="divERSExtraPrintCSS">
             <div> <span class="xlate">Extra Print CSS</span><br />
-              <span class="ERSExplain xlate">Most formatting can be done by using styles and <a href="http://www.easyrecipeplugin.com/live-formatting.php" target="_blank">Live Formatting</a> but you can add extra print CSS here if needed</span> </div>
+              <span class="ERSExplain xlate">Most formatting can be done by using styles and <a href="http://www.easyrecipeplugin.com/support/live-formatting/" target="_blank">Live Formatting</a> but you can add extra print CSS here if needed</span> </div>
             <div>
               <textarea name="#settingsname#[extraPrintCSS]">#extraPrintCSS#</textarea>
             </div>
@@ -671,7 +678,7 @@ body, td, th {
   	EASYRECIPE.lastScan = '#lastScan#';
 	  EASYRECIPE.fdAPIKey= '#fdAPIKey#';
     //]]>
-    </script> <!-- END PAGE --> 
+    </script> <!-- END PAGE -->
 </div>
 </body>
 </html>

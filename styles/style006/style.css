@@ -2,6 +2,7 @@
 	float: right;
 	width: 200px;
 	text-align: center;
+	max-width: 38%;
 }
 .easyrecipe div img {
 	box-shadow: 0px 0px 10px 1px #999;
@@ -80,4 +81,7 @@ div.easyrecipe {
 }
 .easyrecipe .ERSRHS .ERSNutritionBox .yield li {
 	border-style: none;
+}
+div.easyrecipe div.ERSPhotoFrame img {
+	max-width: 55%;
 }

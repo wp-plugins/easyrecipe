@@ -31,7 +31,7 @@
     list-style: none;
 }
 
-.easyrecipeUI .ui-helper-clearfix:before,.easyrecipeUI .ui-helper-clearfix:after {
+.easyrecipeUI .ui-helper-clearfix:before, .easyrecipeUI .ui-helper-clearfix:after {
     content: "";
     display: table;
 }
@@ -51,7 +51,7 @@
     left: 0;
     position: absolute;
     opacity: 0;
-    filter: Alpha(Opacity =   0);
+    filter: Alpha(Opacity = 0);
 }
 
 /* Interaction Cues
@@ -106,7 +106,7 @@
     font-size: 1em;
 }
 
-.easyrecipeUI .ui-widget input,.easyrecipeUI .ui-widget select,.easyrecipeUI .ui-widget textarea,.easyrecipeUI .ui-widget button {
+.easyrecipeUI .ui-widget input, .easyrecipeUI .ui-widget select, .easyrecipeUI .ui-widget textarea, .easyrecipeUI .ui-widget button {
     font-family: Arial, sans-serif;
     font-size: 1em;
 }
@@ -134,39 +134,38 @@
 
 /* Interaction states
 ----------------------------------*/
-.easyrecipeUI .ui-state-default,.easyrecipeUI .ui-widget-content .ui-state-default,.easyrecipeUI .ui-widget-header .ui-state-default {
+.easyrecipeUI .ui-state-default, .easyrecipeUI .ui-widget-content .ui-state-default, .easyrecipeUI .ui-widget-header .ui-state-default {
     border: 1px solid #c5dbec;
     background: #dfeffc url(images/ui-bg_glass_85_dfeffc_1x400.png) 50% 50% repeat-x;
     font-weight: bold;
     color: #2e6e9e;
 }
 
-.easyrecipeUI .ui-state-default a,.easyrecipeUI .ui-state-default a:link,.easyrecipeUI .ui-state-default a:visited {
+.easyrecipeUI .ui-state-default a, .easyrecipeUI .ui-state-default a:link, .easyrecipeUI .ui-state-default a:visited {
     color: #2e6e9e;
     text-decoration: none;
 }
 
-.easyrecipeUI .ui-state-hover,.easyrecipeUI .ui-widget-content .ui-state-hover,.easyrecipeUI .ui-widget-header .ui-state-hover,.easyrecipeUI .ui-state-focus,.easyrecipeUI .ui-widget-content .ui-state-focus,.easyrecipeUI .ui-widget-header .ui-state-focus
-    {
+.easyrecipeUI .ui-state-hover, .easyrecipeUI .ui-widget-content .ui-state-hover, .easyrecipeUI .ui-widget-header .ui-state-hover, .easyrecipeUI .ui-state-focus, .easyrecipeUI .ui-widget-content .ui-state-focus, .easyrecipeUI .ui-widget-header .ui-state-focus {
     border: 1px solid #79b7e7;
     background: #d0e5f5 url(images/ui-bg_glass_75_d0e5f5_1x400.png) 50% 50% repeat-x;
     font-weight: bold;
     color: #1d5987;
 }
 
-.easyrecipeUI .ui-state-hover a,.easyrecipeUI .ui-state-hover a:hover {
+.easyrecipeUI .ui-state-hover a, .easyrecipeUI .ui-state-hover a:hover {
     color: #1d5987;
     text-decoration: none;
 }
 
-.easyrecipeUI .ui-state-active,.easyrecipeUI .ui-widget-content .ui-state-active,.easyrecipeUI .ui-widget-header .ui-state-active {
+.easyrecipeUI .ui-state-active, .easyrecipeUI .ui-widget-content .ui-state-active, .easyrecipeUI .ui-widget-header .ui-state-active {
     border: 1px solid #79b7e7;
     background: #f5f8f9 url(images/ui-bg_inset-hard_100_f5f8f9_1x100.png) 50% 50% repeat-x;
     font-weight: bold;
     color: #e17009;
 }
 
-.easyrecipeUI .ui-state-active a,.easyrecipeUI .ui-state-active a:link,.easyrecipeUI .ui-state-active a:visited {
+.easyrecipeUI .ui-state-active a, .easyrecipeUI .ui-state-active a:link, .easyrecipeUI .ui-state-active a:visited {
     color: #e17009;
     text-decoration: none;
 }
@@ -177,43 +176,43 @@
 
 /* Interaction Cues
 ----------------------------------*/
-.easyrecipeUI .ui-state-highlight,.easyrecipeUI .ui-widget-content .ui-state-highlight,.easyrecipeUI .ui-widget-header .ui-state-highlight {
+.easyrecipeUI .ui-state-highlight, .easyrecipeUI .ui-widget-content .ui-state-highlight, .easyrecipeUI .ui-widget-header .ui-state-highlight {
     border: 1px solid #fad42e;
     background: #fbec88 url(images/ui-bg_flat_55_fbec88_40x100.png) 50% 50% repeat-x;
     color: #363636;
 }
 
-.easyrecipeUI .ui-state-highlight a,.easyrecipeUI .ui-widget-content .ui-state-highlight a,.ui-widget-header .ui-state-highlight a {
+.easyrecipeUI .ui-state-highlight a, .easyrecipeUI .ui-widget-content .ui-state-highlight a, .ui-widget-header .ui-state-highlight a {
     color: #363636;
 }
 
-.easyrecipeUI .ui-state-error,.easyrecipeUI .ui-widget-content .ui-state-error,.easyrecipeUI .ui-widget-header .ui-state-error {
+.easyrecipeUI .ui-state-error, .easyrecipeUI .ui-widget-content .ui-state-error, .easyrecipeUI .ui-widget-header .ui-state-error {
     border: 1px solid #cd0a0a;
     background: #fef1ec url(images/ui-bg_glass_95_fef1ec_1x400.png) 50% 50% repeat-x;
     color: #cd0a0a;
 }
 
-.easyrecipeUI .ui-state-error a,.easyrecipeUI .ui-widget-content .ui-state-error a,.easyrecipeUI .ui-widget-header .ui-state-error a {
+.easyrecipeUI .ui-state-error a, .easyrecipeUI .ui-widget-content .ui-state-error a, .easyrecipeUI .ui-widget-header .ui-state-error a {
     color: #cd0a0a;
 }
 
-.easyrecipeUI .ui-state-error-text,.easyrecipeUI .ui-widget-content .ui-state-error-text,.easyrecipeUI .ui-widget-header .ui-state-error-text {
+.easyrecipeUI .ui-state-error-text, .easyrecipeUI .ui-widget-content .ui-state-error-text, .easyrecipeUI .ui-widget-header .ui-state-error-text {
     color: #cd0a0a;
 }
 
-.easyrecipeUI .ui-priority-primary,.easyrecipeUI .ui-widget-content .ui-priority-primary,.easyrecipeUI .ui-widget-header .ui-priority-primary {
+.easyrecipeUI .ui-priority-primary, .easyrecipeUI .ui-widget-content .ui-priority-primary, .easyrecipeUI .ui-widget-header .ui-priority-primary {
     font-weight: bold;
 }
 
-.easyrecipeUI .ui-priority-secondary,.easyrecipeUI .ui-widget-content .ui-priority-secondary,.ui-widget-header .ui-priority-secondary {
+.easyrecipeUI .ui-priority-secondary, .easyrecipeUI .ui-widget-content .ui-priority-secondary, .ui-widget-header .ui-priority-secondary {
     opacity: .7;
-    filter: Alpha(Opacity =   70);
+    filter: Alpha(Opacity = 70);
     font-weight: normal;
 }
 
-.easyrecipeUI .ui-state-disabled,.easyrecipeUI .ui-widget-content .ui-state-disabled,.easyrecipeUI .ui-widget-header .ui-state-disabled {
+.easyrecipeUI .ui-state-disabled, .easyrecipeUI .ui-widget-content .ui-state-disabled, .easyrecipeUI .ui-widget-header .ui-state-disabled {
     opacity: .35;
-    filter: Alpha(Opacity =   35);
+    filter: Alpha(Opacity = 35);
     background-image: none;
 }
 
@@ -239,7 +238,7 @@
     background-image: url(images/ui-icons_6da8d5_256x240.png);
 }
 
-.easyrecipeUI .ui-state-hover .ui-icon,.easyrecipeUI .ui-state-focus .ui-icon {
+.easyrecipeUI .ui-state-hover .ui-icon, .easyrecipeUI .ui-state-focus .ui-icon {
     background-image: url(images/ui-icons_217bc0_256x240.png);
 }
 
@@ -251,7 +250,7 @@
     background-image: url(images/ui-icons_2e83ff_256x240.png);
 }
 
-.easyrecipeUI .ui-state-error .ui-icon,.easyrecipeUI .ui-state-error-text .ui-icon {
+.easyrecipeUI .ui-state-error .ui-icon, .easyrecipeUI .ui-state-error-text .ui-icon {
     background-image: url(images/ui-icons_cd0a0a_256x240.png);
 }
 
@@ -799,6 +798,7 @@
 .easyrecipeUI .ui-icon-seek-start {
     background-position: -80px -160px;
 }
+
 /* ui-icon-seek-first is deprecated, use ui-icon-seek-start instead */
 .easyrecipeUI .ui-icon-seek-first {
     background-position: -80px -160px;
@@ -956,28 +956,28 @@
 ----------------------------------*/
 
 /* Corner radius */
-.easyrecipeUI .ui-corner-all,.easyrecipeUI .ui-corner-top,.easyrecipeUI .ui-corner-left,.easyrecipeUI .ui-corner-tl {
+.easyrecipeUI .ui-corner-all, .easyrecipeUI .ui-corner-top, .easyrecipeUI .ui-corner-left, .easyrecipeUI .ui-corner-tl {
     -moz-border-radius-topleft: 5px;
     -webkit-border-top-left-radius: 5px;
     -khtml-border-top-left-radius: 5px;
     border-top-left-radius: 5px;
 }
 
-.easyrecipeUI .ui-corner-all,.easyrecipeUI .ui-corner-top,.easyrecipeUI .ui-corner-right,.easyrecipeUI .ui-corner-tr {
+.easyrecipeUI .ui-corner-all, .easyrecipeUI .ui-corner-top, .easyrecipeUI .ui-corner-right, .easyrecipeUI .ui-corner-tr {
     -moz-border-radius-topright: 5px;
     -webkit-border-top-right-radius: 5px;
     -khtml-border-top-right-radius: 5px;
     border-top-right-radius: 5px;
 }
 
-.easyrecipeUI .ui-corner-all,.easyrecipeUI .ui-corner-bottom,.easyrecipeUI .ui-corner-left,.easyrecipeUI .ui-corner-bl {
+.easyrecipeUI .ui-corner-all, .easyrecipeUI .ui-corner-bottom, .easyrecipeUI .ui-corner-left, .easyrecipeUI .ui-corner-bl {
     -moz-border-radius-bottomleft: 5px;
     -webkit-border-bottom-left-radius: 5px;
     -khtml-border-bottom-left-radius: 5px;
     border-bottom-left-radius: 5px;
 }
 
-.easyrecipeUI .ui-corner-all,.easyrecipeUI .ui-corner-bottom,.easyrecipeUI .ui-corner-right,.easyrecipeUI .ui-corner-br {
+.easyrecipeUI .ui-corner-all, .easyrecipeUI .ui-corner-bottom, .easyrecipeUI .ui-corner-right, .easyrecipeUI .ui-corner-br {
     -moz-border-radius-bottomright: 5px;
     -webkit-border-bottom-right-radius: 5px;
     -khtml-border-bottom-right-radius: 5px;
@@ -988,7 +988,7 @@
 .easyrecipeUI .ui-widget-overlay {
     background: #aaaaaa url(images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x;
     opacity: .70;
-    filter: Alpha(Opacity =   70);
+    filter: Alpha(Opacity = 70);
 }
 
 .easyrecipeUI .ui-widget-shadow {
@@ -996,20 +996,22 @@
     padding: 8px;
     background: #aaaaaa url(images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x;
     opacity: .30;
-    filter: Alpha(Opacity =   30);
+    filter: Alpha(Opacity = 30);
     -moz-border-radius: 8px;
     -khtml-border-radius: 8px;
     -webkit-border-radius: 8px;
     border-radius: 8px;
-} /*!
- * jQuery UI Accordion 1.8.21
- *
- * Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)
- * Dual licensed under the MIT or GPL Version 2 licenses.
- * http://jquery.org/license
- *
- * http://docs.jquery.com/UI/Accordion#theming
- */
+}
+
+/*!
+* jQuery UI Accordion 1.8.21
+*
+* Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)
+* Dual licensed under the MIT or GPL Version 2 licenses.
+* http://jquery.org/license
+*
+* http://docs.jquery.com/UI/Accordion#theming
+*/
 /* IE/Win - Fix animation bug - #4615 */
 .easyrecipeUI .ui-accordion {
     width: 100%;
@@ -1062,6 +1064,7 @@
 .easyrecipeUI .ui-accordion .ui-accordion-content-active {
     display: block;
 }
+
 /*!
  * jQuery UI Autocomplete 1.8.21
  *
@@ -1079,7 +1082,9 @@
 /* workarounds */
 * html .ui-autocomplete {
     width: 1px;
-} /* without this, the menu expands to 100% in IE6 */
+}
+
+/* without this, the menu expands to 100% in IE6 */
 
 /*
  * jQuery UI Menu 1.8.21
@@ -1119,10 +1124,11 @@
     zoom: 1;
 }
 
-.easyrecipeUI .ui-menu .ui-menu-item a.ui-state-hover,.easyrecipeUI .ui-menu .ui-menu-item a.ui-state-active {
+.easyrecipeUI .ui-menu .ui-menu-item a.ui-state-hover, .easyrecipeUI .ui-menu .ui-menu-item a.ui-state-active {
     font-weight: normal;
     margin: -1px;
 }
+
 /*!
  * jQuery UI Button 1.8.21
  *
@@ -1142,13 +1148,19 @@
     text-align: center;
     zoom: 1;
     overflow: visible;
-} /* the overflow property removes extra width in IE */
+}
+
+/* the overflow property removes extra width in IE */
 .easyrecipeUI .ui-button-icon-only {
     width: 2.2em;
-} /* to make room for the icon, a width needs to be set here */
+}
+
+/* to make room for the icon, a width needs to be set here */
 button.ui-button-icon-only {
     width: 2.4em;
-} /* button elements seem to need a little more width */
+}
+
+/* button elements seem to need a little more width */
 .easyrecipeUI .ui-button-icons-only {
     width: 3.4em;
 }
@@ -1167,16 +1179,16 @@ button.ui-button-icons-only {
     padding: .4em 1em;
 }
 
-.easyrecipeUI .ui-button-icon-only .ui-button-text,.easyrecipeUI .ui-button-icons-only .ui-button-text {
+.easyrecipeUI .ui-button-icon-only .ui-button-text, .easyrecipeUI .ui-button-icons-only .ui-button-text {
     padding: .4em;
     text-indent: -9999999px;
 }
 
-.easyrecipeUI .ui-button-text-icon-primary .ui-button-text,.easyrecipeUI .ui-button-text-icons .ui-button-text {
+.easyrecipeUI .ui-button-text-icon-primary .ui-button-text, .easyrecipeUI .ui-button-text-icons .ui-button-text {
     padding: .4em 1em .4em 2.1em;
 }
 
-.easyrecipeUI .ui-button-text-icon-secondary .ui-button-text,.easyrecipeUI .ui-button-text-icons .ui-button-text {
+.easyrecipeUI .ui-button-text-icon-secondary .ui-button-text, .easyrecipeUI .ui-button-text-icons .ui-button-text {
     padding: .4em 2.1em .4em 1em;
 }
 
@@ -1184,14 +1196,14 @@ button.ui-button-icons-only {
     padding-left: 2.1em;
     padding-right: 2.1em;
 }
+
 /* no icon support for input elements, provide padding by default */
 input.ui-button {
     padding: .4em 1em;
 }
 
 /*button icon element(s) */
-.easyrecipeUI .ui-button-icon-only .ui-icon,.easyrecipeUI .ui-button-text-icon-primary .ui-icon,.easyrecipeUI .ui-button-text-icon-secondary .ui-icon,.easyrecipeUI .ui-button-text-icons .ui-icon,.easyrecipeUI .ui-button-icons-only .ui-icon
-    {
+.easyrecipeUI .ui-button-icon-only .ui-icon, .easyrecipeUI .ui-button-text-icon-primary .ui-icon, .easyrecipeUI .ui-button-text-icon-secondary .ui-icon, .easyrecipeUI .ui-button-text-icons .ui-icon, .easyrecipeUI .ui-button-icons-only .ui-icon {
     position: absolute;
     top: 50%;
     margin-top: -8px;
@@ -1202,15 +1214,15 @@ input.ui-button {
     margin-left: -8px;
 }
 
-.easyrecipeUI .ui-button-text-icon-primary .ui-button-icon-primary,.easyrecipeUI .ui-button-text-icons .ui-button-icon-primary,.easyrecipeUI .ui-button-icons-only .ui-button-icon-primary {
+.easyrecipeUI .ui-button-text-icon-primary .ui-button-icon-primary, .easyrecipeUI .ui-button-text-icons .ui-button-icon-primary, .easyrecipeUI .ui-button-icons-only .ui-button-icon-primary {
     left: .5em;
 }
 
-.easyrecipeUI .ui-button-text-icon-secondary .ui-button-icon-secondary,.easyrecipeUI .ui-button-text-icons .ui-button-icon-secondary,.easyrecipeUI .ui-button-icons-only .ui-button-icon-secondary {
+.easyrecipeUI .ui-button-text-icon-secondary .ui-button-icon-secondary, .easyrecipeUI .ui-button-text-icons .ui-button-icon-secondary, .easyrecipeUI .ui-button-icons-only .ui-button-icon-secondary {
     right: .5em;
 }
 
-.easyrecipeUI .ui-button-text-icons .ui-button-icon-secondary,.easyrecipeUI .ui-button-icons-only .ui-button-icon-secondary {
+.easyrecipeUI .ui-button-text-icons .ui-button-icon-secondary, .easyrecipeUI .ui-button-icons-only .ui-button-icon-secondary {
     right: .5em;
 }
 
@@ -1228,7 +1240,9 @@ input.ui-button {
 button.ui-button::-moz-focus-inner {
     border: 0;
     padding: 0;
-} /* reset extra padding in Firefox */
+}
+
+/* reset extra padding in Firefox */
 /*!
  * jQuery UI Dialog 1.8.21
  *
@@ -1270,7 +1284,7 @@ button.ui-button::-moz-focus-inner {
     margin: 1px;
 }
 
-.easyrecipeUI .ui-dialog .ui-dialog-titlebar-close:hover,.easyrecipeUI .ui-dialog .ui-dialog-titlebar-close:focus {
+.easyrecipeUI .ui-dialog .ui-dialog-titlebar-close:hover, .easyrecipeUI .ui-dialog .ui-dialog-titlebar-close:focus {
     padding: 0;
 }
 
@@ -1310,6 +1324,7 @@ button.ui-button::-moz-focus-inner {
 .easyrecipeUI .ui-draggable .ui-dialog-titlebar {
     cursor: move;
 }
+
 /*!
  * jQuery UI Slider 1.8.21
  *
@@ -1385,20 +1400,24 @@ button.ui-button::-moz-focus-inner {
 
 .easyrecipeUI .ui-slider-vertical .ui-slider-range-max {
     top: 0;
-} /*!
- * jQuery UI Tabs 1.8.21
- *
- * Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)
- * Dual licensed under the MIT or GPL Version 2 licenses.
- * http://jquery.org/license
- *
- * http://docs.jquery.com/UI/Tabs#theming
- */
+}
+
+/*!
+* jQuery UI Tabs 1.8.21
+*
+* Copyright 2012, AUTHORS.txt (http://jqueryui.com/about)
+* Dual licensed under the MIT or GPL Version 2 licenses.
+* http://jquery.org/license
+*
+* http://docs.jquery.com/UI/Tabs#theming
+*/
 .easyrecipeUI .ui-tabs {
     position: relative;
     padding: .2em;
     zoom: 1;
-} /* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
+}
+
+/* position: relative prevents IE scroll bug (element with position: relative inside container with overflow: auto appear as "fixed") */
 .easyrecipeUI .ui-tabs .ui-tabs-nav {
     margin: 0;
     padding: .2em .2em 0;
@@ -1426,13 +1445,15 @@ button.ui-button::-moz-focus-inner {
     padding-bottom: 1px;
 }
 
-.easyrecipeUI .ui-tabs .ui-tabs-nav li.ui-tabs-selected a,.easyrecipeUI .ui-tabs .ui-tabs-nav li.ui-state-disabled a,.easyrecipeUI .ui-tabs .ui-tabs-nav li.ui-state-processing a {
+.easyrecipeUI .ui-tabs .ui-tabs-nav li.ui-tabs-selected a, .easyrecipeUI .ui-tabs .ui-tabs-nav li.ui-state-disabled a, .easyrecipeUI .ui-tabs .ui-tabs-nav li.ui-state-processing a {
     cursor: text;
 }
 
-.easyrecipeUI .ui-tabs .ui-tabs-nav li a,.easyrecipeUI .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a {
+.easyrecipeUI .ui-tabs .ui-tabs-nav li a, .easyrecipeUI .ui-tabs.ui-tabs-collapsible .ui-tabs-nav li.ui-tabs-selected a {
     cursor: pointer;
-} /* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
+}
+
+/* first selector in group seems obsolete, but required to overcome bug in Opera applying cursor: text overall if defined elsewhere... */
 .easyrecipeUI .ui-tabs .ui-tabs-panel {
     display: block;
     border-width: 0;
@@ -1443,6 +1464,7 @@ button.ui-button::-moz-focus-inner {
 .easyrecipeUI .ui-tabs .ui-tabs-hide {
     display: none !important;
 }
+
 /*!
  * jQuery UI Progressbar 1.8.21
  *
@@ -1463,13 +1485,15 @@ button.ui-button::-moz-focus-inner {
     height: 100%;
 }
 
-/* ER mods */
-.easyrecipeUI .ui-widget input,.easyrecipeUI .ui-widget select,.easyrecipeUI .ui-widget textarea,.easyrecipeUI .ui-widget button {
+/*************
+ EasyRecipe MODS
+ ***************/
+.easyrecipeUI .ui-widget input, .easyrecipeUI .ui-widget select, .easyrecipeUI .ui-widget textarea, .easyrecipeUI .ui-widget button {
     font-size: inherit !important;
     color: #373737;
 }
 
-.easyrecipeUI input[type="text"],.easyrecipeUI textarea {
+.easyrecipeUI input[type="text"], .easyrecipeUI textarea {
     background: none repeat scroll 0 0 #FAFAFA;
     border: 1px solid #DDDDDD;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1) inset;
@@ -1483,7 +1507,7 @@ button.ui-button::-moz-focus-inner {
     font-size: 12px !important;
 }
 
-.easyrecipeUI .ui-dialog .ui-dialog-titlebar,.easyrecipeUI .ui-tabs .ui-tabs-nav {
+.easyrecipeUI .ui-dialog .ui-dialog-titlebar, .easyrecipeUI .ui-tabs .ui-tabs-nav {
     -moz-border-radius-bottomleft: 0;
     -webkit-border-bottom-left-radius: 0;
     -khtml-border-bottom-left-radius: 0;
@@ -1492,12 +1516,15 @@ button.ui-button::-moz-focus-inner {
     -webkit-border-bottom-right-radius: 0;
     -khtml-border-bottom-right-radius: 0;
     border-bottom-right-radius: 0;
+    min-height: inherit;
+    line-height: inherit;
+    width: auto;
 }
 
 .easyrecipeUI .ui-button {
     padding: 4px !important;
     filter: none;
-    text-transform:none;
+    text-transform: none;
 }
 
 .easyrecipeUI .ui-dialog .ui-dialog-title {

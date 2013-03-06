@@ -22,6 +22,9 @@
 <div id="apDiv1">
     <!-- START PAGE -->
     <div class="easyrecipe" itemscope itemtype="http://schema.org/Recipe">
+        <!-- START INCLUDEIF hasPhoto -->
+        <link itemprop="image" href="#photoURL#"/>
+        <!-- END INCLUDEIF hasPhoto -->
         <!-- START INCLUDEIF hasRating -->
         <div class="ERSRatings" itemprop="aggregateRating" itemscope itemtype="http://schema.org/AggregateRating">
             <div class="ERSRatingOuter">

@@ -18,7 +18,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 class EasyRecipeFooderific {
-    private $myVersion = '3.2.1226';
+    private $myVersion = '3.2.1230';
 
     private $slug = 'EasyRecipe';
 
@@ -55,6 +55,7 @@ class EasyRecipeFooderific {
     private $haveRecipeSEO = false;
     private $haveEasyRecipe = false;
     private $haveKitchenbug = false;
+    private $haveRecipeCard = false;
 
     private $batchSize;
     private $results;
@@ -73,6 +74,7 @@ class EasyRecipeFooderific {
      */
     function postChanged(/** @noinspection PhpUnusedParameterInspection */
         $postID, $post = null) {
+
 
         if ($post && $post->post_status == 'publish') {
 
@@ -106,7 +108,7 @@ class EasyRecipeFooderific {
         /**
          * Figure out what plugins we should look for
          */
-        $this->haveZiplist = $this->haveGetMeCooking = $this->haveRecipress = $this->haveRecipeSEO = $this->haveEasyRecipe = $this->haveKitchenbug = false;
+        $this->haveZiplist = $this->haveGetMeCooking = $this->haveRecipress = $this->haveRecipeSEO = $this->haveEasyRecipe = $this->haveKitchenbug = $this->haveRecipeCard = false;
         $plugins = get_option('active_plugins');
         foreach ($plugins as $plugin) {
             if (stripos($plugin, 'easyrecipe') !== false) {
@@ -134,6 +136,12 @@ class EasyRecipeFooderific {
                 $this->haveKitchenbug = true;
                 continue;
             }
+
+            if (stripos($plugin, 'recipe-card') !== false) {
+                $this->haveRecipeCard = true;
+                continue;
+            }
+
         }
     }
 
@@ -174,7 +182,6 @@ class EasyRecipeFooderific {
             if ($haveRecipe) {
                 $source = 'RECIPESEO';
             }
-
         }
 
         if (!$haveRecipe && $this->haveRecipeSEO) {
@@ -190,7 +197,6 @@ class EasyRecipeFooderific {
             if ($haveRecipe) {
                 $source = 'EASYRECIPE';
             }
-
         }
 
         if (!$haveRecipe && $this->haveKitchenbug) {
@@ -198,7 +204,13 @@ class EasyRecipeFooderific {
             if ($haveRecipe) {
                 $source = 'KITCHENBUG';
             }
+        }
 
+        if (!$haveRecipe && $this->haveRecipeCard) {
+            $haveRecipe = stripos($post->post_content, '[yumprint-recipe') !== false;
+            if ($haveRecipe) {
+                $source = 'RECIPECARD';
+            }
         }
 
         if (!$haveRecipe && $this->haveRecipress) {
@@ -207,7 +219,6 @@ class EasyRecipeFooderific {
             if ($haveRecipe) {
                 $source = 'RECIPRESS';
             }
-
         }
 
         /**
