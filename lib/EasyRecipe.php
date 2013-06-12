@@ -24,7 +24,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1244';
+    private $pluginVersion = '3.2.1246';
 
     private $pluginName = 'EasyRecipe';
 
@@ -312,7 +312,6 @@ EOD;
             wp_cache_delete($_REQUEST['post'], 'posts');
         }
 
-        add_action('add_meta_boxes', array($this, 'addMetaboxes'));
 
     }
 
@@ -530,7 +529,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1244';
+        $data->version = '3.2.1246';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -1126,8 +1125,8 @@ EOD;
             /**
              * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
              * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
-             */
 
+             */
             $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
             /**
              * Some themes do a get_post() again instead of using the posts as modified by plugins
