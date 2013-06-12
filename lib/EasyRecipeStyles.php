@@ -1,7 +1,7 @@
 <?php
 
 /*
- Copyright (c) 2010-2012 Box Hill LLC
+ Copyright (c) 2010-2013 Box Hill LLC
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -184,3 +184,4 @@ class EasyRecipeStyles {
         return $isPrint ? self::$printStyles : self::$styles;
     }
 }
+

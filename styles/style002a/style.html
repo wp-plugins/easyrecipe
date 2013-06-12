@@ -1,8 +1,8 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-    <title>Untitled Document</title>
+    <meta charset="utf-8">
+    <meta name="robots" content="noindex, noarchive">
     <link href="../../css/easyrecipe-style-reset.css" rel="stylesheet" type="text/css">
     <link href="style.css" rel="stylesheet" type="text/css"/>
     <style type="text/css">
@@ -45,6 +45,7 @@
                 <!-- END INCLUDEIF displayPrint -->
             </div>
         </div>
+        <!-- START INCLUDEIF hasTimes -->
         <div class="ERSTimes">
             <!-- START INCLUDEIF preptime -->
             <div class="ERSTime">
@@ -72,6 +73,7 @@
             <!-- END INCLUDEIF totaltime -->
             <div class="ERSClearLeft">&nbsp;</div>
         </div>
+        <!-- END INCLUDEIF hasTimes -->
         <!-- START INCLUDEIF summary -->
         <div itemprop="description" class="ERSSummary">#summary#</div>
         <!-- END INCLUDEIF summary -->

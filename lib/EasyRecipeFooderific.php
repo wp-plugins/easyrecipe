@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright (c) 2010-2012 Box Hill LLC
+Copyright (c) 2010-2013 Box Hill LLC
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -18,13 +18,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 class EasyRecipeFooderific {
-    private $myVersion = '3.2.1230';
-
-    private $slug = 'EasyRecipe';
-
-//    private $pluginDir;
-//    private $pluginURL;
-
 
     /**
      * The maximum time a scan can run for in seconds
@@ -38,11 +31,6 @@ class EasyRecipeFooderific {
     const FOODERIFIC_SCAN = 'fooderific_scan';
     const FOODERIFIC_URL = 'http://www.fooderific.com/plugin/ping.php';
 
-    /**
-     * For convenience
-     */
-    private $siteURL;
-    private $homeURL;
 
     /**
      * Which recipe plugins are active?
@@ -267,11 +255,13 @@ class EasyRecipeFooderific {
         /**
          * Get the details that we can't easily get from a crawl of the page (excerpt, tags and categories)
          * Also try to get an image in case it isn't explicitly specified in the markup or the explicitly specified one is too small
+         * We also might need to use the original image if pagespeed is used on the site
          */
         $result->source = $source;
         $result->tags = array();
         $postTags = get_the_terms($post->ID, 'post_tag');
         if ($postTags) {
+            /** @noinspection PhpUnusedLocalVariableInspection */
             foreach ($postTags as $key => $postTag) {
                 $result->tags[] = $postTag->name;
             }
@@ -279,6 +269,7 @@ class EasyRecipeFooderific {
         $result->categories = array();
         $postCategories = get_the_terms($post->ID, 'category');
         if ($postCategories) {
+            /** @noinspection PhpUnusedLocalVariableInspection */
             foreach ($postCategories as $key => $postCategory) {
                 $result->categories[] = $postCategory->name;
             }
@@ -334,7 +325,10 @@ class EasyRecipeFooderific {
     }
 
     /**
-     *  Scan all posts for recipes and send basic details to fooderific
+     * Scan all posts for recipes if $postID == 0, or a single post if $postID <> 0 and send basic details to fooderific
+     * If it's a sitewide scan, data is batched up to minimize network traffic
+     *
+     * @param int $postID Scan all posts if this is zero, else a single post if not
      */
     function scanRun($postID = 0) {
         /* @var $wpdb wpdb */
@@ -432,7 +426,7 @@ class EasyRecipeFooderific {
                 $data->wpurl = get_bloginfo("wpurl");
                 $data->count = 0;
                 $args = array('body' => array('data' => serialize($data)));
-                $postResult = wp_remote_post(self::FOODERIFIC_URL, $args);
+                wp_remote_post(self::FOODERIFIC_URL, $args);
 
                 wp_schedule_single_event(time(), self::FOODERIFIC_SCAN, array(0));
                 spawn_cron();

@@ -9,7 +9,7 @@ FIXME - move to the standard admin CSS but make specific enough so they override
 }
 
 .easyrecipeUI input[type="text"],.easyrecipeUI textarea {
-	background: none repeat scroll 0 0 #FAFAFA;
+	background: none repeat scroll 0 0 #FFFFFF;
 	border: 1px solid #DDDDDD;
 	box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1) inset;
 }

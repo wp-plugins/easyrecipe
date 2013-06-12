@@ -1,9 +1,8 @@
 <?php
 
 
-
 /*
-Copyright (c) 2010-2012 Box Hill LLC
+Copyright (c) 2010-2013 Box Hill LLC
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -25,7 +24,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1230';
+    private $pluginVersion = '3.2.1244';
 
     private $pluginName = 'EasyRecipe';
 
@@ -48,30 +47,20 @@ class EasyRecipe {
 
     private $postContent;
 
-    private $styles;
     private $easyrecipes = array();
     private $formatting = false;
     private $styleName;
     private $printStyle;
     private $styleData;
     private $printStyleData;
-    private $haveProcessed = array();
-    private $isGuest = false;
+    public  $isGuest = false;
     private $postMeta;
-    private $languages;
-    private static $plugins = array();
     private $guestPosters = array();
 
     private $loadJSInFooter = false;
 
 
-    /**
-     * @var EasyRecipeFooderific
-     */
-    private $fooderific = null;
-
     function __construct($pluginDir, $pluginURL) {
-        global $pagenow;
 
 
         self::$EasyRecipeDir = $pluginDir;
@@ -83,11 +72,6 @@ class EasyRecipe {
         $this->siteURL = site_url();
         $this->homeURL = home_url();
 
-
-        if (isset($_REQUEST['ERDEBUG'])) {
-            error_reporting(E_ALL);
-            ini_set('display_errors', 1);
-        }
 
 
         /**
@@ -314,7 +298,7 @@ EOD;
 
         wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js");
 
-        add_filter('tiny_mce_before_init', array($this, 'mcepreInitialise'));
+        add_filter('tiny_mce_before_init', array($this, 'mcePreInitialise'));
         add_filter('mce_external_plugins', array($this, 'mcePlugins'));
         add_filter('mce_buttons', array($this, 'mceButtons'));
         add_action('admin_footer', array($this, 'addDialogHTML'));
@@ -327,6 +311,9 @@ EOD;
         if (isset($_REQUEST['post'])) {
             wp_cache_delete($_REQUEST['post'], 'posts');
         }
+
+        add_action('add_meta_boxes', array($this, 'addMetaboxes'));
+
     }
 
     /**
@@ -339,7 +326,6 @@ EOD;
     /**
      */
     function enqueueScripts() {
-        global $post;
         /*
         * We only need our stuff if there's an EasyRecipe on the post/page
         */
@@ -438,6 +424,7 @@ EOD;
         }
     }
 
+
     /**
      *  FOODERIFIC
      *
@@ -512,7 +499,6 @@ EOD;
 
 
 
-
     /**
      * Display the admin pointer about fooderific until it gets dismissed
      */
@@ -544,7 +530,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1230';
+        $data->version = '3.2.1244';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -616,7 +602,7 @@ EOD;
             $customCSS = array();
         }
 
-        // todo - check this construct works
+        // todo - check this construct works *** Should check for empty() - not empty strings
         $extraCSS = trim($this->settings->{"extra{$print}CSS"});
         $css = '';
         if ($customCSS != '' || $extraCSS != '') {
@@ -830,7 +816,8 @@ EOD;
     /*
     * Displays just the recipe and exits
     */
-    private function printRecipe($postID, $recipeIX) {
+    private
+    function printRecipe($postID, $recipeIX) {
         /** @var $wpdb wpdb */
         global $wpdb;
 
@@ -885,6 +872,7 @@ EOD;
             $postDOM->setParentValueByClassName("cholestrol", $this->settings->lblCholesterol, "Cholestrol");
         }
 
+        $postDOM->setSettings($this->settings);
         $data = new stdClass();
         $data->hasRating = false;
 
@@ -1024,12 +1012,19 @@ EOD;
         /* @var $wp_rewrite WP_Rewrite */
         global $wp_rewrite;
 
+        /** @global  $wpdb wpdb */
+        global $wpdb;
+
+        $guestpost = null;
         $newPosts = array();
-        /*
-        * Process each post and replace placeholders with relevant data
-        */
+        /**
+         * Process each post and replace placeholders with relevant data
+         */
         foreach ($posts as $post) {
 
+            /**
+             * Have we already processed this post?
+             */
             if (isset($this->easyrecipes[$post->ID])) {
                 $post->post_content = $this->postContent[$post->ID];
                 $newPosts[] = $post;
@@ -1044,17 +1039,18 @@ EOD;
                 continue;
             }
 
+            $postDOM->setSettings($this->settings);
             /**
              * Mark this post as an easyrecipe so that the comment and rating processing know
              */
             $this->easyrecipes[$post->ID] = true;
 
-            /*
-            * Make sure we haven't already formatted this post. This can happen in preview mode where WP replaces the post_content
-            * of the parent with the autosave content which we've already processed.
-            * If this is the case, save the formatted code and mark this post as having been processed
-               * TODO - are there implications for the object cache for themes that re-read posts?
-            */
+            /**
+             * Make sure we haven't already formatted this post. This can happen in preview mode where WP replaces the post_content
+             * of the parent with the autosave content which we've already processed.
+             * If this is the case, save the formatted code and mark this post as having been processed
+             * TODO - are there implications for the object cache for themes that re-read posts?
+             */
             if ($postDOM->isFormatted) {
                 $this->postContent[$post->ID] = $post->post_content;
                 $newPosts[] = $post;
@@ -1076,29 +1072,23 @@ EOD;
             $data = new stdClass();
 
             /**
-             * Find the ratings - could be done more efficiently with a DB JOIN, but for
-             * the small numbers we're going to have it's not gonna make much difference
+             * Get the ratings from the comment meta table
              */
 
             if ($this->settings->ratings == 'EasyRecipe') {
-                $comments = get_comments(array('status' => 'approve', 'post_id' => $post->ID));
-                $totalRating = 0;
-                $data->ratingCount = 0;
-                foreach ($comments as $comment) {
-                    $rating = get_comment_meta($comment->comment_ID, "ERRating", true);
-                    if ($rating < 1 || $rating > 5) {
-                        continue;
-                    }
-                    $data->ratingCount++;
-                    $totalRating += $rating;
-                }
-                if ($data->ratingCount > 0) {
-                    $data->ratingValue = number_format($totalRating / $data->ratingCount, 1);
+                $q = "SELECT COUNT(*) AS count, SUM(meta_value) AS sum FROM $wpdb->comments JOIN $wpdb->commentmeta ON $wpdb->commentmeta.comment_id = $wpdb->comments.comment_ID ";
+                $q .= "WHERE comment_approved = 1 AND meta_key = 'ERRating' AND comment_post_ID = $post->ID AND meta_value > 0";
+                $ratings = $wpdb->get_row($q);
+
+                if ($ratings->count  > 0) {
+                    $data->ratingCount = $ratings->count;
+                    $data->ratingValue = number_format($ratings->sum / $ratings->count, 1);
                     $data->ratingPC = $data->ratingValue * 100 / 5;
                     $data->hasRating = true;
                 } else {
                     $data->hasRating = false;
                 }
+
             }
             $this->settings->getLabels($data);
 
@@ -1137,6 +1127,7 @@ EOD;
              * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
              * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
              */
+
             $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
             /**
              * Some themes do a get_post() again instead of using the posts as modified by plugins
@@ -1253,8 +1244,8 @@ EOD;
     }
 
     function pluginActionLinks($links, $pluginFile) {
-        if ($pluginFile == "$this->pluginName/$this->pluginName.php") {
-            $links[] = '<a href="admin.php?page=' . $this->pluginName . '">' . __('Settings') . '</a>';
+        if ($pluginFile == "easyrecipe/easyrecipe.php") {
+            $links[] = '<a href="admin.php?page=EasyRecipe">' . __('Settings') . '</a>';
         }
         return $links;
     }
@@ -1270,6 +1261,10 @@ EOD;
         if (isset($_POST['diagnostics'])) {
             $diagnostics = new EasyRecipeDiagnostics();
             $data->vars = $diagnostics->get();
+        } else {
+            $diags = new stdClass();
+            $diags->phpinfo = print_r($_POST, true);
+            $data->vars = $diags;
         }
         $data = json_encode($data);
 
@@ -1326,13 +1321,13 @@ EOD;
         $this->settings->update();
 
         $data = http_build_query(array('action' => 'activate', 'site' => get_site_url()));
-        $request = wp_remote_post("http://www.easyrecipeplugin.com/installed.php", array('body' => $data, "blocking" => false));
+        wp_remote_post("http://www.easyrecipeplugin.com/installed.php", array('body' => $data, "blocking" => false));
 
     }
 
     function pluginDeactivated() {
         $data = http_build_query(array('action' => 'deactivate', 'site' => get_site_url()));
-        $request = wp_remote_post("http://www.easyrecipeplugin.com/installed.php", array('body' => $data, "blocking" => false));
+        wp_remote_post("http://www.easyrecipeplugin.com/installed.php", array('body' => $data, "blocking" => false));
     }
 
     /**
@@ -1420,7 +1415,16 @@ EOD;
             $testURL = '';
         }
 
-        $author = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->author)));
+        if ($this->isGuest) {
+            /** @var $guestAuthor WP_User */
+            $guestAuthor = get_user_by('id', $this->settings->gpUserID);
+            /** @noinspection PhpUndefinedFieldInspection */
+            $author = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $guestAuthor->data->display_name)));
+        } else {
+            $author = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->author)));
+        }
+
+
         $cuisines = str_replace("'", '\x27', json_encode(explode('|', str_replace('"', '\\"', $this->settings->cuisines))));
         $recipeTypes = str_replace("'", '\x27', json_encode(explode('|', str_replace('"', '\\"', $this->settings->recipeTypes))));
 
@@ -1428,7 +1432,7 @@ EOD;
         $instructions = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->lblInstructions)));
         $notes = str_replace("'", '\x27', json_encode(str_replace('"', '\\"', $this->settings->lblNotes)));
         if (!function_exists('get_upload_iframe_src')) {
-            require_once (ABSPATH . 'wp-admin/includes/media.php');
+            require_once(ABSPATH . 'wp-admin/includes/media.php');
         }
         $upIframeSrc = get_upload_iframe_src();
         $guestPost = $this->isGuest ? 'true' : 'false';
@@ -1456,121 +1460,19 @@ EASYRECIPE.upIframeSrc = '$upIframeSrc';
 EASYRECIPE.isGuest = $guestPost;
 EASYRECIPE.wpurl = '$wpurl';
 EASYRECIPE.wpVersion = '$wpVersion';
+EASYRECIPE.postID = $post->ID;
 /* ]]> */
 </script>
 EOD;
     }
 
 
-    function yumprintTime($time) {
-        $time = (int) $time;
-
-        $minutes = $time % 60;
-        $hours = floor(($time - $minutes) / 60);
-
-        return sprintf("PT%dH%dM", $hours, $minutes);
-    }
-
-    /*
-    * Return RecipeSEO/ZipList data
-    */
+    /**
+     * Convert a recipe from other plugins
+     */
     function convertRecipe() {
-        /** @global $wpdb wpdb */
-        global $wpdb;
-
-        $id = (int) $_POST['id'];
-        $result = new stdClass();
-
-        switch ($_POST['type']) {
-
-            case 'recipeseo`' :
-                $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_recipes WHERE recipe_id=" . $id);
-                $ingredients = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_ingredients WHERE recipe_id=" . $id . " ORDER BY ingredient_id");
-
-                $result->ingredients = array();
-                foreach ($ingredients as $ingredient) {
-                    $result->ingredients[] = $ingredient->amount . " " . $ingredient->name;
-                }
-                break;
-
-            case 'zlrecipe' :
-                $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_zlrecipe_recipes WHERE recipe_id=" . $id);
-                $ingredients = explode("\n", str_replace('\r', "", $result->recipe->ingredients));
-                $result->ingredients = array();
-                foreach ($ingredients as $ingredient) {
-                    $result->ingredients[] = $ingredient;
-                }
-                unset($result->recipe->ingredients);
-                break;
-
-            /**
-             * Make the Recipe Card data look like RecipeSEO/Ziplist - only because we already have the JS for those
-             */
-            case 'yumprint' :
-                $post = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "yumprint_recipe_recipe WHERE id=" . $id);
-                $nutrition = json_decode($post->nutrition);
-                $result->recipe = json_decode($post->recipe);
-                $result->recipe->recipe_title = $result->recipe->title;
-                $result->recipe->recipe_image = $result->recipe->image;
-                $result->ingredients = $result->recipe->ingredients[0]->lines;
-                $result->recipe->instructions = implode("\n", $result->recipe->directions[0]->lines);
-                $result->recipe->notes = implode("\n", $result->recipe->notes[0]->lines);
-
-                $result->recipe->prep_time = $this->yumprintTime($result->recipe->prepTime);
-                $result->recipe->cook_time = $this->yumprintTime($result->recipe->cookTime);
-
-                $result->recipe->yield = $result->recipe->yields;
-                $result->recipe->serving_size = $result->recipe->servings;
-
-                $result->recipe->nutrition = $nutrition;
-
-                $serves = $result->recipe->servings;
-                $yields = $result->RCommentrecipe->yields;
-
-                $unit = 1;
-                if (!empty($serves)) {
-                    $unit = $serves;
-                } else if (!empty($yields)) {
-                    $unit = $yields;
-                }
-
-                $div = !empty($unit) ? $unit : 1;
-
-                foreach ($nutrition as $key => &$value) {
-                    $value /= $div;
-                }
-
-                $nutrition->calories = round($nutrition->calories);
-                $nutrition->totalFat = round($nutrition->totalFat) . 'g';
-                $nutrition->saturatedFat = round($nutrition->saturatedFat) . 'g';
-                $nutrition->transFat = round($nutrition->transFat) . 'g';
-                $nutrition->polyunsaturatedFat = round($nutrition->polyunsaturatedFat);
-                $nutrition->monounsaturatedFat = round($nutrition->monounsaturatedFat);
-                $nutrition->unsaturatedFat = ($nutrition->polyunsaturatedFat + $nutrition->monounsaturatedFat) . 'g';
-
-                $nutrition->cholesterol = round($nutrition->cholesterol) . 'mg';
-
-                $nutrition->sodium = round($nutrition->sodium) . 'mg';
-                $nutrition->totalCarbohydrates = round($nutrition->totalCarbohydrates) . 'g';
-                $nutrition->dietaryFiber = round($nutrition->dietaryFiber) . 'g';
-                $nutrition->sugars = round($nutrition->sugars) . 'g';
-                $nutrition->protein = round($nutrition->protein) . 'g';
-
-
-                unset($result->recipe->prepTime);
-                unset($result->recipe->cookTime);
-                unset($result->recipe->totalTime);
-                unset($result->recipe->yields);
-                unset($result->recipe->servings);
-
-                unset($result->recipe->title);
-                unset($result->recipe->image);
-                unset($result->recipe->ingredients);
-                unset($result->recipe->directions);
-                break;
-        }
-        echo json_encode($result);
-        die();
+        $convert = new EasyRecipeConvert();
+        $convert->convertRecipe();
     }
 
     function socketIO($method, $host, $port, $path, $data = "", $timeout = 5) {
@@ -1606,20 +1508,11 @@ EOD;
     */
     function getImage($parsedURL) {
         $host = $parsedURL['host'];
-        $path = isset($parsedURL['path']) ? $parsedURL['path'] : '/';
+        $path = isset($parsedURL['path']) ? $parsedURL['path'] : ' / ';
         $path .= isset($parsedURL['query']) ? $parsedURL['query'] : '';
         $port = isset($parsedURL['port']) ? $parsedURL['port'] : "80";
 
-        $timeout = 5;
-        $image = '';
-
         return $this->socketIO("GET", $host, $port, $path);
     }
-
-    private function sortPlugins($a, $b) {
-        if ($a["active"] != $b["active"]) {
-            return strcmp($a["active"], $b["active"]);
-        }
-        return strcmp($a["Title"], $b["Title"]);
-    }
 }
+

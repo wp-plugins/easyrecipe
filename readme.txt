@@ -3,14 +3,14 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag:  3.2.1230
+Stable tag:  3.2.1244
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
 
 == Description ==
 
-The most fully featured recipe plugin that doesn't require a degree in geek!
+The most fully featured Wordpress recipe plugin that doesn't require a degree in geek!
 
 EasyRecipe makes recipe entry a breeze, with features like cut and paste, auto conversion of your plain text recipe posts, live custom formatting, Google Recipe View formatting and preview button, automatic ratings, conversion from other recipe plugins like ZipList, RecipeSEO and Recipe Card.
 
@@ -28,7 +28,7 @@ It's quick. It's easy. The recipes look great.  Your recipes will have ratings a
 
 To convert an existing plain text recipe post to EasyRecipe, edit the post, select the Ingredients and Instructions with your mouse and click the EasyRecipe icon. As long as there's an appropriate header above the ingredients and instructions, EasyRecipe can import your post directly.
 
-To convert a ZipList, RecipeSEO or Recipe Card post to EasyRecipe, edit the post and click the EasyRecipe icon. That's it!  How easy was that?
+To convert a ZipList, RecipeSEO, Recipress, GetMeCooking or Recipe Card post to EasyRecipe, edit the post and click the EasyRecipe icon. That's it!  How easy was that?
 
 Requires PHP 5+
 
@@ -60,7 +60,11 @@ We CAN but it all depends on what's in the text and/or what other things another
 
 = Where Can I Get Help? =
 
-We'll do our best to help you with any problem you have with EasyRecipe.  You can [contact me](http://www.easyrecipeplugin.com/support.php) and we'll answer you as quickly as we can.
+If you have comments, questions or problems, we want to help.
+
+The best way to contact us is from the Support tab in the EasyRecipe settings.
+
+You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/)
 
 == Screenshots ==
 1. Simple recipe entry. You don't have to pre-define ingredients, enter quantities separately or worry about taxonomies
@@ -74,6 +78,17 @@ We'll do our best to help you with any problem you have with EasyRecipe.  You ca
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1244 =
+* Added ReciPress conversion
+* Add Get Me Cooking conversion
+* Added custom labels for times
+* Added shortcode to force loading of EasyRecipe css/scripts on pages that don't normally trigger them
+* Workaround for javascript library incompatibility for Bootstrap based themes
+* Improved the efficiency of ratings retrieval
+* Added live Google snippet test (Plus version)
+* Added custom labels for guest post pages (Plus version)
+* Added import from MacGourmet and Yummy Soup (Plus version)
+
 = 3.2 Build 1230 =
 * Added import from Paprika recipes (Plus version)
 * Added import from Meal-Master recipes (Plus version)

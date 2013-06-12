@@ -11,14 +11,15 @@
 (function() {
     var Event = tinymce.dom.Event;
 
+    //noinspection FunctionWithInconsistentReturnsJS
     tinymce.create('tinymce.plugins.NonEditablePlugin', {
-        init : function(ed, url) {
-            var t = this, editClass, nonEditClass, state;
+        init : function(ed) {
+            var t = this, nonEditClass, state;
 
             t.editor = ed;
-            editClass = ed.getParam("noneditable_editable_class", "mceEditable");
             nonEditClass = ed.getParam("noneditable_noneditable_class", "mceNonEditable");
 
+            //noinspection JSUnusedLocalSymbols,FunctionWithInconsistentReturnsJS,JSUnresolvedVariable
             ed.onNodeChange.addToTop(function(ed, cm, n) {
                 var sc, ec;
 
@@ -75,14 +76,20 @@
                 if (s) {
                     ed.onKeyDown.addToTop(t._block);
                     ed.onKeyPress.addToTop(t._block);
+                    //noinspection JSUnresolvedVariable
                     ed.onKeyUp.addToTop(t._block);
+                    //noinspection JSUnresolvedVariable
                     ed.onPaste.addToTop(t._block);
+                    //noinspection JSUnresolvedVariable
                     ed.onContextMenu.addToTop(t._block);
                 } else {
                     ed.onKeyDown.remove(t._block);
                     ed.onKeyPress.remove(t._block);
+                    //noinspection JSUnresolvedVariable
                     ed.onKeyUp.remove(t._block);
+                    //noinspection JSUnresolvedVariable
                     ed.onPaste.remove(t._block);
+                    //noinspection JSUnresolvedVariable
                     ed.onContextMenu.remove(t._block);
                 }
 
@@ -92,5 +99,6 @@
     });
 
     // Register plugin
+    //noinspection JSUnresolvedVariable
     tinymce.PluginManager.add('noneditable', tinymce.plugins.NonEditablePlugin);
 }());

@@ -7,12 +7,14 @@
 
 
 if (class_exists('EasyLoggerPlus')) {
+    /** @noinspection PhpUndefinedClassInspection */
     class EasyRecipeLogger extends EasyLoggerPlus {
         function __construct($logFile) {
             return EasyLoggerPlus::getInstance($logFile);
         }
     }
 } else if (class_exists('EasyLogger')) {
+    /** @noinspection PhpUndefinedClassInspection */
     class EasyRecipeLogger extends EasyLogger {
         function __construct($logFile) {
             return EasyLogger::getInstance($logFile);
@@ -22,7 +24,8 @@ if (class_exists('EasyLoggerPlus')) {
     class EasyRecipeLogger {
         static private $log;
 
-        static function getInstance($logFile) {
+        static function getInstance(/** @noinspection PhpUnusedParameterInspection */
+            $logFile) {
             if (!isset(self::$log)) {
                 self::$log = new EasyRecipeLogger();
             }
@@ -52,3 +55,4 @@ if (class_exists('EasyLoggerPlus')) {
 
     }
 }
+

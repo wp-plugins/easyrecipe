@@ -1,7 +1,7 @@
 <?php
 
 /*
- Copyright (c) 2010-2012 Box Hill LLC
+ Copyright (c) 2010-2013 Box Hill LLC
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -19,6 +19,17 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 */
 
 
+/**
+ * Class EasyRecipeSettings
+ *
+ * On the first run, we create an instance and use the defaults.
+ * The Plus version reads and merges the Free version's settings (if they exist) and merges them into the Plus defaults
+ *
+ * The entire class is saved to options, and after the first run, the class is directly instantiated by unserializing the options
+ *
+ * TODO - remove "@property" when Gravity Forms implemented
+ * @property mixed gpUseGravity
+ */
 class EasyRecipeSettings {
 
     private static $defaultSettings = array(
@@ -28,6 +39,8 @@ class EasyRecipeSettings {
         'style' => 'style001', 'printStyle' => 'style001',
 
         'customCSS' => '', 'customPrintCSS' => '', 'extraCSS' => '', 'extraPrintCSS' => '',
+
+        'useFeaturedImage' => false,
 
         'displayPrint' => true, 'allowLink' => false, 'convertFractions' => true, 'removeMicroformat' => false,
 
@@ -48,24 +61,42 @@ class EasyRecipeSettings {
         'lblCalories' => 'Calories', 'lblSugar' => 'Sugar', 'lblSodium' => 'Sodium', 'lblFat' => 'Fat', 'lblSatFat' => 'Saturated fat', 'lblUnsatFat' => 'Unsaturated fat',
         'lblTransFat' => 'Trans fat', 'lblCarbs' => 'Carbohydrates', 'lblFiber' => 'Fiber', 'lblProtein' => 'Protein', 'lblCholesterol' => 'Cholesterol', 'lblRateRecipe' => 'Rate this recipe',
 
-        'lblPrint' =>'Print', 'lblSave' =>'Save',
+        'lblHour' => 'hour',
+        'lblHours' => 'hours',
+        'lblMinute' => 'min',
+        'lblMinutes' => 'mins',
 
-        'gpUserID' => 0, 'gpDetailsPage' => 0, 'gpEntryPage' => 0, 'gpThanksPage' => 0, 'gpHideFooter' => true,
+        'lblPrint' => 'Print',
+        'lblSave' => 'Save',
 
-        'erSubscribe' => false, 'erEmailAddress' => '', 'erFirstName' => '',
+        'gpUserID' => 0,
+        'gpDetailsPage' => 0,
+        'gpEntryPage' => 0,
+        'gpThanksPage' => 0,
+        'gpHideFooter' => true,
+
+
+        'lblGPName' => 'Name:',
+        'lblGPEmail' => 'Email:',
+        'lblGPWebsite' => 'Website URL:',
+        'lblGPContinue' => 'Continue',
+        'lblGPPostTitle' => 'Post title:',
+        'lblGPHint' => "Hint: Click on the chef's hat icon to enter the recipe part of your post:",
+        'lblGPMessage' => 'Leave me a private message (not for publication):',
+        'lblGPSubmitPost' => 'Submit Post',
+
+        'erSubscribe' => false,
+        'erEmailAddress' => '',
+        'erFirstName' => '',
 
         'customTemplates' => '',
 
         'forcejQuery' => false,
 
         'enableFooderific' => '',
-
         'fooderificAPIKey' => '',
-
         'lastScanStarted' => 0,
-
         'lastScanFinished' => 0,
-
         'scanDelay' => 3,
 
         'pluginVersion' => '');
@@ -80,6 +111,9 @@ class EasyRecipeSettings {
     public $extraPrintCSS;
     public $displayPrint;
     public $allowLink;
+
+    public $useFeaturedImage;
+
     public $convertFractions;
     public $removeMicroformat;
 //    public $pingMBRB;
@@ -118,11 +152,29 @@ class EasyRecipeSettings {
     public $lblRateRecipe;
     public $lblPrint;
     public $lblSave;
+
+    public $lblHour;
+    public $lblHours;
+    public $lblMinute;
+    public $lblMinutes;
+
     public $gpUserID;
+    public $gpCopyDetails;
+
     public $gpDetailsPage;
     public $gpEntryPage;
     public $gpThanksPage;
     public $gpHideFooter;
+
+    public $lblGPName;
+    public $lblGPEmail;
+    public $lblGPWebsite;
+    public $lblGPContinue;
+    public $lblGPPostTitle;
+    public $lblGPHint;
+    public $lblGPMessage;
+    public $lblGPSubmitPost;
+
     public $erSubscribe;
     public $erEmailAddress;
     public $erFirstName;
@@ -135,10 +187,12 @@ class EasyRecipeSettings {
     public $fooderificAPIKey;
     public $pluginVersion;
 
-    /**
+
+     /**
      * @var EasyRecipeSettings
      */
     private static $instance;
+
 
     /**
      * @static
@@ -207,7 +261,6 @@ class EasyRecipeSettings {
      * Constructor is only ever called from getInstance
      */
     private function __construct() {
-
         foreach (self::$defaultSettings as $setting => $default) {
             $this->{$setting} = $default;
         }
@@ -229,9 +282,10 @@ class EasyRecipeSettings {
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
 //        $data->fdsiteurl = htmlentities($data->wpurl);
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.2.1230';
+        $data->pluginversion = '3.2.1244';
         $data->license = $this->licenseKey;
 
+        $data->useFeaturedImageChecked = $this->useFeaturedImage ? 'checked="checked"' : '';
         $data->displayPrintChecked = $this->displayPrint ? 'checked="checked"' : '';
         $data->allowLinkChecked = $this->allowLink ? 'checked="checked"' : '';
         $data->convertFractionsChecked = $this->convertFractions ? 'checked="checked"' : '';
@@ -377,7 +431,6 @@ class EasyRecipeSettings {
             $data->lastScan = 0;
         } else {
             $data->retrieveclass = '';
-            $tz = date_default_timezone_get();
             $tzOffet = get_option('gmt_offset');
             $data->lastScan = date_i18n("j M y g:ia", $this->lastScanStarted + $tzOffet * 3600);
         }
@@ -386,7 +439,7 @@ class EasyRecipeSettings {
          * We need to preserve whitespace on this template because newlines in the the textareas are significant
         */
 
-        $template = new EasyRecipeTemplate(EasyRecipe::$EasyRecipeDir . "/templates/easyrecipe-settings.html", EasyRecipeTemplate::PAGE, true);
+        $template = new EasyRecipeTemplate(EasyRecipe::$EasyRecipeDir . "/templates/easyrecipe-settings.html");
         $html = $template->replace($data, EasyRecipeTemplate::PRESERVEWHITESPACE);
 
         echo $html;
@@ -418,16 +471,19 @@ class EasyRecipeSettings {
         if (!isset($settings)) {
             return;
         }
+
         foreach (self::$defaultSettings as $key => $value) {
             switch ($key) {
                 case 'displayPrint' :
                 case 'allowLink' :
+                case 'useFeaturedImage' :
                 case 'convertFractions' :
                 case 'removeMicroformat' :
                 case 'enableFooderific' :
                 case 'enableSwoop' :
                 case 'erSubscribe' :
                 case 'gpHideFooter' :
+//                case 'gpUseGravity' :
                 case 'forcejQuery' :
                     $this->$key = isset($settings[$key]);
                     break;
@@ -477,3 +533,4 @@ class EasyRecipeSettings {
 
 
 }
+

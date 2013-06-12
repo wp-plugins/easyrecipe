@@ -1494,7 +1494,7 @@ button.ui-button::-moz-focus-inner {
 }
 
 .easyrecipeUI input[type="text"], .easyrecipeUI textarea {
-    background: none repeat scroll 0 0 #FAFAFA;
+    background: none repeat scroll 0 0 #FFFFFF;
     border: 1px solid #DDDDDD;
     box-shadow: 0 1px 1px rgba(0, 0, 0, 0.1) inset;
 }

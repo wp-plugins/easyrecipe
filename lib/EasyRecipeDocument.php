@@ -1,7 +1,7 @@
 <?php
 
 /*
- Copyright (c) 2010-2012 Box Hill LLC
+ Copyright (c) 2010-2013 Box Hill LLC
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -23,11 +23,12 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     public $isEasyRecipe = false;
     public $recipeVersion = 0;
     public $isFormatted;
-    private $easyrecipeDiv;
-    private $hasFractions = false;
     private $easyrecipes = array();
     private $easyrecipesHTML = array();
-    private $postImage = false;
+
+
+    /** @var EasyRecipeSettings */
+    private $settings;
 
     private $preEasyRecipe;
     private $postEasyRecipe;
@@ -38,13 +39,14 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     const regexImg = '%<img ([^>]*?)/?>%si';
     const regexPhotoClass = '/class\s*=\s*["\'](?:[a-z0-9-_]+ )*?photo[ \'"]/si';
 
-    /*@formatter:off */
-    private $fractions = array(1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'), 2 => array(3 => '&#8532;'), 3 => array(4 => '&frac34;'),
-                               4 => array(5 => '&#8536;'), 5 => array(6 => '&#8538;', 8 => '&#8541;'), 7 => array(8 => '&#8542;'));
 
-    /*
-     * @formatter:on
-    */
+    private $fractions = array(
+        1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'),
+        2 => array(3 => '&#8532;'),
+        3 => array(4 => '&frac34;'),
+        4 => array(5 => '&#8536;'),
+        5 => array(6 => '&#8538;', 8 => '&#8541;'),
+        7 => array(8 => '&#8542;'));
 
     /**
      * If there's an EasyRecipe in the content, load the HTML and pre-process, else just return
@@ -100,6 +102,10 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
          * on the style template having a specific title attribute on the endeasyrecipe div - need to make this more robust
          */
         $this->isFormatted = ($node !== null && $node->hasAttribute('title'));
+    }
+
+    function setSettings(EasyRecipeSettings $settings) {
+        $this->settings = $settings;
     }
 
     /**
@@ -329,6 +335,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         } else {
             $photos = $this->getElementsByTagName("img");
             if ($photos && $photos->length > 0) {
+                /** @noinspection PhpParamsInspection */
                 $this->addClass($photos->item(0), "photo");
             } else {
                 $html = $this->makePhotoClass($this->postEasyRecipe);
@@ -425,8 +432,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         if (!preg_match(self::regexTime, $t, $regs)) {
             return false;
         }
-        $hr = isset($regs[1]) ? (int)$regs[1] : 0;
-        $mn = isset($regs[2]) ? (int)$regs[2] : 0;
+        $hr = isset($regs[1]) ? (int) $regs[1] : 0;
+        $mn = isset($regs[2]) ? (int) $regs[2] : 0;
 
         $shr = $hr > 0 ? $hr . "H" : "";
         $smn = $mn > 0 ? $mn . "M" : "";
@@ -453,6 +460,28 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
             }
         }
         return $photoURL;
+    }
+
+    /**
+     * Translate the time labels to custome labels (if they're different)
+     *
+     * @param $time
+     * @return mixed
+     */
+    private function timeTranslate($time) {
+        if ($this->settings->lblHours != 'hours') {
+            $time = preg_replace('/\bhours\b/', $this->settings->lblHours, $time);
+        }
+        if ($this->settings->lblHour != 'hour') {
+            $time = preg_replace('/\bhour\b/', $this->settings->lblHour, $time);
+        }
+        if ($this->settings->lblMinutes != 'mins') {
+            $time = preg_replace('/\bmins\b/', $this->settings->lblMinutes, $time);
+        }
+        if ($this->settings->lblMinute != 'min') {
+            $time = preg_replace('/\bmin\b/', $this->settings->lblMinute, $time);
+        }
+        return $time;
     }
 
     function extractData($recipe, $data, $nRecipe = 0) {
@@ -485,11 +514,17 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
             $data->totaltime = $this->getElementValueByProperty('time', 'itemprop', 'totalTime');
         }
 
-        $data->preptimeISO = $this->getISOTime($data->preptime);
-        $data->cooktimeISO = $this->getISOTime($data->cooktime);
-        $data->totaltimeISO = $this->getISOTime($data->totaltime);
-        $data->hasTimes = (isset($data->preptime) || isset($data->cooktime) || isset($data->totaltime));
+        $data->hasTimes = (!empty($data->preptime) || !empty($data->cooktime) || !empty($data->totaltime));
 
+        if ($data->hasTimes) {
+            $data->preptimeISO = $this->getISOTime($data->preptime);
+            $data->cooktimeISO = $this->getISOTime($data->cooktime);
+            $data->totaltimeISO = $this->getISOTime($data->totaltime);
+
+            $data->preptime = $this->timeTranslate($data->preptime);
+            $data->cooktime = $this->timeTranslate($data->cooktime);
+            $data->totaltime = $this->timeTranslate($data->totaltime);
+        }
 
         $data->yield = $this->getElementValueByClassName("yield", "span", $recipe);
         $data->summary = $this->getElementValueByClassName("summary", "*", $recipe);
@@ -621,3 +656,4 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         return $this->getHTML(true);
     }
 }
+

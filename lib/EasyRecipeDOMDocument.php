@@ -156,6 +156,11 @@ class EasyRecipeDOMDocument extends DOMDocument {
         return count($result) > 0 ? $result[0] : false;
     }
 
+    /**
+     * @param $node
+     * @param string $tag
+     * @return array
+     */
     public function getChildrenByTagName($node, $tag = "*") {
         $nodes = array();
         for ($child = $node->firstChild; $child; $child = $child->nextSibling) {
