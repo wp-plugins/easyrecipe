@@ -282,7 +282,7 @@ class EasyRecipeSettings {
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
 //        $data->fdsiteurl = htmlentities($data->wpurl);
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.2.1246';
+        $data->pluginversion = '3.2.1249';
         $data->license = $this->licenseKey;
 
         $data->useFeaturedImageChecked = $this->useFeaturedImage ? 'checked="checked"' : '';

@@ -24,7 +24,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1246';
+    private $pluginVersion = '3.2.1249';
 
     private $pluginName = 'EasyRecipe';
 
@@ -529,7 +529,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1246';
+        $data->version = '3.2.1249';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -1079,7 +1079,7 @@ EOD;
                 $q .= "WHERE comment_approved = 1 AND meta_key = 'ERRating' AND comment_post_ID = $post->ID AND meta_value > 0";
                 $ratings = $wpdb->get_row($q);
 
-                if ($ratings->count  > 0) {
+                if ((int)$ratings->count  > 0) {
                     $data->ratingCount = $ratings->count;
                     $data->ratingValue = number_format($ratings->sum / $ratings->count, 1);
                     $data->ratingPC = $data->ratingValue * 100 / 5;
