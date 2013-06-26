@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.3
 Tested up to: 3.5.1
-Stable tag:  3.2.1249
+Stable tag:  3.2.1251
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,6 +78,12 @@ You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1251 =
+* Tested with WP 3.5.2
+* Retain line breaks in Notes
+* Workaround for tinyMCE/Chrome bug that caused notes and some nutrition fields to get dropped after an autosave
+* Better protection from inadvertent delete of recipe data in post edit
+
 = 3.2 Build 1249 =
 * Fix for bad ratings
 
@@ -88,7 +94,6 @@ You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/
 * Added ReciPress conversion
 * Add Get Me Cooking conversion
 * Added custom labels for times
-* Added shortcode to force loading of EasyRecipe css/scripts on pages that don't normally trigger them
 * Workaround for javascript library incompatibility for Bootstrap based themes
 * Improved the efficiency of ratings retrieval
 * Added live Google snippet test (Plus version)
