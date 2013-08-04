@@ -40,3 +40,8 @@ FIXME - move to the standard admin CSS but make specific enough so they override
 .easyrecipeUI .ui-button {
 	padding: 4px !important;
 }
+
+/* Make sure this is underneath the popup */
+.easyrecipeFormatUI .ui-widget-overlay .ui-front {
+    z-index:99;
+}

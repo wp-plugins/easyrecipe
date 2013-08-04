@@ -51,7 +51,7 @@
     left: 0;
     position: absolute;
     opacity: 0;
-    filter: Alpha(Opacity = 0);
+    filter: Alpha(Opacity=0);
 }
 
 /* Interaction Cues
@@ -206,13 +206,13 @@
 
 .easyrecipeUI .ui-priority-secondary, .easyrecipeUI .ui-widget-content .ui-priority-secondary, .ui-widget-header .ui-priority-secondary {
     opacity: .7;
-    filter: Alpha(Opacity = 70);
+    filter: Alpha(Opacity=70);
     font-weight: normal;
 }
 
 .easyrecipeUI .ui-state-disabled, .easyrecipeUI .ui-widget-content .ui-state-disabled, .easyrecipeUI .ui-widget-header .ui-state-disabled {
     opacity: .35;
-    filter: Alpha(Opacity = 35);
+    filter: Alpha(Opacity=35);
     background-image: none;
 }
 
@@ -988,7 +988,7 @@
 .easyrecipeUI .ui-widget-overlay {
     background: #aaaaaa url(images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x;
     opacity: .70;
-    filter: Alpha(Opacity = 70);
+    filter: Alpha(Opacity=70);
 }
 
 .easyrecipeUI .ui-widget-shadow {
@@ -996,7 +996,7 @@
     padding: 8px;
     background: #aaaaaa url(images/ui-bg_flat_0_aaaaaa_40x100.png) 50% 50% repeat-x;
     opacity: .30;
-    filter: Alpha(Opacity = 30);
+    filter: Alpha(Opacity=30);
     -moz-border-radius: 8px;
     -khtml-border-radius: 8px;
     -webkit-border-radius: 8px;
@@ -1529,5 +1529,15 @@ button.ui-button::-moz-focus-inner {
 
 .easyrecipeUI .ui-dialog .ui-dialog-title {
     font-size: 12px;
+}
+
+/* Make sure this is underneath the popup */
+.easyrecipeUI .ui-widget-overlay.ui-front {
+    z-index: 99;
+}
+
+.easyrecipeUI .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close .ui-icon-closethick {
+    left: 0;
+    top: 0;
 }
 

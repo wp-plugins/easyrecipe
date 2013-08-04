@@ -24,7 +24,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1251';
+    private $pluginVersion = '3.2.1255';
 
     private $pluginName = 'EasyRecipe';
 
@@ -529,7 +529,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1251';
+        $data->version = '3.2.1255';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -815,8 +815,7 @@ EOD;
     /*
     * Displays just the recipe and exits
     */
-    private
-    function printRecipe($postID, $recipeIX) {
+    private function printRecipe($postID, $recipeIX) {
         /** @var $wpdb wpdb */
         global $wpdb;
 
