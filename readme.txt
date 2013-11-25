@@ -1,9 +1,9 @@
 === Easy Recipe ===
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
-Requires at least: 3.3
-Tested up to: 3.5.1
-Stable tag:  3.2.1255
+Requires at least: 3.5
+Tested up to: 3.7.1
+Stable tag:  3.2.1263
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,6 +78,13 @@ You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1263 =
+* Tested with WP 3.7.1
+* Added option for extra <head> content on print
+* Fix for "grey overlay" on recipe entry caused by some other plugins (e.g. Easy Rotator)
+* Fix for secure admin URLs
+* Fix for jQuery UI 1.10 differences in Live Formatting
+
 = 3.2 Build 1255 =
 * Workaround for bad "title" shortcode replacement done in some themes
 * Tested with WP 3.6

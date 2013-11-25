@@ -1,1 +1,2 @@
+/*! EasyRecipe  3.2.1263 Copyright (c) 2013 BoxHill LLC */
 (function(a){a(function(){var b;b=EASYRECIPE;a(b.wppSelector).pointer({pointerWidth:b.wppWidth,content:b.wppHTML,position:b.wppPosition,close:function(){a.post(ajaxurl,{pointer:"easyrecipe-fooderific",action:"dismiss-wp-pointer"})}}).pointer("open")})}(jQuery));

@@ -38,7 +38,11 @@ class EasyRecipeSettings {
 
         'style' => 'style001', 'printStyle' => 'style001',
 
-        'customCSS' => '', 'customPrintCSS' => '', 'extraCSS' => '', 'extraPrintCSS' => '',
+        'customCSS' => '',
+        'customPrintCSS' => '',
+        'extraCSS' => '',
+        'extraPrintCSS' => '',
+        'extraPrintHeader'  => '',
 
         'useFeaturedImage' => false,
 
@@ -109,6 +113,7 @@ class EasyRecipeSettings {
     public $customPrintCSS;
     public $extraCSS;
     public $extraPrintCSS;
+    public $extraPrintHeader;
     public $displayPrint;
     public $allowLink;
 
@@ -226,6 +231,7 @@ class EasyRecipeSettings {
             foreach (self::$defaultSettings as $setting => $default) {
                 if (!isset(self::$instance->$setting)) {
                     self::$instance->$setting = $default;
+                    // FIXME - update settings?
                 }
             }
 
@@ -282,7 +288,7 @@ class EasyRecipeSettings {
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
 //        $data->fdsiteurl = htmlentities($data->wpurl);
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.2.1255';
+        $data->pluginversion = '3.2.1263';
         $data->license = $this->licenseKey;
 
         $data->useFeaturedImageChecked = $this->useFeaturedImage ? 'checked="checked"' : '';
@@ -503,6 +509,7 @@ class EasyRecipeSettings {
 
                 case 'extraCSS' :
                 case 'extraPrintCSS' :
+                case 'extraPrintHeader' :
                     $this->$key = trim($settings[$key]);
                     break;
 

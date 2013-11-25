@@ -24,7 +24,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1255';
+    private $pluginVersion = '3.2.1263';
 
     private $pluginName = 'EasyRecipe';
 
@@ -59,17 +59,19 @@ class EasyRecipe {
 
     private $loadJSInFooter = false;
 
+    private $homeURL;
+
 
     function __construct($pluginDir, $pluginURL) {
 
 
-        self::$EasyRecipeDir = $pluginDir;
-        self::$EasyRecipeURL = $pluginURL;
-
-        /*
+        /**
          * For convenience
+         * Fix up HTTP protocol for admin using SSL
          */
-        $this->siteURL = site_url();
+        self::$EasyRecipeDir = $pluginDir;
+        self::$EasyRecipeURL = is_ssl() ? preg_replace('%^http://%i', 'https://', $pluginURL) : $pluginURL;
+
         $this->homeURL = home_url();
 
 
@@ -162,6 +164,7 @@ class EasyRecipe {
 
         $this->settings = EasyRecipeSettings::getInstance();
 
+        new EasyRecipeAutoUpdate($this->pluginVersion, $this->slug, self::VERSIONCHECKURL, $this->settings->licenseKey);
         /**
          * Show the Fooderific admin wp_pointer
          */
@@ -529,7 +532,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1255';
+        $data->version = '3.2.1263';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -881,6 +884,7 @@ EOD;
         $data->recipeurl = get_permalink($post->ID);
 
         $data->customCSS = $this->getCSS('Print');
+        $data->extraPrintHeader = $this->settings->extraPrintHeader;
 
         $data->easyrecipeURL = self::$EasyRecipeURL;
 
@@ -994,7 +998,8 @@ EOD;
 
             case 'diagnostics' :
                 if (current_user_can('administrator')) {
-                    $this->diagnosticsShowData();
+                    $diagnostics = new EasyRecipeDiagnostics();
+                    $diagnostics->show();
                 }
                 break;
 
@@ -1003,6 +1008,9 @@ EOD;
 
 
     /**
+     * Process any EasyRecipes in all the posts on the page
+     * We need to do this here rather than in the_content hook because by then it's too late to queue up the scripts/styles we'll need
+     *
      * @param $posts
      * @return array
      */
@@ -1124,7 +1132,6 @@ EOD;
             /**
              * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
              * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
-
              */
             $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
             /**
@@ -1149,6 +1156,7 @@ EOD;
         global $allowedposttags;
 
         $post = get_post($postID);
+
         if (strpos($post->post_content, 'easyrecipe') !== false) {
             $allowedposttags['time'] = array('itemprop' => true, 'datetime' => true);
             $allowedposttags['link'] = array('itemprop' => true, 'href' => true);
@@ -1281,28 +1289,6 @@ EOD;
             $result->errors = array("Unknown error");
         }
         echo json_encode($result);
-        exit();
-    }
-
-    /**
-     * Display a page showing what diagnostics data will be sent
-     */
-    function diagnosticsShowData() {
-        $diagnostics = new EasyRecipeDiagnostics();
-        $data = $diagnostics->get();
-
-        $data->easyrecipeURL = self::$EasyRecipeURL;
-        $data->version = $this->pluginVersion;
-
-        $settings = EasyRecipeSettings::getInstance();
-        $data->ERSettings = print_r($settings, true);
-
-        $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-diagnostics.html");
-        $html = $template->replace($data, EasyRecipeTemplate::PRESERVEWHITESPACE);
-
-        header("HTTP/1.1 200 OK");
-        echo $html;
-
         exit();
     }
 

@@ -289,7 +289,6 @@
                         <th scope="row"><span class="xlate"><em>Sodium</em> label</span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblSodium]" value="#lblSodium#"/></td>
                     </tr>
-
                 </table>
             </td>
             <td>
@@ -302,7 +301,6 @@
                         <th scope="row"><span class="xlate"><em>Saturated fat</em> label</span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblSatFat]" value="#lblSatFat#"/></td>
                     </tr>
-
                     <tr>
                         <th scope="row"><em>Unsaturated fat</em> label</th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblUnsatFat]" value="#lblUnsatFat#"/></td>
@@ -339,8 +337,6 @@
                         <th scope="row"><span class="xlate"><em>Save</em> label</span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblSave]" value="#lblSave#"/></td>
                     </tr>
-
-
                     <tr>
                         <th scope="row"><span class="xlate"><em>Hour</em></span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblHour]" value="#lblHour#"/></td>
@@ -357,7 +353,6 @@
                         <th scope="row"><span class="xlate"><em>Minutes</em></span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblMinutes]" value="#lblMinutes#"/></td>
                     </tr>
-
                 </table>
             </td>
         </tr>
@@ -535,7 +530,7 @@
         <span class="xlate">Guest posters don't have to register or login</span>. <a href="http://www.easyrecipeplugin.com/guest-posts.php" target="_blank">Learn more...</a></div>
     <div>
         <!-- START INCLUDEIF isPlus -->
-#guestpostsettings#
+        #guestpostsettings#
         <!-- END INCLUDEIF isPlus -->
         <!-- START INCLUDEIF !isPlus -->
         <div class="ERSPlusFeature">
@@ -555,31 +550,40 @@
         <div id="divERSImportFormats">
             <label>
                 <input type="radio" name="rbERSImportSource" value="paprika"/>
-                Paprika - single recipe <em>(.paprikarecipe)</em></label><br/>
+                Paprika - single recipe <em>(.paprikarecipe)</em></label>
+            <br/>
             <label>
                 <input type="radio" name="rbERSImportSource" value="paprikas"/>
-                Paprika - multiple recipes <em>(.paprikarecipes)</em></label><br/>
+                Paprika - multiple recipes <em>(.paprikarecipes)</em></label>
+            <br/>
             <label>
                 <input type="radio" name="rbERSImportSource" value="cookn"/>
-                Cook'n v10 <em>(.html)</em></label><br/>
+                Cook'n v10 <em>(.html)</em></label>
+            <br/>
             <label>
                 <input type="radio" name="rbERSImportSource" value="macgourmet"/>
-                MacGourmet <em>(.mgourmet3)</em></label><br/>
+                MacGourmet <em>(.mgourmet3)</em></label>
+            <br/>
             <label>
                 <input type="radio" name="rbERSImportSource" value="yummysoup"/>
-                Yummy Soup <em>(.xml)</em></label><br/>
+                Yummy Soup <em>(.xml)</em></label>
+            <br/>
             <label>
                 <input type="radio" name="rbERSImportSource" value="mastercook"/>
-                MasterCook <em>(.mx2)</em></label><br/>
+                MasterCook <em>(.mx2)</em></label>
+            <br/>
             <label>
                 <input type="radio" name="rbERSImportSource" value="mastercookmxp"/>
-                MasterCook <em>(.mxp)</em></label><br/>
+                MasterCook <em>(.mxp)</em></label>
+            <br/>
             <label>
                 <input type="radio" name="rbERSImportSource" value="mealmaster"/>
-                Meal-Master <em>(.mmf)</em></label><br/>
+                Meal-Master <em>(.mmf)</em></label>
+            <br/>
             <label>
                 <input type="radio" name="rbERSImportSource" value="cookbookwiz"/>
-                Cookbook Wizard for Windows <em>(.txt)</em></label><br/>
+                Cookbook Wizard for Windows <em>(.txt)</em></label>
+            <br/>
         </div>
     </div>
     <!-- START INCLUDEIF !isPlus -->
@@ -661,8 +665,8 @@
         <span class="ERSExplain xlate">This attempts to fix problems caused by badly behaved themes and plugins. <a href="http://www.easyrecipeplugin.com/load_jquery.php" target="_blank">More information...</a></span></div>
     <div id="divERSCustomTemplates">
         <label><span class="xlate">Custom styles template directory</span><br/>
-            <span class="ERSExplain xlate">The directory where your custom templates are stored. It MUST NOT be writable by the web server process. <a href="http://www.easyrecipeplugin.com/custom-styles.php" target="_blank">More
-                information...</a></span><br/>
+              <span class="ERSExplain xlate">The directory where your custom templates are stored. It MUST NOT be writable by the web server process. <a href="http://www.easyrecipeplugin.com/custom-styles.php" target="_blank">More
+                  information...</a></span><br/>
             <!-- START INCLUDEIF isPlus -->
             <input class="ERSTextField" type="text" name="#settingsname#[customTemplates]" value="#customTemplates#"/>
             <!-- END INCLUDEIF isPlus -->
@@ -674,19 +678,22 @@
     </div>
     <div id="divERSExtraCSS">
         <div><span class="xlate">Extra CSS</span><br/>
-            <span class="ERSExplain xlate">Most formatting can be done by using styles and <a href="http://www.easyrecipeplugin.com/support/live-formatting/" target="_blank">Live Formatting</a> but you can add extra display CSS here if needed.</span>
-        </div>
-        <div>
-            <textarea name="#settingsname#[extraCSS]">#extraCSS#</textarea>
+            <span class="ERSExplain xlate">Most formatting can be done by using styles and <a href="http://www.easyrecipeplugin.com/support/live-formatting/" target="_blank">Live Formatting</a> but you can add extra display CSS here if needed.</span>/div>
+            <div>
+                <textarea name="#settingsname#[extraCSS]">#extraCSS#</textarea>
+            </div>
         </div>
     </div>
     <div id="divERSExtraPrintCSS">
         <div><span class="xlate">Extra Print CSS</span><br/>
             <span class="ERSExplain xlate">Most formatting can be done by using styles and <a href="http://www.easyrecipeplugin.com/support/live-formatting/" target="_blank">Live Formatting</a> but you can add extra print CSS here if needed</span>
         </div>
-        <div>
-            <textarea name="#settingsname#[extraPrintCSS]">#extraPrintCSS#</textarea>
-        </div>
+        <textarea name="#settingsname#[extraPrintCSS]">#extraPrintCSS#</textarea>
+    </div>
+    <div id="divERSPrintHeader">
+        <div><span class="xlate">Print Page &lt;head&gt; code</span><br/>
+            <span class="ERSExplain xlate">EasyRecipe generates a page for print that has a minimum of &lt;head&gt; code. If you need to add code to the &lt;head&gt; section on each Print Page, add it here</span></div>
+        <textarea name="#settingsname#[extraPrintHeader]">#extraPrintHeader#</textarea>
     </div>
 </div>
 <div id="divERSSave">

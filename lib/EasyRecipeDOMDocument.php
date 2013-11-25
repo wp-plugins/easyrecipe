@@ -1,8 +1,15 @@
 <?php
-/*
-Copyright (c) 2010-2012 Box Hill LLC
-*/
+/**
+ * Copyright (c) 2010-2013 Box Hill LLC
+ *
+ * All Rights Reserved
+ * No part of this software may be reproduced, copied, modified or adapted, without the prior written consent of Box Hill LLC.
+ * Commercial use and distribution of any part of this software is not allowed without express and prior written consent of Box Hill LLC.
+ */
 
+/**
+ * Class EasyRecipeDOMDocument
+ */
 class EasyRecipeDOMDocument extends DOMDocument {
     private $isValidHTML = false;
 
@@ -374,3 +381,4 @@ class EasyRecipeDOMDocument extends DOMDocument {
         echo "</pre>\n";
     }
 }
+

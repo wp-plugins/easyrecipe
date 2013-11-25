@@ -1,7 +1,11 @@
 <?php
-/*
-Copyright (c) 2010-2012 Box Hill LLC
-*/
+/**
+ * Copyright (c) 2010-2013 Box Hill LLC
+ *
+ * All Rights Reserved
+ * No part of this software may be reproduced, copied, modified or adapted, without the prior written consent of Box Hill LLC.
+ * Commercial use and distribution of any part of this software is not allowed without express and prior written consent of Box Hill LLC.
+ */
 
 /** @noinspection PhpInconsistentReturnPointsInspection */
 class EasyRecipeTemplate {
@@ -180,7 +184,7 @@ class EasyRecipeTemplate {
              */
             if ($firstPosition == strlen($inText)) {
                 $this->opText .= substr($inText, $currentPosition);
-                if (!self::$translate || !class_exists('EasyDOMDocument')) {
+                if (!self::$translate || !class_exists('EasyRecipeDOMDocument')) {
                     return $this->cleanWhitespace($this->opText, $options);
                 }
                 $doc = new EasyRecipeDOMDocument($this->opText, true);

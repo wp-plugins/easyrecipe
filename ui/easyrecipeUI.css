@@ -1532,8 +1532,9 @@ button.ui-button::-moz-focus-inner {
 }
 
 /* Make sure this is underneath the popup */
+/* Some fuckwits (e.g. Easy Rotator) globally change ui-front with !important - we need to override that */
 .easyrecipeUI .ui-widget-overlay.ui-front {
-    z-index: 99;
+    z-index: 99!important;
 }
 
 .easyrecipeUI .ui-dialog .ui-dialog-titlebar .ui-dialog-titlebar-close .ui-icon-closethick {

@@ -1,0 +1,115 @@
+<?php
+/**
+ * Copyright (c) 2010-2013 Box Hill LLC
+ *
+ * All Rights Reserved
+ * No part of this software may be reproduced, copied, modified or adapted, without the prior written consent of Box Hill LLC.
+ * Commercial use and distribution of any part of this software is not allowed without express and prior written consent of Box Hill LLC.
+ */
+
+
+/**
+ * Class EasyRecipeAutoUpdate
+ *
+ * Code to do plugin update checks
+ */
+
+class EasyRecipeAutoUpdate {
+
+    private $slug;
+    private $version;
+    private $updateURL;
+    private $licenseKey;
+
+    function __construct($version, $slug, $updateURL, $licenseKey = '') {
+        $this->licenseKey = $licenseKey;
+        $this->slug = $slug;
+        $this->updateURL = $updateURL;
+        $this->version = $version;
+
+        add_filter('pre_set_site_transient_update_plugins', array($this, 'checkUpdate'));
+        add_filter('plugins_api', array($this, 'checkInfo'), 10, 3);
+        /**
+         * Need to concatenate the strings below because the phing token replacement croaks on 4 underscores
+         */
+        add_action('update-custom_' . 'easyrecipe-update', array($this, 'forceUpdate'));
+
+    }
+
+
+    public function forceUpdate() {
+        /** @global  $wpdb wpdb */
+        global $wpdb;
+
+        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name = '_site_transient_update_plugins'");
+
+        $nonce = wp_create_nonce("upgrade-plugin_$this->slug.php");
+
+        $url = get_bloginfo('wpurl') . "/wp-admin/update.php?action=upgrade-plugin&plugin=$this->slug.php&_wpnonce=$nonce";
+
+        header("Location: $url");
+        exit;
+    }
+
+    /**
+     * Gets data from the update server
+     *
+     * @param string $action
+     * @return bool|object
+     */
+    private function getData($action) {
+        $args = array();
+        $args['k'] = $this->licenseKey;
+        $args['a'] = $action;
+        $args['v'] = $this->version;
+        $args['s'] = $this->slug;
+        $args['u'] = get_bloginfo("wpurl");
+        $args['p'] = 0;
+        $request = wp_remote_post($this->updateURL, array('body' => $args));
+        if (is_wp_error($request) || wp_remote_retrieve_response_code($request) != 200) {
+            return false;
+        }
+        $response = unserialize(wp_remote_retrieve_body($request));
+        return is_object($response) ? $response : false;
+    }
+
+    /**
+     * Get the latest version details
+     *
+     * @param object $transient
+     * @return object
+     */
+    public function checkUpdate($transient) {
+        if (empty($transient->checked)) {
+            return $transient;
+        }
+
+        /**
+         * Get the data - returns false if the installed version is not less than the current version
+         */
+        $response = $this->getData('vcheck');
+
+        if ($response !== false) {
+            $transient->response[$this->slug . '.php'] = $response;
+        }
+        return $transient;
+    }
+
+    /**
+     * Get the latest plugin info
+     *
+     * @param boolean $value
+     * @param array $action
+     * @param object $args
+     * @return bool|object
+     */
+    public function checkInfo(/** @noinspection PhpUnusedParameterInspection */
+        $value, $action, $args) {
+        if (!empty($args->slug) && $args->slug == $this->slug) {
+            $information = $this->getData('info');
+            return $information;
+        }
+        return $value;
+    }
+
+}

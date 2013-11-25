@@ -3,6 +3,7 @@
  * Handles conversions from other plugins
  */
 
+
 class EasyRecipeConvert {
 
     private function yumprintTime($time) {
