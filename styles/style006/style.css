@@ -24,6 +24,10 @@ div.easyrecipe {
 	font-size: 18px;
 	margin-bottom: 12px;
 }
+
+.easyrecipe .ERSRHS .ERSSavePrint a {
+    z-index: 9;
+}
 .easyrecipe .ERSRHS .ERSNutritionBox {
 	font-family: "Trebuchet MS", Arial, Helvetica, sans-serif;
 	border: 1px solid #ccc;

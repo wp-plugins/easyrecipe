@@ -111,9 +111,17 @@ class EasyRecipeDOMDocument extends DOMDocument {
         return count($nodes) > 0 ? $nodes[0] : null;
     }
 
-    public function getElementsByProperty($tag, $propertyName, $propertyValue) {
-        $nodes = $this->getElementsByTagName($tag);
+    /**
+     * @param $tag
+     * @param $propertyName
+     * @param $propertyValue
+     * @param DOMDocument $node
+     * @return array
+     */
+    public function getElementsByProperty($tag, $propertyName, $propertyValue, $node = null) {
+        $nodes = $node == null ? $this->getElementsByTagName($tag) : $node->getElementsByTagName($tag);
         $result = array();
+        /** @var DOMElement $node */
         foreach ($nodes as $node) {
             if ($node->hasAttribute($propertyName)) {
                 if ($node->getAttribute($propertyName) == $propertyValue) {
@@ -124,17 +132,17 @@ class EasyRecipeDOMDocument extends DOMDocument {
         return $result;
     }
 
-    public function getElementValuesByProperty($tag, $propertyName, $propertyValue) {
+    public function getElementValuesByProperty($tag, $propertyName, $propertyValue, $node = null) {
         $result = array();
-        $nodes = $this->getElementsByProperty($tag, $propertyName, $propertyValue);
+        $nodes = $this->getElementsByProperty($tag, $propertyName, $propertyValue, $node);
         foreach ($nodes as $node) {
             $result[] = $this->innerHTML($node);
         }
         return $result;
     }
 
-    public function getElementValueByProperty($tag, $propertyName, $propertyValue) {
-        $result = $this->getElementValuesByProperty($tag, $propertyName, $propertyValue);
+    public function getElementValueByProperty($tag, $propertyName, $propertyValue, $node = null) {
+        $result = $this->getElementValuesByProperty($tag, $propertyName, $propertyValue, $node);
         return count($result) > 0 ? $result[0] : null;
     }
 

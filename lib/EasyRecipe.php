@@ -24,7 +24,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1263';
+    private $pluginVersion = '3.2.1269';
 
     private $pluginName = 'EasyRecipe';
 
@@ -532,7 +532,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1263';
+        $data->version = '3.2.1269';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -991,7 +991,7 @@ EOD;
 
         switch ($regs[1]) {
             case 'print' :
-                if (preg_match('/^([\d]+)-([\d+])$/', $regs[2], $regs)) {
+                if (preg_match('/^(\d+)-(\d+)$/', $regs[2], $regs)) {
                     $this->printRecipe($regs[1], $regs[2]);
                 }
                 break;
@@ -1006,6 +1006,15 @@ EOD;
         }
     }
 
+
+    /**
+     * Do any [br] shortcode replacement here (after wpauto()) so we get around the complete hash that function makes of multiple line breaks
+     * @param $content
+     * @return mixed
+     */
+    function theContent($content) {
+        return str_replace("[br]", "<br />", $content);
+    }
 
     /**
      * Process any EasyRecipes in all the posts on the page
@@ -1043,6 +1052,15 @@ EOD;
             if (!$postDOM->isEasyRecipe) {
                 $newPosts[] = $post;
                 continue;
+            }
+
+            /**
+             * If we haven't already done so, hook into the_content to do [br] replacements
+             * We can't do it when we process the other shortcodes because the horribly broken wpautop() function stuffs up double line breaks very badly
+             * It also has to be way late in the filter chain so the chance of wpauto getting called after our hook is minimal
+             */
+            if (!has_filter('the_content', array($this, 'theContent'))) {
+                add_filter('the_content', array($this, 'theContent'), 32767);
             }
 
             $postDOM->setSettings($this->settings);
@@ -1135,6 +1153,7 @@ EOD;
              */
             $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
             /**
+
              * Some themes do a get_post() again instead of using the posts as modified by plugins
              * So make sure our modified post is in cache so the get_post() picks up the modified version not the original
              * Need to do both add and replace since add doesn't replace and replace doesn't add and we can't be sure if the cache key exists at this point
@@ -1156,7 +1175,6 @@ EOD;
         global $allowedposttags;
 
         $post = get_post($postID);
-
         if (strpos($post->post_content, 'easyrecipe') !== false) {
             $allowedposttags['time'] = array('itemprop' => true, 'datetime' => true);
             $allowedposttags['link'] = array('itemprop' => true, 'href' => true);

@@ -43,7 +43,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     private $fractions = array(
         1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'),
         2 => array(3 => '&#8532;'),
-        3 => array(4 => '&frac34;'),
+        3 => array(4 => '&frac34;', 8 => '&#8540;'),
         4 => array(5 => '&#8536;'),
         5 => array(6 => '&#8538;', 8 => '&#8541;'),
         7 => array(8 => '&#8542;'));
@@ -190,9 +190,10 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         /**
          * Handle our own shortcodes because Wordpress's braindead implementation can't handle consecutive shortcodes (!)
          *
-         * Do a simple string replace for breaks
+         * The [br] shortcode has to be handled later otherwise wpauto() will generate invalid HTML and completely mess it up
+         * See the "the_content" hook in EasyRecipe.php
          */
-        $html = str_replace("[br]", "<br />", $html);
+        // $html = str_replace("[br]", "<br />", $html);
 
         /**
          * There's probably a really smart regex that could handle everything at once but
@@ -509,9 +510,9 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
             $data->cooktime = $this->getElementValueByClassName("cooktime", "span", $recipe);
             $data->totaltime = $this->getElementValueByClassName("duration", "span", $recipe);
         } else {
-            $data->preptime = $this->getElementValueByProperty('time', 'itemprop', 'prepTime');
-            $data->cooktime = $this->getElementValueByProperty('time', 'itemprop', 'cookTime');
-            $data->totaltime = $this->getElementValueByProperty('time', 'itemprop', 'totalTime');
+            $data->preptime = $this->getElementValueByProperty('time', 'itemprop', 'prepTime', $recipe);
+            $data->cooktime = $this->getElementValueByProperty('time', 'itemprop', 'cookTime', $recipe);
+            $data->totaltime = $this->getElementValueByProperty('time', 'itemprop', 'totalTime', $recipe);
         }
 
         $data->hasTimes = (!empty($data->preptime) || !empty($data->cooktime) || !empty($data->totaltime));

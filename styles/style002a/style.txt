@@ -10,6 +10,11 @@ Formatting: [\
 {"section":"Times","target":".easyrecipe .ERSTimes","type":"font"},\
 {"section":"Time Item","target":".easyrecipe .ERSTimes .ERSTimeItem","type":"font"},\
 {"section":"Summary","target":".easyrecipe .ERSSummary","type":"font"},\
+{"section":"Author","target":".easyrecipe .ERSAuthor","type":"font"},\
+{"section":"Recipe type","target":".easyrecipe .ERSCategory","type":"font"},\
+{"section":"Cuisine","target":".easyrecipe .ERSCuisine","type":"font"},\
+{"section":"Yield","target":".easyrecipe .ERSServes","type":"font"},\
+{"section":"Summary","target":".easyrecipe .ERSSummary","type":"font"},\
 {"section":"Print Button","target":".easyrecipe .ERSPrintBtnSpan .ERSPrintBtn","type":"button"},\
 {"section":"Save Button","target":".easyrecipe .ERSSaveBtnSpan .ERSSaveBtn","type":"button"},\
 {"section":"Ingredients Heading","target":".easyrecipe .ERSIngredientsHeader","type":"font"},\

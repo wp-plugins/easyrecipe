@@ -42,11 +42,13 @@ class EasyRecipeDiagnostics {
         $data->settings = EasyRecipeSettings::getInstance();
 
         /**
-         * Don't send any settings that we really have no business knowing
+         * Don't send any settings (passwords etc) that we really have no business knowing
          */
-        foreach ($data->settings->privateSettings as $privateSetting) {
-            if (isset($data->settings->$privateSetting)) {
-                unset($data->settings->$privateSetting);
+        if (isset($data->settings->privateSettings)) {
+            foreach ($data->settings->privateSettings as $privateSetting) {
+                if (isset($data->settings->$privateSetting)) {
+                    unset($data->settings->$privateSetting);
+                }
             }
         }
         unset($data->settings->privateSettings);
@@ -130,13 +132,13 @@ EOD;
         $data = $this->get();
 
         $data->pluginURL = $vars['EasyRecipeURL'];
-        $data->version = '3.2.1263';
+        $data->version = '3.2.1269';
         $data->pluginname = 'easyrecipe';
 
         $data->settings = print_r($data->settings, true);
         $templateText = $this->getTemplate();
 
-        $template = new EasyRecipeTemplate($templateText,EasyRecipeTemplate::TEXT);
+        $template = new EasyRecipeTemplate($templateText, EasyRecipeTemplate::TEXT);
         $html = $template->replace($data, EasyRecipeTemplate::PRESERVEWHITESPACE);
 
         $level = ob_get_level();

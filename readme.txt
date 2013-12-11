@@ -2,8 +2,8 @@
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.5
-Tested up to: 3.7.1
-Stable tag:  3.2.1263
+Tested up to: 3.8
+Stable tag:  3.2.1269
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,6 +78,18 @@ You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1269 =
+* Tested with WP 3.8
+* Workaround for WP bug that generates invalid HTML for multiple line breaks
+* Recipe editor now recognises post thumbnails (featured image)
+* Added Author, Recipe type, Cuisine and Yield to Live Formatting on Tastefully Simple styles
+* Fixed PHP warning on diagnostics
+* Confirm when closing a recipe entry popup withoput saving
+* Fix for popups opening behind some themes' elements
+* Fixed incompatiblity with Pinterest Pin It for Images plugin that disabled Print and Save buttons
+* Convert 3/8 to HTML enitity fraction
+* Clean up 16 pixel chef icon
+
 = 3.2 Build 1263 =
 * Tested with WP 3.7.1
 * Added option for extra <head> content on print
