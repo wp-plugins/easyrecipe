@@ -163,6 +163,7 @@ class EasyRecipeDOMDocument extends DOMDocument {
     public function getElementAttributeByClassName($className, $attributeName, $tag = "*", $node = null) {
         $nodes = $this->getElementsByClassName($className, $tag, $node);
         $result = array();
+        /** @var DOMElement $node */
         foreach ($nodes as $node) {
             if (($attributeValue = $node->getAttribute($attributeName)) != '') {
                 $result[] = $attributeValue;

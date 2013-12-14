@@ -16,14 +16,14 @@
 
 class EasyRecipeAutoUpdate {
 
-    private $slug;
+    private $slug = 'easyrecipe/easyrecipe';
     private $version;
     private $updateURL;
     private $licenseKey;
 
-    function __construct($version, $slug, $updateURL, $licenseKey = '') {
+
+    function __construct($version, $updateURL, $licenseKey = '') {
         $this->licenseKey = $licenseKey;
-        $this->slug = $slug;
         $this->updateURL = $updateURL;
         $this->version = $version;
 
@@ -36,6 +36,28 @@ class EasyRecipeAutoUpdate {
 
     }
 
+    /**
+     * Add a hook to check for the existence of a license key on plugin update
+     * Not necessarily called by all plugins that use AutoUpdate
+     */
+    public function upgradeHook() {
+        add_filter('upgrader_pre_download', array($this, 'checkLicense'), 1, 2);
+    }
+
+    /**
+     * Check for the existence of a license key. (not its validity)
+     * A common problem is that users don't enter their license key and get a cryptic error on the download failure
+     */
+    public function checkLicense($value, $package) {
+        /**
+         * We are only interested in our specific plugin when there's no license key
+         */
+
+        if (strpos($package, 'easyrecipe.zip') !== false && empty($this->licenseKey)) {
+            $value = new WP_Error('noeasyrecipelicense', __('You must enter your license key to update'));
+        }
+        return $value;
+    }
 
     public function forceUpdate() {
         /** @global  $wpdb wpdb */

@@ -24,11 +24,9 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1269';
+    private $pluginVersion = '3.2.1271';
 
     private $pluginName = 'EasyRecipe';
-
-    private $slug = 'easyrecipe/easyrecipe';
 
     const JQUERYJS = "https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js";
     const JQUERYUIJS = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js";
@@ -164,7 +162,17 @@ class EasyRecipe {
 
         $this->settings = EasyRecipeSettings::getInstance();
 
-        new EasyRecipeAutoUpdate($this->pluginVersion, $this->slug, self::VERSIONCHECKURL, $this->settings->licenseKey);
+        /**
+         * Don't need update_plugin capability to just check for a new update
+         */
+        $autoUpdate = new EasyRecipeAutoUpdate($this->pluginVersion, self::VERSIONCHECKURL, $this->settings->licenseKey);
+
+        /**
+         * But no need to hook into the license check if the user can't update
+         */
+        if (current_user_can('update_plugins')) {
+            $autoUpdate->upgradeHook();
+        }
         /**
          * Show the Fooderific admin wp_pointer
          */
@@ -532,7 +540,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1269';
+        $data->version = '3.2.1271';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -1149,11 +1157,11 @@ EOD;
 
             /**
              * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
+
              * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
              */
             $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
             /**
-
              * Some themes do a get_post() again instead of using the posts as modified by plugins
              * So make sure our modified post is in cache so the get_post() picks up the modified version not the original
              * Need to do both add and replace since add doesn't replace and replace doesn't add and we can't be sure if the cache key exists at this point

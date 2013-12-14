@@ -132,7 +132,7 @@ EOD;
         $data = $this->get();
 
         $data->pluginURL = $vars['EasyRecipeURL'];
-        $data->version = '3.2.1269';
+        $data->version = '3.2.1271';
         $data->pluginname = 'easyrecipe';
 
         $data->settings = print_r($data->settings, true);
