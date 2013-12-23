@@ -15,6 +15,8 @@
  */
 class EasyRecipeDiagnostics {
 
+    private $diagnosticsVersion = 2;
+
     /**
      * Gets details about the site and installed plugins etc
      *
@@ -24,9 +26,11 @@ class EasyRecipeDiagnostics {
         global $wp_version;
 
         $data = new stdClass();
-        /*
-        * Get the php info
-        */
+
+        $data->diagnosticsVersion = $this->diagnosticsVersion;
+        /**
+         * Get the php info
+         */
         $existingOP = ob_get_clean();
         ob_start();
         phpinfo();
@@ -35,9 +39,9 @@ class EasyRecipeDiagnostics {
         preg_match('%<body>(.*)</body>%si', $phpinfo, $regs);
         $data->phpinfo = $regs[1];
 
-        /*
-        * Get our own settings. This is the same for all Easy Plugins and individualised by the build processs
-        */
+        /**
+         * Get our own settings. This is the same for all Easy Plugins and individualised by the build processs
+         */
         /** @noinspection PhpUndefinedClassInspection */
         $data->settings = EasyRecipeSettings::getInstance();
 
@@ -132,7 +136,7 @@ EOD;
         $data = $this->get();
 
         $data->pluginURL = $vars['EasyRecipeURL'];
-        $data->version = '3.2.1271';
+        $data->version = '3.2.1272';
         $data->pluginname = 'easyrecipe';
 
         $data->settings = print_r($data->settings, true);
@@ -163,6 +167,7 @@ EOD;
         $data->problem = stripslashes($_POST['problem']);
         if (isset($_POST['diagnostics'])) {
             $data->vars = $this->get();
+            $data->settings = print_r($data->settings, true);
         } else {
             $diags = new stdClass();
             $diags->phpinfo = print_r($_POST, true);

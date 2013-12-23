@@ -573,8 +573,10 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
                 $section->INGREDIENTS[] = $item;
             }
         }
-        // TODO what if NO ingredients
-        $data->INGREDIENTSECTIONS[] = $section;
+        $data->hasIngredients = count($ingredientsLists) > 0;
+        if ($data->hasIngredients) {
+            $data->INGREDIENTSECTIONS[] = $section;
+        }
 
         $data->INSTRUCTIONSTEPS = array();
         $section = null;
@@ -601,8 +603,11 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
                 $section->INSTRUCTIONS[] = $item;
             }
         }
-        // FIXME - allow for NO instructions
-        $data->INSTRUCTIONSTEPS[] = $section;
+
+        $data->hasInstructions= $section != null;
+        if ($data->hasInstructions) {
+            $data->INSTRUCTIONSTEPS[] = $section;
+        }
 
         return $data;
     }

@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.5
 Tested up to: 3.8
-Stable tag:  3.2.1271
+Stable tag:  3.2.1272
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,6 +78,17 @@ You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1272 =
+* Enhancement: Cleaner display of settings page
+* Enhancement: Add EasyRecipe button on text editor toolbar
+* Enhancement: Add option to filter non-display items from excerpts
+* Enhancement: Suppress empty Ingredient and Instruction sections
+* Bug fix: Error popups not being displayed on top
+* Bug fix: Diagnostics sent to support did not include settings
+* Bug fix: Style setting was lost when saved from Live Formatting and permalinks aren't used
+* Bug fix: Fractions not converted to HTML entities on print
+* Bug fix: Display diagnostics data when no permalinks on Windows servers
+
 = 3.2 Build 1271 =
 * Bug fix: Recipe entry:  Image insertion and save messed up by featured images
 

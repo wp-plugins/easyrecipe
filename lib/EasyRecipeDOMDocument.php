@@ -47,6 +47,12 @@ class EasyRecipeDOMDocument extends DOMDocument {
         return false;
     }
 
+    /**
+     * Removes class $class from $element
+     *
+     * @param DOMElement $element
+     * @param string $class
+     */
     public function removeClass($element, $class) {
         $newClass = trim(preg_replace("/ *(?:$class)/i", '', $element->getAttribute('class')));
         if ($newClass != '') {
@@ -54,6 +60,26 @@ class EasyRecipeDOMDocument extends DOMDocument {
         } else {
             $element->removeAttribute('class');
         }
+    }
+
+    /**
+     * Removes elements that have class $className
+     *
+     * @param string $className
+     * @param string $tag
+     * @param DOMNode $node
+     */
+    public function removeElementsByClassName($className, $tag = '*', $node = null) {
+
+        if ($node == null) {
+            $node = $this;
+        }
+        $elements = $node->getElementsByClassName($className, $tag);
+        /** @var DOMNode $element */
+        foreach ($elements as $element) {
+            $element->parentNode->removeChild($element);
+        }
+
     }
 
     public function innerHTML($node) {

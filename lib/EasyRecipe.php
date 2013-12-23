@@ -24,7 +24,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1271';
+    private $pluginVersion = '3.2.1272';
 
     private $pluginName = 'EasyRecipe';
 
@@ -59,6 +59,7 @@ class EasyRecipe {
 
     private $homeURL;
 
+    private $filterExcerpt;
 
     function __construct($pluginDir, $pluginURL) {
 
@@ -101,6 +102,7 @@ class EasyRecipe {
         add_action('admin_menu', array($this, 'addMenus'));
         add_action('admin_init', array($this, 'initialiseAdmin'));
         add_action('init', array($this, 'initialise'));
+
 
 
         /**
@@ -207,6 +209,13 @@ class EasyRecipe {
         add_action('wp_enqueue_scripts', array($this, 'enqueueScripts'));
 
         /**
+         * IF we are filtering out non-display stuff in excerpts, hook into the excerpt stuff
+         */
+        if ($this->settings->filterExcerpts) {
+            add_filter('get_the_excerpt', array($this, 'theExcerpt'), 1);
+        }
+
+        /**
          * If this is one of our non-existent pages (print, diagnostics or custom styles) hook in early so 404 handlers don't stuff it up
          */
         if (preg_match('%/easyrecipe-(print|diagnostics|style|printstyle)(?:/([^?/]+))?%', $_SERVER['REQUEST_URI'])) {
@@ -275,9 +284,10 @@ EOD;
     function loadSettingsPage() {
         wp_enqueue_style("easyrecipe-UI");
         wp_enqueue_style("easyrecipe-settings", self::$EasyRecipeURL . "/css/easyrecipe-settings.css", array('easyrecipe-UI'), $this->pluginVersion);
-
+        wp_enqueue_style("thickbox");
+        wp_enqueue_script('thickbox');
         wp_enqueue_script('easyrecipe-settings', self::$EasyRecipeURL . "/js/easyrecipe-settings.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs',
-            'jquery-ui-button'), $this->pluginVersion, true);
+                'jquery-ui-button','thickbox'), $this->pluginVersion, true);
 
 
         $this->settings = EasyRecipeSettings::getInstance();
@@ -305,7 +315,7 @@ EOD;
         wp_enqueue_script('jquery-ui-button');
         wp_enqueue_script('jquery-ui-tabs');
         wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button',
-            'jquery-ui-tabs'), $this->pluginVersion, true);
+                'jquery-ui-tabs'), $this->pluginVersion, true);
 
         wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js");
 
@@ -363,14 +373,12 @@ EOD;
             wp_register_script('jquery', self::JQUERYJS, false);
             wp_enqueue_script('jquery');
         }
-        /*
-        * Set the translate switch if this isn't in the US
-        */
+        /**
+         * Set the translate switch if this isn't in the US
+         */
         if (get_locale() != 'en_US') {
             EasyRecipeTemplate::setTranslate('easyrecipe');
         }
-
-
 
 
         if ($this->settings->removeMicroformat) {
@@ -424,8 +432,8 @@ EOD;
             wp_enqueue_style("easyrecipeformat", self::$EasyRecipeURL . "/css/easyrecipe-format.css", array('easyrecipe-FormatUI'), $this->pluginVersion);
 
             wp_enqueue_script('easyrecipeformat', self::$EasyRecipeURL . "/js/easyrecipe-format.js", array('jquery', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-accordion',
-                'jquery-ui-dialog', 'jquery-ui-tabs', 'jquery-ui-button',
-                'json2'), $this->pluginVersion, $this->loadJSInFooter);
+                    'jquery-ui-dialog', 'jquery-ui-tabs', 'jquery-ui-button',
+                    'json2'), $this->pluginVersion, $this->loadJSInFooter);
             add_action('wp_footer', array($this, 'addFormatDialog'), 0);
         }
 
@@ -540,7 +548,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1271';
+        $data->version = '3.2.1272';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -678,15 +686,9 @@ EOD;
                 $this->settings = EasyRecipeSettings::getInstance();
             }
 
-
-            // FIXME - check that the new system works OK!
+            // FIXME - check that the new style actually exists!
             $this->settings->style = isset($_POST['style']) ? $_POST['style'] : '';
             $this->settings->update();
-            /*
-            $settings = get_option($this->settingsName, array());
-            $this->settings->put('style', $style);
-            $this->settings->update();
-            */
         }
         die('OK');
     }
@@ -699,7 +701,7 @@ EOD;
             if (!isset($this->settings)) {
                 $this->settings = EasyRecipeSettings::getInstance();
             }
-            // FIXME - check this works!
+
             $setting = isset($_POST['isPrint']) ? "customPrintCSS" : "customCSS";
             $this->settings->{$setting} = isset($_POST['css']) ? $_POST['css'] : "";
             $this->settings->update();
@@ -884,6 +886,7 @@ EOD;
         $postDOM->setSettings($this->settings);
         $data = new stdClass();
         $data->hasRating = false;
+        $data->convertFractions = $this->settings->convertFractions;
 
         $this->settings->getLabels($data);
         $data->hasLinkback = $this->settings->allowLink;
@@ -1016,12 +1019,58 @@ EOD;
 
 
     /**
-     * Do any [br] shortcode replacement here (after wpauto()) so we get around the complete hash that function makes of multiple line breaks
+     * Set a the filterExcerpt flag that will get checked in theContent
+     * This function only get's hooked in if our "Filter excerpt" option is checked
+     *
+     * @param string $text
+     * @return string
+     */
+    function theExcerpt($text = '') {
+        /**
+         * Only filter if the excerpt will be generated
+         */
+        $this->filterExcerpt = $text == '';
+        return $text;
+    }
+
+    /**
+     * Do any [br] shortcode replacement here (after wpauto()) so we get around the complete mess that function makes of multiple line breaks
+     * Also try to clean up any mess wpauto *did* make
+     *
      * @param $content
      * @return mixed
      */
     function theContent($content) {
-        return str_replace("[br]", "<br />", $content);
+        /**
+         * Only fiddle the content if there's an EasyRecipe in it
+         */
+        if (strpos($content, '<div class="easyrecipe"') === false) {
+            return $content;
+        }
+        /**
+         * Do break shortcodes
+         */
+        $content = str_replace("[br]", "<br />", $content);
+
+        /**
+         * If we are filtering excerpts and THIS is an excerpt (the filterExcerpt flag is only set if so) ), remove non-display stuff
+         * Although it's expensive to do, use a DOMDocument - we could try to strip stuff with regex's
+         * but trying to keep regex's up to date with old, current and future recipe structures would be a maintenance nightmare
+         *
+         * This has the fortuitous side effect of cleaning up any mess that wpauto() made (else do that explicitly)
+         */
+        if ($this->filterExcerpt) {
+            $dom = new EasyRecipeDOMDocument($content);
+            $dom->removeElementsByClassName('ERSSavePrint', 'div');
+            $dom->removeElementsByClassName('ERSClear', 'div');
+            $dom->removeElementsByClassName('endeasyrecipe', 'div');
+            $dom->removeElementsByClassName('ERSLinkback', 'div');
+            $content = $dom->getHTML(true);
+            $content = preg_replace('/(\r\n|\n)(?:\r\n|\n)+/', '$1', $content);
+        } else {
+            $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
+        }
+        return $content;
     }
 
     /**
@@ -1127,6 +1176,7 @@ EOD;
 
 
             $data->hasLinkback = $this->settings->allowLink;
+
             $data->displayPrint = $this->settings->displayPrint;
             $data->style = $this->styleName;
             $data->title = $post->post_title;
@@ -1157,7 +1207,6 @@ EOD;
 
             /**
              * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
-
              * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
              */
             $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
@@ -1283,39 +1332,12 @@ EOD;
     }
 
     /**
-     * Send a support question (and possibly diagnostics) to EasyRecipe support
+     * Send a support query and possibly diagnostics to EasyRecipe support
      */
+
     function sendSupport() {
-        $data = new stdClass();
-        $data->email = stripslashes($_POST['email']);
-        $data->name = stripslashes($_POST['name']);
-        $data->problem = stripslashes($_POST['problem']);
-        if (isset($_POST['diagnostics'])) {
-            $diagnostics = new EasyRecipeDiagnostics();
-            $data->vars = $diagnostics->get();
-        } else {
-            $diags = new stdClass();
-            $diags->phpinfo = print_r($_POST, true);
-            $data->vars = $diags;
-        }
-        $data = json_encode($data);
-
-        $args = array('body' => array('data' => $data));
-        $response = wp_remote_post(self::DIAGNOSTICS_URL, $args);
-
-        $result = new stdClass();
-        $result->status = 'FAIL';
-        if (is_a($response, 'WP_Error')) {
-            $result->errors = $response->get_error_messages();
-        } else if (is_array($response)) {
-            if (isset($response['response']) && $response['response']['code'] == 200) {
-                $result->status = $response['body'];
-            }
-        } else {
-            $result->errors = array("Unknown error");
-        }
-        echo json_encode($result);
-        exit();
+        $diagnostics = new EasyRecipeDiagnostics();
+        $diagnostics->send(self::DIAGNOSTICS_URL);
     }
 
     /**
@@ -1525,4 +1547,3 @@ EOD;
         return $this->socketIO("GET", $host, $port, $path);
     }
 }
-

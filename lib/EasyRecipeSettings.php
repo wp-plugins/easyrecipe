@@ -34,76 +34,78 @@ class EasyRecipeSettings {
 
     private static $defaultSettings = array(
 
-        'licenseKey' => '',
+            'licenseKey' => '',
 
-        'style' => 'style001', 'printStyle' => 'style001',
+            'style' => 'style001', 'printStyle' => 'style001',
 
-        'customCSS' => '',
-        'customPrintCSS' => '',
-        'extraCSS' => '',
-        'extraPrintCSS' => '',
-        'extraPrintHeader'  => '',
+            'customCSS' => '',
+            'customPrintCSS' => '',
+            'extraCSS' => '',
+            'extraPrintCSS' => '',
+            'extraPrintHeader' => '',
 
-        'useFeaturedImage' => false,
+            'useFeaturedImage' => false,
 
-        'displayPrint' => true, 'allowLink' => false, 'convertFractions' => true, 'removeMicroformat' => false,
+            'displayPrint' => true, 'allowLink' => false, 'convertFractions' => true, 'removeMicroformat' => false,
 
-        'enableSwoop' => false, 'swoopSiteID' => '',
+            'enableSwoop' => false, 'swoopSiteID' => '',
 
-        'saveButton' => 'None', 'ziplistPartnerKey' => '', 'saltyfigPartnerKey' => '',
+            'saveButton' => 'None', 'ziplistPartnerKey' => '', 'saltyfigPartnerKey' => '',
 
-        'author' => '',
+            'author' => '',
 
-        'cuisines' => 'African|American|French|Greek|Indian|Italian|Kosher|Mexican|Middle Eastern|Spanish',
+            'cuisines' => 'African|American|French|Greek|Indian|Italian|Kosher|Mexican|Middle Eastern|Spanish',
 
-        'recipeTypes' => 'Appetiser|Breakfast|Brunch|Dessert|Drinks|Entree|Main',
+            'recipeTypes' => 'Appetiser|Breakfast|Brunch|Dessert|Drinks|Entree|Main',
 
-        'ratings' => 'EasyRecipe',
+            'ratings' => 'EasyRecipe',
 
-        'lblIngredients' => 'Ingredients', 'lblInstructions' => 'Instructions', 'lblNotes' => 'Notes', 'lblNutrition' => 'Nutrition Information', 'lblAuthor' => 'Author', 'lblCuisine' => 'Cuisine',
-        'lblRecipeType' => 'Recipe type', 'lblPrepTime' => 'Prep time', 'lblCookTime' => 'Cook time', 'lblTotalTime' => 'Total time', 'lblServes' => 'Serves', 'lblServeSize' => 'Serving size',
-        'lblCalories' => 'Calories', 'lblSugar' => 'Sugar', 'lblSodium' => 'Sodium', 'lblFat' => 'Fat', 'lblSatFat' => 'Saturated fat', 'lblUnsatFat' => 'Unsaturated fat',
-        'lblTransFat' => 'Trans fat', 'lblCarbs' => 'Carbohydrates', 'lblFiber' => 'Fiber', 'lblProtein' => 'Protein', 'lblCholesterol' => 'Cholesterol', 'lblRateRecipe' => 'Rate this recipe',
+            'filterExcerpts' => true,
 
-        'lblHour' => 'hour',
-        'lblHours' => 'hours',
-        'lblMinute' => 'min',
-        'lblMinutes' => 'mins',
+            'lblIngredients' => 'Ingredients', 'lblInstructions' => 'Instructions', 'lblNotes' => 'Notes', 'lblNutrition' => 'Nutrition Information', 'lblAuthor' => 'Author', 'lblCuisine' => 'Cuisine',
+            'lblRecipeType' => 'Recipe type', 'lblPrepTime' => 'Prep time', 'lblCookTime' => 'Cook time', 'lblTotalTime' => 'Total time', 'lblServes' => 'Serves', 'lblServeSize' => 'Serving size',
+            'lblCalories' => 'Calories', 'lblSugar' => 'Sugar', 'lblSodium' => 'Sodium', 'lblFat' => 'Fat', 'lblSatFat' => 'Saturated fat', 'lblUnsatFat' => 'Unsaturated fat',
+            'lblTransFat' => 'Trans fat', 'lblCarbs' => 'Carbohydrates', 'lblFiber' => 'Fiber', 'lblProtein' => 'Protein', 'lblCholesterol' => 'Cholesterol', 'lblRateRecipe' => 'Rate this recipe',
 
-        'lblPrint' => 'Print',
-        'lblSave' => 'Save',
+            'lblHour' => 'hour',
+            'lblHours' => 'hours',
+            'lblMinute' => 'min',
+            'lblMinutes' => 'mins',
 
-        'gpUserID' => 0,
-        'gpDetailsPage' => 0,
-        'gpEntryPage' => 0,
-        'gpThanksPage' => 0,
-        'gpHideFooter' => true,
+            'lblPrint' => 'Print',
+            'lblSave' => 'Save',
+
+            'gpUserID' => 0,
+            'gpDetailsPage' => 0,
+            'gpEntryPage' => 0,
+            'gpThanksPage' => 0,
+            'gpHideFooter' => true,
 
 
-        'lblGPName' => 'Name:',
-        'lblGPEmail' => 'Email:',
-        'lblGPWebsite' => 'Website URL:',
-        'lblGPContinue' => 'Continue',
-        'lblGPPostTitle' => 'Post title:',
-        'lblGPHint' => "Hint: Click on the chef's hat icon to enter the recipe part of your post:",
-        'lblGPMessage' => 'Leave me a private message (not for publication):',
-        'lblGPSubmitPost' => 'Submit Post',
+            'lblGPName' => 'Name:',
+            'lblGPEmail' => 'Email:',
+            'lblGPWebsite' => 'Website URL:',
+            'lblGPContinue' => 'Continue',
+            'lblGPPostTitle' => 'Post title:',
+            'lblGPHint' => "Hint: Click on the chef's hat icon to enter the recipe part of your post:",
+            'lblGPMessage' => 'Leave me a private message (not for publication):',
+            'lblGPSubmitPost' => 'Submit Post',
 
-        'erSubscribe' => false,
-        'erEmailAddress' => '',
-        'erFirstName' => '',
+            'erSubscribe' => false,
+            'erEmailAddress' => '',
+            'erFirstName' => '',
 
-        'customTemplates' => '',
+            'customTemplates' => '',
 
-        'forcejQuery' => false,
+            'forcejQuery' => false,
 
-        'enableFooderific' => '',
-        'fooderificAPIKey' => '',
-        'lastScanStarted' => 0,
-        'lastScanFinished' => 0,
-        'scanDelay' => 3,
+            'enableFooderific' => '',
+            'fooderificAPIKey' => '',
+            'lastScanStarted' => 0,
+            'lastScanFinished' => 0,
+            'scanDelay' => 3,
 
-        'pluginVersion' => '');
+            'pluginVersion' => '');
 
 
     public $licenseKey;
@@ -131,6 +133,7 @@ class EasyRecipeSettings {
     public $cuisines;
     public $recipeTypes;
     public $ratings;
+    public $filterExcerpts;
     public $lblIngredients;
     public $lblInstructions;
     public $lblNotes;
@@ -193,7 +196,7 @@ class EasyRecipeSettings {
     public $pluginVersion;
 
 
-     /**
+    /**
      * @var EasyRecipeSettings
      */
     private static $instance;
@@ -273,6 +276,9 @@ class EasyRecipeSettings {
     }
 
     public function showPage() {
+        /* @var $wp_rewrite WP_Rewrite */
+        global $wp_rewrite;
+
         if (isset($_POST['action']) && $_POST['action'] == 'save') {
             $this->save($_POST["EasyRecipe"]);
         }
@@ -285,14 +291,23 @@ class EasyRecipeSettings {
         $data->settingsname = "EasyRecipe";
 
         $data->wpurl = get_bloginfo("wpurl");
+        /**
+         * If the site isn't using permalinks then just pass the print stuff as a qurerystring param
+         */
+        $data->siteDiagnosticsURL = home_url();
+        if (!$wp_rewrite->using_permalinks()) {
+            $data->siteDiagnosticsURL .= "?";
+        }
+
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
 //        $data->fdsiteurl = htmlentities($data->wpurl);
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.2.1271';
+        $data->pluginversion = '3.2.1272';
         $data->license = $this->licenseKey;
 
         $data->useFeaturedImageChecked = $this->useFeaturedImage ? 'checked="checked"' : '';
         $data->displayPrintChecked = $this->displayPrint ? 'checked="checked"' : '';
+        $data->filterExcerptsChecked = $this->filterExcerpts ? 'checked="checked"' : '';
         $data->allowLinkChecked = $this->allowLink ? 'checked="checked"' : '';
         $data->convertFractionsChecked = $this->convertFractions ? 'checked="checked"' : '';
         $data->removeMFChecked = $this->removeMicroformat ? 'checked="checked"' : '';
@@ -323,6 +338,7 @@ class EasyRecipeSettings {
         $data->ratingEasyRecipeChecked = $data->ratingDisabledChecked = '';
         $ratingChecked = "rating" . $this->ratings . "Checked";
         $data->{$ratingChecked} = 'checked="checked"';
+
         $data->erSubscribeChecked = $this->erSubscribe ? 'checked="checked"' : '';
         $data->subscribeclass = $this->erSubscribe ? '' : 'ERSNoSubscribe';
 
@@ -482,6 +498,7 @@ class EasyRecipeSettings {
             switch ($key) {
                 case 'displayPrint' :
                 case 'allowLink' :
+                case 'filterExcerpts':
                 case 'useFeaturedImage' :
                 case 'convertFractions' :
                 case 'removeMicroformat' :
