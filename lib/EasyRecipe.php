@@ -24,7 +24,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1272';
+    private $pluginVersion = '3.2.1275';
 
     private $pluginName = 'EasyRecipe';
 
@@ -548,7 +548,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1272';
+        $data->version = '3.2.1275';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -1029,7 +1029,7 @@ EOD;
         /**
          * Only filter if the excerpt will be generated
          */
-        $this->filterExcerpt = $text == '';
+        $this->filterExcerpt = ($text == '');
         return $text;
     }
 
@@ -1045,6 +1045,7 @@ EOD;
          * Only fiddle the content if there's an EasyRecipe in it
          */
         if (strpos($content, '<div class="easyrecipe"') === false) {
+            $this->filterExcerpt = false;
             return $content;
         }
         /**
@@ -1062,11 +1063,17 @@ EOD;
         if ($this->filterExcerpt) {
             $dom = new EasyRecipeDOMDocument($content);
             $dom->removeElementsByClassName('ERSSavePrint', 'div');
+            $dom->removeElementsByClassName('ERSRating', 'div');
+            $dom->removeElementsByClassName('ERSRatings', 'div');
             $dom->removeElementsByClassName('ERSClear', 'div');
             $dom->removeElementsByClassName('endeasyrecipe', 'div');
             $dom->removeElementsByClassName('ERSLinkback', 'div');
             $content = $dom->getHTML(true);
+            /**
+             * Remove empty lines eft by deleting stuff
+             */
             $content = preg_replace('/(\r\n|\n)(?:\r\n|\n)+/', '$1', $content);
+            $this->filterExcerpt = false;
         } else {
             $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
         }
@@ -1171,12 +1178,12 @@ EOD;
                 }
 
             }
+
+
             $this->settings->getLabels($data);
 
 
-
             $data->hasLinkback = $this->settings->allowLink;
-
             $data->displayPrint = $this->settings->displayPrint;
             $data->style = $this->styleName;
             $data->title = $post->post_title;
