@@ -4,32 +4,25 @@
  *
  * Relies on EasyLogger being installed and active - does nothing if it's not
  */
-
-
-if (class_exists('EasyLoggerPlus')) {
-    /** @noinspection PhpUndefinedClassInspection */
-    class EasyRecipeLogger extends EasyLoggerPlus {
-        function __construct($logFile) {
-            return EasyLoggerPlus::getInstance($logFile);
-        }
-    }
-} else if (class_exists('EasyLogger')) {
-    /** @noinspection PhpUndefinedClassInspection */
-    class EasyRecipeLogger extends EasyLogger {
-        function __construct($logFile) {
-            return EasyLogger::getInstance($logFile);
-        }
-    }
-} else {
+/**
+ * If EasyLogger isn't installed, create stub classes
+ */
+if (!class_exists('EasyLogger')) {
     class EasyRecipeLogger {
-        static private $log;
+        static function getLog($logfile) {
+            return new EasyLoggerLog();
+        }
+    }
 
-        static function getInstance(/** @noinspection PhpUnusedParameterInspection */
-            $logFile) {
-            if (!isset(self::$log)) {
-                self::$log = new EasyRecipeLogger();
-            }
-            return self::$log;
+    class EasyLoggerLog {
+
+        function comment($msg) {
+        }
+
+        function disable($level) {
+        }
+
+        function enable($level) {
         }
 
         function debug($msg) {
@@ -46,13 +39,22 @@ if (class_exists('EasyLoggerPlus')) {
 
         function fatal($msg) {
         }
-
-        function disable($level) {
-        }
-
-        function enable($level) {
-        }
-
     }
+} else {
+    /**
+     * Class EasyRecipeLogger
+     *
+     * Use the real EasyLogger
+     */
+    class EasyRecipeLogger {
+        /**
+         * @param string $logfile
+         * @return EasyLoggerLog
+         */
+        static function getLog($logfile) {
+            return EasyLogger::getLog($logfile);
+        }
+    }
+
 }
 

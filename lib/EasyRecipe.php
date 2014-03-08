@@ -1,8 +1,7 @@
 <?php
 
-
 /*
-Copyright (c) 2010-2013 Box Hill LLC
+ Copyright (c) 2010-2014 Box Hill LLC
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -17,14 +16,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
 
+ */
 
+/**
+ * Class EasyRecipe
+ */
 class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1275';
+    private $pluginVersion = '3.2.1281';
 
     private $pluginName = 'EasyRecipe';
 
@@ -123,12 +125,6 @@ class EasyRecipe {
 
         if ($this->settings->enableFooderific) {
             /**
-             * Temporary hack to re-scan sites that had done a possibly faulty scan in a previous version
-             */
-            if ($this->settings->lastScanStarted > 0 && $this->settings->lastScanStarted < 1358472207) {
-                $this->fdScanSchedule(false);
-            }
-            /**
              * Hook into post updates and status transitions as late as possible
              */
             add_action('save_post', array($this, 'fdPostChanged'), 32000, 2);
@@ -160,7 +156,6 @@ class EasyRecipe {
         add_action('wp_ajax_easyrecipeConvert', array($this, 'convertRecipe'));
 
         add_action('wp_ajax_easyrecipeSupport', array($this, 'sendSupport'));
-        add_action('update-custom_easyrecipe-update', array($this, 'forceUpdate'));
 
         $this->settings = EasyRecipeSettings::getInstance();
 
@@ -287,7 +282,7 @@ EOD;
         wp_enqueue_style("thickbox");
         wp_enqueue_script('thickbox');
         wp_enqueue_script('easyrecipe-settings', self::$EasyRecipeURL . "/js/easyrecipe-settings.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs',
-                'jquery-ui-button','thickbox'), $this->pluginVersion, true);
+                'jquery-ui-button', 'thickbox'), $this->pluginVersion, true);
 
 
         $this->settings = EasyRecipeSettings::getInstance();
@@ -307,33 +302,39 @@ EOD;
      * Remove the post from the object cache
      */
     function loadPostAdmin() {
-        wp_enqueue_style("easyrecipe-UI");
-        wp_enqueue_style("easyrecipe-entry", self::$EasyRecipeURL . "/css/easyrecipe-entry.css", array('easyrecipe-UI'), $this->pluginVersion);
+        /**
+         * Custom post types don't necessarily have an editor so don't output EasyRecipe stuff if it's not needed
+         * TODO - add an option to select which post types EasyRecipe should be active on rather than test individual cases
+         */
+        if (empty($_REQUEST['post_type']) || $_REQUEST['post_type'] != 'soliloquy' || $_REQUEST['post_type'] != 'easyindex') {
 
-        wp_enqueue_script('jquery-ui-dialog');
-        wp_enqueue_script('jquery-ui-autocomplete');
-        wp_enqueue_script('jquery-ui-button');
-        wp_enqueue_script('jquery-ui-tabs');
-        wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button',
-                'jquery-ui-tabs'), $this->pluginVersion, true);
+            wp_enqueue_style("easyrecipe-UI");
+            wp_enqueue_style("easyrecipe-entry", self::$EasyRecipeURL . "/css/easyrecipe-entry.css", array('easyrecipe-UI'), $this->pluginVersion);
 
-        wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js");
+            wp_enqueue_script('jquery-ui-dialog');
+            wp_enqueue_script('jquery-ui-autocomplete');
+            wp_enqueue_script('jquery-ui-button');
+            wp_enqueue_script('jquery-ui-tabs');
+            wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button',
+                    'jquery-ui-tabs'), $this->pluginVersion, true);
 
-        add_filter('tiny_mce_before_init', array($this, 'mcePreInitialise'));
-        add_filter('mce_external_plugins', array($this, 'mcePlugins'));
-        add_filter('mce_buttons', array($this, 'mceButtons'));
-        add_action('admin_footer', array($this, 'addDialogHTML'));
+            wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js");
 
-        /*
-        * Remove the object cache for this post because we may have cached the post as modified by thePosts() below.
-           * Normally this wouldn't be a problem since object caches aren't normaly persistent and don't survive a page load,
-        * but they may be persistent if there's a caching plugin installed (e.g. W3 Total Cache)
-        */
-        if (isset($_REQUEST['post'])) {
-            wp_cache_delete($_REQUEST['post'], 'posts');
+            add_filter('tiny_mce_before_init', array($this, 'mcePreInitialise'));
+            add_filter('mce_external_plugins', array($this, 'mcePlugins'));
+            add_filter('mce_buttons', array($this, 'mceButtons'));
+            add_action('admin_footer', array($this, 'addDialogHTML'));
+
+            /**
+             * Remove the object cache for this post because we may have cached the post as modified by thePosts() below.
+             * Normally this wouldn't be a problem since object caches aren't normaly persistent and don't survive a page load,
+             * but they may be persistent if there's a caching plugin installed (e.g. W3 Total Cache)
+             */
+            if (isset($_REQUEST['post'])) {
+                wp_cache_delete($_REQUEST['post'], 'posts');
+            }
+
         }
-
-
     }
 
     /**
@@ -446,28 +447,15 @@ EOD;
     /**
      *  FOODERIFIC
      *
-     *  A site scan has been requested. Normally comes from an ajax call but may be from the temporary hack in initialiseAdmin()
-     * If Fooderific is not currently enabled, then enable it
-     *  Then schedule the scan and save the time if it was actually scheduled
-     *
+     *  A site scan has been requested.
+     *  If Fooderific is not currently enabled, then enable it
      */
-    function fdScanSchedule($die = true) {
+    function fdScanSchedule() {
 
         $this->settings->enableFooderific = true;
 
         $fooderific = new EasyRecipeFooderific();
-        if ($fooderific->scanSchedule()) {
-            $this->settings->lastScanStarted = time();
-        }
-        $this->settings->update();
-
-        if ($die) {
-            $result = new stdClass();
-            $result->status = 'OK';
-            $result->lastScan = $this->settings->lastScanStarted;
-            die(json_encode($result));
-        }
-    }
+        $fooderific->scanSchedule();    }
 
     /**
      * Actually run the site scan
@@ -492,27 +480,6 @@ EOD;
     function fdPostStatusChanged($newStatus, $oldStatus, $post) {
         $fooderific = new EasyRecipeFooderific();
         $fooderific->postStatusChanged($newStatus, $oldStatus, $post);
-    }
-
-    /**
-     * Normally Wordpress only checks for plugin updates twice a day
-     * The EasyRecipe Settings page always checks for new updates and if one is available it links to the WP plugin update page
-     * However Wordpress won't update a plugin if it thinks the current installed version is up to date (which it will if it hasn't checked since the update became available)
-     * To force WP to re-check for available updates before the update process, we delete the site_transient record
-     *
-     * The rationale for doing this is that if a user is on the Support page, we ought to make sure she has the latest version before submitting a support ticket
-     */
-    function forceUpdate() {
-        /** @global  $wpdb wpdb */
-        global $wpdb;
-
-        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name = '_site_transient_update_plugins'");
-
-
-        $nonce = wp_create_nonce('upgrade-plugin_easyrecipe/easyrecipe.php');
-        $url = get_bloginfo('wpurl') . "/wp-admin/update.php?action=upgrade-plugin&plugin=easyrecipe/easyrecipe.php&_wpnonce=$nonce";
-
-        header("Location: $url");
     }
 
 
@@ -548,7 +515,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1275';
+        $data->version = '3.2.1281';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -837,14 +804,20 @@ EOD;
             return;
         }
 
+        /**
+         * Process the [br] shortcodes and remove the spurious <br>'s that wp_auto() inserts
+         */
+        $content = str_replace("[br]", "<br />", $post->post_content);
+        $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
 
-        $postDOM = new EasyRecipeDocument($post->post_content);
+
+        $postDOM = new EasyRecipeDocument($content);
 
         if (!$postDOM->isEasyRecipe) {
             return;
         }
 
-        /*
+        /**
         * If the post is formatted already then it came from the Object cache
         * If that's the case we need to re-read the original
         */
@@ -1070,7 +1043,7 @@ EOD;
             $dom->removeElementsByClassName('ERSLinkback', 'div');
             $content = $dom->getHTML(true);
             /**
-             * Remove empty lines eft by deleting stuff
+             * Remove empty lines left over from the deletions
              */
             $content = preg_replace('/(\r\n|\n)(?:\r\n|\n)+/', '$1', $content);
             $this->filterExcerpt = false;
@@ -1228,6 +1201,7 @@ EOD;
             $newPosts[] = $post;
         }
         return $newPosts;
+
     }
 
     /**

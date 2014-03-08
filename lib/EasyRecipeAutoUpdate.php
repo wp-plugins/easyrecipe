@@ -30,6 +30,7 @@ class EasyRecipeAutoUpdate {
         add_filter('pre_set_site_transient_update_plugins', array($this, 'checkUpdate'));
         add_filter('plugins_api', array($this, 'checkInfo'), 10, 3);
         /**
+         * This action gets fired when when we call update.php?action=update-___plugin___ (which is what the plugin site check version api should return as the "update" link)
          * Need to concatenate the strings below because the phing token replacement croaks on 4 underscores
          */
         add_action('update-custom_' . 'easyrecipe-update', array($this, 'forceUpdate'));
@@ -37,8 +38,10 @@ class EasyRecipeAutoUpdate {
     }
 
     /**
-     * Add a hook to check for the existence of a license key on plugin update
-     * Not necessarily called by all plugins that use AutoUpdate
+     * Add a hook to check for the existence of a license key on the plugin download page
+     * This is so we can display a reasonable error message when the license key is missing from the download URL
+     *
+     * It's up to the plugin whether to call this or not
      */
     public function upgradeHook() {
         add_filter('upgrader_pre_download', array($this, 'checkLicense'), 1, 2);
@@ -59,11 +62,18 @@ class EasyRecipeAutoUpdate {
         return $value;
     }
 
+    /**
+     * We need to force WP to do an update check because WP won't recheck for updates unless the _site_transient_update_plugins transient has expired
+     * i.e. if WP checked for updates within the past 12 hrs, it (probably!) won't recheck and therefore may not have the very latest data for our own plugin
+     * Deleting the update_plugins transient will force WP to re-check for updates (so the transient can be re-inserted).
+     * The re-insert is done in wp_update_plugins() which is called via the "load-update" (load-$page) action in admin.php
+     * wp_update_plugins() is badly named - it really should be "wp_update_plugin_versions()" - it (possibly) updates the versions in the transient - it doesn't "update plugins"
+     * What a horribly convoluted way of doing a simple task!
+     *
+     * TODO - will force a recheck of ALL plugins. We should try to force the re-check of only the plugin that instantiates this class
+     */
     public function forceUpdate() {
-        /** @global  $wpdb wpdb */
-        global $wpdb;
-
-        $wpdb->query("DELETE FROM $wpdb->options WHERE option_name = '_site_transient_update_plugins'");
+        delete_site_transient('update_plugins');
 
         $nonce = wp_create_nonce("upgrade-plugin_$this->slug.php");
 
@@ -96,7 +106,9 @@ class EasyRecipeAutoUpdate {
     }
 
     /**
-     * Get the latest version details
+     * This is called when the "update_plugins" site transient is updated
+     * If $transient->checked isn't set, then the transient isn't properly set up yet so do nothing
+     * Otherwise find the latest data for our own plugin and replace (or insert) it in the transient
      *
      * @param object $transient
      * @return object

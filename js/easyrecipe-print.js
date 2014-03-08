@@ -1,2 +1,2 @@
-/*! EasyRecipe  3.2.1275 Copyright (c) 2013 BoxHill LLC */
-window.onload=function(){window.print();setTimeout(function(){window.close()},500)};
+/*! EasyRecipe  3.2.1281 Copyright (c) 2014 BoxHill LLC */
+window.onload=function(){setTimeout(function(){window.print();setTimeout(function(){window.close()},250)},0)};
