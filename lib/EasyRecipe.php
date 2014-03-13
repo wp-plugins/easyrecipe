@@ -26,7 +26,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1283';
+    private $pluginVersion = '3.2.1284';
 
     private $pluginName = 'EasyRecipe';
 
@@ -35,7 +35,7 @@ class EasyRecipe {
     const JQUERYUICSS = "http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/base/jquery-ui.css";
     const VERSIONCHECKURL = "http://www.easyrecipeplugin.com/checkVersion.php";
 
-    const DIAGNOSTICS_URL = 'http://www.easyrecipeplugin.com/diagnostics.php';
+    const DIAGNOSTICS_URL = 'http://support.easyrecipeplugin.com/wp-admin/admin-ajax.php';
 
     const SWOOPJS = '<script type="text/javascript" id="spxw_script" src="http://ardrone.swoop.com/js/spxw.js" data-domain="%s" data-theme="red" data-serverbase="http://ardrone.swoop.com/"></script>';
 
@@ -515,7 +515,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1283';
+        $data->version = '3.2.1284';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -1200,8 +1200,8 @@ EOD;
 
             $newPosts[] = $post;
         }
-        return $newPosts;
 
+        return $newPosts;
     }
 
     /**
@@ -1318,7 +1318,7 @@ EOD;
 
     function sendSupport() {
         $diagnostics = new EasyRecipeDiagnostics();
-        $diagnostics->send(self::DIAGNOSTICS_URL);
+        $diagnostics->send(self::DIAGNOSTICS_URL, array('action' => 'easysupportDiagnostic'));
     }
 
     /**

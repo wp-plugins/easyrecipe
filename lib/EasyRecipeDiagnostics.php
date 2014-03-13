@@ -19,7 +19,7 @@ class EasyRecipeDiagnostics {
     public $dataVersion = 4;
 
     public $pluginName = 'easyrecipe';
-    public $pluginVersion = '3.2.1283';
+    public $pluginVersion = '3.2.1284';
 
     public $pluginURL = '';
     public $pluginDir = '';
@@ -178,7 +178,7 @@ class EasyRecipeDiagnostics {
         $this->wpVersion = $wp_version;
         $this->wpSiteURL = site_url();
         $this->wpHomeURL = home_url();
-        $this->wpMultiSite = is_multisite();
+        $this->wpMultiSite = is_multisite() ? 'Yes' : 'No';
 
         $this->gmtOffset = get_option('gmt_offset');
         $this->timezone = get_option('timezone_string');
@@ -274,7 +274,7 @@ class EasyRecipeDiagnostics {
         }
 
         $postData = array_merge($_POST, $post);
-        $postData['inpWebsite'] = $this->wpSiteURL;
+        $postData['inpWebsite'] = site_url();
 
         foreach ($postData as $key => $value) {
             $post[$key] = urldecode(stripslashes($value));
@@ -285,7 +285,8 @@ class EasyRecipeDiagnostics {
          */
         if (!empty($_POST['sendDiagnostics'])) {
             $this->get();
-            $post['diagnostics'] = @serialize($this);
+            $diagnostics = new stdClass();
+            $post['diagnostics'] = @serialize((object) $this);
         } else {
             $post['diagnostics'] = '';
         }
@@ -480,6 +481,10 @@ body {
           <tr>
             <th scope="row">Site URL</th>
             <td>#wpSiteURL#</td>
+          </tr>
+          <tr>
+            <th scope="row">MultiSite</th>
+            <td>#wpMultiSite#</td>
           </tr>
           <tr>
             <th scope="row">Current theme</th>

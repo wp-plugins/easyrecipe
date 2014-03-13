@@ -37,9 +37,9 @@ body, td, th {
     </head>
 
     <body>
-    <div id="apDiv2"> 
+    <div id="apDiv2">
       <!-- START PAGE -->
-      
+
       <div id="divERSHeader">
         <div class="ERSHdr1"> EasyRecipe #erplus# Settings</div>
         <div class="ERSHdr2"> Before using EasyRecipe, enter your preferred settings so your recipes will be displayed exactly as YOU want them.<br/>
@@ -125,16 +125,16 @@ body, td, th {
                           <input name="#settingsname#[ratings]" type="radio" value="EasyRecipe" #ratingEasyRecipeChecked# />
                           EasyRecipe</label>
                           <br/>
-                          
+
                           <!-- START IGNORE -->
-                          
+
                           <input type="radio" name="radio" value="radio"/>
                           <a href="http://rating-widget.com/">Rating Widget</a><br/>
                           <input type="radio" name="radio" value="radio"/>
                           <a href="http://disqus.com/">Disqus Comments</a><br/>
-                          
+
                           <!-- END IGNORE -->
-                          
+
                           <label>
                           <input name="#settingsname#[ratings]" type="radio" value="Disabled" #ratingDisabledChecked# />
                           Disable</label></td>
@@ -162,26 +162,26 @@ body, td, th {
                           <label>
                           <input type="radio" name="#settingsname#[saveButton]" value="Ziplist" #saveButtonZiplistChecked# />
                           Ziplist</label>
-                          
-                          <!-- START IGNORE --> 
+
+                          <!-- START IGNORE -->
                           <br/>
                           <label>
                           <input type="radio" name="#settingsname#[saveButton]" value="SaltyFig" #saveButtonSaltyFigChecked# />
                           Salty Fig</label>
-                          
+
                           <!-- END IGNORE -->
-                          
+
                           <div class="ERSPartnerKey #ziplistclass#" id="divERSZiplistSettings">Your Ziplist partner key<br/>
                           <input name="#settingsname#[ziplistPartnerKey]" type="text" value="#ziplistPartnerKey#"/>
                           <div id="divERSZiplistLink" class="ERSDisplayNone"><a href="http://www.ziplist.com/partner_signup" target="_blank">Get a Ziplist partner key</a></div>
                         </div>
-                          
+
                           <!-- START IGNORE -->
-                          
+
                           <div class="ERSPartnerKey #saltyfigclass#" id="divERSSaltyFigSettings">Your Salty Fig partner key<br/>
                           <input name="#settingsname#[saltyfigPartnerKey]" type="text" value="#saltyfigPartnerKey#"/>
                         </div>
-                          
+
                           <!-- END IGNORE --></td>
                     </tr>
                       <tr>
@@ -352,15 +352,15 @@ body, td, th {
               <div id="divERSStyleTabs" class="ERSStyleTabs">
                 <ul>
                   <!-- START REPEAT STYLETABS -->
-                  
+
                   <li><a href="#divERSStyle-tab#styleTab#">#styleTab#</a></li>
                   <!-- END REPEAT STYLETABS -->
                 </ul>
                 <!-- START REPEAT STYLETABS -->
-                
-                <div id="divERSStyle-tab#styleTab#"> 
+
+                <div id="divERSStyle-tab#styleTab#">
                   <!-- START REPEAT STYLES -->
-                  
+
                   <div class="ERSStyle #selected#">
                     <input type="hidden" value="#directory#"/>
                     <div class="ERSStyleName"> #style#</div>
@@ -368,10 +368,10 @@ body, td, th {
                     <div class="ERSStyleDesc"> #description#</div>
                   </div>
                   <!-- END REPEAT STYLES -->
-                  
+
                   <div class="clearer"> &nbsp; </div>
                 </div>
-                <!-- END REPEAT STYLETABS --> 
+                <!-- END REPEAT STYLETABS -->
               </div>
             </div>
             <div id="divERSPrintStyles">
@@ -381,15 +381,15 @@ body, td, th {
               <div id="divERSPrintStyleTabs" class="ERSStyleTabs">
                 <ul>
                   <!-- START REPEAT PRINTSTYLETABS -->
-                  
+
                   <li><a href="#divERSPrintStyle-tab#styleTab#">#styleTab#</a></li>
                   <!-- END REPEAT PRINTSTYLETABS -->
                 </ul>
                 <!-- START REPEAT PRINTSTYLETABS -->
-                
-                <div id="divERSPrintStyle-tab#styleTab#"> 
+
+                <div id="divERSPrintStyle-tab#styleTab#">
                   <!-- START REPEAT PRINTSTYLES -->
-                  
+
                   <div class="ERSStyle #selected#">
                     <input type="hidden" value="#directory#"/>
                     <div class="ERSStyleName"> #style#</div>
@@ -397,13 +397,13 @@ body, td, th {
                     <div class="ERSStyleDesc"> #description#</div>
                   </div>
                   <!-- END REPEAT PRINTSTYLES -->
-                  
+
                   <div class="clearer"> &nbsp; </div>
                 </div>
-                <!-- END REPEAT PRINTSTYLETABS --> 
+                <!-- END REPEAT PRINTSTYLETABS -->
               </div>
             </div>
-            <div id="divERSFooderific"> 
+            <div id="divERSFooderific">
               <!-- START INCLUDEIF fdNotEnabled -->
               <div id="divFDFirstRun">
                 <div id="divFDThanks">Want more traffic to your blog?</div>
@@ -417,7 +417,7 @@ body, td, th {
                   <div class="ERSDivCenter"><a href="" id="btnFDStartScan">Enable Fooderific</a></div>
                 </div>
               </div>
-              <!-- END INCLUDEIF fdNotEnabled --> 
+              <!-- END INCLUDEIF fdNotEnabled -->
               <!-- START INCLUDEIF fdFirstRun -->
               <div id="divFDFirstRun">
                 <div id="divFDThanks">Fooderific is enabled! There's just one more step.</div>
@@ -495,10 +495,10 @@ body, td, th {
             <div id="divERSGuestPosts">
               <div class="ERSHdrExplain"><span class="xlate">EasyRecipe allows vistors to post recipes</span><br/>
                 <span class="xlate">Guest posters don't have to register or login</span>. <a href="http://www.easyrecipeplugin.com/guest-posts.php" target="_blank">Learn more...</a></div>
-              <div> 
-                <!-- START INCLUDEIF isPlus --> 
-                #guestpostsettings# 
-                <!-- END INCLUDEIF isPlus --> 
+              <div>
+                <!-- START INCLUDEIF isPlus -->
+                #guestpostsettings#
+                <!-- END INCLUDEIF isPlus -->
                 <!-- START INCLUDEIF !isPlus -->
                 <div class="ERSPlusFeature">
                   <div><strong>This feature is available in</strong></div>
@@ -506,7 +506,7 @@ body, td, th {
                   <div><a href="http://www.easyrecipeplugin.com/" target="_blank">Click here</a> to find out how to get this feature<br/>
                     and all the other Plus goodies <em>for only $24.95!</em></div>
                 </div>
-                <!-- END INCLUDEIF !isPlus --> 
+                <!-- END INCLUDEIF !isPlus -->
               </div>
             </div>
             <div id="divERSImport">
@@ -559,7 +559,7 @@ body, td, th {
                 <div><a href="http://www.easyrecipeplugin.com/" target="_blank">Click here</a> to find out how to get this feature<br/>
                   and all the other Plus goodies <em>for only $24.95!</em></div>
               </div>
-              <!-- END INCLUDEIF !isPlus --> 
+              <!-- END INCLUDEIF !isPlus -->
               <!-- START INCLUDEIF isPlus -->
               <div id="divERSImportUploader"></div>
               <div id="divERSImportConfirm">
@@ -574,7 +574,7 @@ body, td, th {
                 <div class="xlate">Creating Posts</div>
                 <div id="divERSImportCreateSpinner">&nbsp;</div>
               </div>
-              <!-- END INCLUDEIF isPlus --> 
+              <!-- END INCLUDEIF isPlus -->
             </div>
             <div id="divERSSupport">
               <div class="ERSHdrExplain">If EasyRecipe isn't working for you, or not working as you expect, we're keen to help.<br/>
@@ -591,6 +591,10 @@ body, td, th {
                 <tr>
                   <th scope="row">Email:</th>
                   <td><input type="text" id="inpERDEmail"/></td>
+                </tr>
+                <tr>
+                  <th scope="row">Subject:</th>
+                  <td><input type="text" id="inpERDSubject"/></td>
                 </tr>
                 <tr>
                   <th scope="row">Tell us about the problem:</th>
@@ -632,11 +636,11 @@ body, td, th {
                   information...</a></span><br/>
                   <!-- START INCLUDEIF isPlus -->
                   <input class="ERSTextField" type="text" name="#settingsname#[customTemplates]" value="#customTemplates#"/>
-                  <!-- END INCLUDEIF isPlus --> 
+                  <!-- END INCLUDEIF isPlus -->
                   <!-- START INCLUDEIF !isPlus -->
                   <input disabled="disabled" class="ERSTextField" type="text" name="#settingsname#[customTemplates]" value="#customTemplates#"/>
                   <span class="ERSExplain xlate">Custom style templates are available in <a href="http://www.easyrecipeplugin.com/" target="_blank">EasyRecipe Plus</a></span><br/>
-                  <!-- END INCLUDEIF !isPlus --> 
+                  <!-- END INCLUDEIF !isPlus -->
                 </label>
               </div>
               <div id="divERSExtraCSS">
@@ -677,8 +681,8 @@ body, td, th {
     EASYRECIPE.lastScan = '#lastScan#';
     EASYRECIPE.fdAPIKey = '#fdAPIKey#';
     //]]>
-</script> 
-      <!-- END PAGE --> 
+</script>
+      <!-- END PAGE -->
     </div>
 </body>
 </html>
