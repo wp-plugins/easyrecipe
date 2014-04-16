@@ -26,7 +26,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1284';
+    private $pluginVersion = '3.2.1290';
 
     private $pluginName = 'EasyRecipe';
 
@@ -63,6 +63,11 @@ class EasyRecipe {
 
     private $filterExcerpt;
 
+    private $uiVersion = '';
+    private $mceVersion = '';
+    private $wpVersion = '';
+    private $pluploadVersion = '';
+
     function __construct($pluginDir, $pluginURL) {
 
 
@@ -89,6 +94,7 @@ class EasyRecipe {
      * If not, go ahead and add our hooks
      */
     function pluginsLoaded() {
+        global $wp_version;
 
         /**
          * If EasyRecipe Plus is installed and active, this plugin can be uninstalled
@@ -101,6 +107,16 @@ class EasyRecipe {
         }
 
 
+        /**
+         * The new jQuery UI and tinymce versions introduced in WP 3.9 required major changes to EasyRecipe code
+         * It's just a lot easier (and safer) to create separate JS and CSS sources for WP 3.9+
+         */
+        if (version_compare($wp_version, '3.9.dev', '>')) {
+            $this->wpVersion = '-3.9';
+            $this->uiVersion = '-1.10.4';
+            $this->mceVersion = '-4.0.20';
+            $this->pluploadVersion = '-2.1.1';
+        }
         add_action('admin_menu', array($this, 'addMenus'));
         add_action('admin_init', array($this, 'initialiseAdmin'));
         add_action('init', array($this, 'initialise'));
@@ -188,7 +204,7 @@ class EasyRecipe {
      * Set up stuff we'll need on non-admin pages and stuff we'll need in both admin and non-admin
      */
     function initialise() {
-        wp_register_style("easyrecipe-UI", self::$EasyRecipeURL . "/ui/easyrecipeUI.css", array('wp-admin', 'wp-pointer'), $this->pluginVersion);
+        wp_register_style("easyrecipe-UI", self::$EasyRecipeURL . "/ui/easyrecipeUI{$this->uiVersion}.css", array('wp-admin', 'wp-pointer'), $this->pluginVersion);
 
 
         $this->settings = EasyRecipeSettings::getInstance();
@@ -281,8 +297,7 @@ EOD;
         wp_enqueue_style("easyrecipe-settings", self::$EasyRecipeURL . "/css/easyrecipe-settings.css", array('easyrecipe-UI'), $this->pluginVersion);
         wp_enqueue_style("thickbox");
         wp_enqueue_script('thickbox');
-        wp_enqueue_script('easyrecipe-settings', self::$EasyRecipeURL . "/js/easyrecipe-settings.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs',
-                'jquery-ui-button', 'thickbox'), $this->pluginVersion, true);
+        wp_enqueue_script('easyrecipe-settings', self::$EasyRecipeURL . "/js/easyrecipe-settings.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs', 'jquery-ui-button', 'thickbox'), $this->pluginVersion, true);
 
 
         $this->settings = EasyRecipeSettings::getInstance();
@@ -315,10 +330,8 @@ EOD;
             wp_enqueue_script('jquery-ui-autocomplete');
             wp_enqueue_script('jquery-ui-button');
             wp_enqueue_script('jquery-ui-tabs');
-            wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button',
+            wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry{$this->wpVersion}.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button',
                     'jquery-ui-tabs'), $this->pluginVersion, true);
-
-            wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry.js");
 
             add_filter('tiny_mce_before_init', array($this, 'mcePreInitialise'));
             add_filter('mce_external_plugins', array($this, 'mcePlugins'));
@@ -455,7 +468,8 @@ EOD;
         $this->settings->enableFooderific = true;
 
         $fooderific = new EasyRecipeFooderific();
-        $fooderific->scanSchedule();    }
+        $fooderific->scanSchedule();
+    }
 
     /**
      * Actually run the site scan
@@ -515,7 +529,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1284';
+        $data->version = '3.2.1290';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -767,6 +781,7 @@ EASYRECIPE.isPrint = $print;
 EASYRECIPE.formatting = '$formats';
 EASYRECIPE.customCSS = '$customCSS';
 EASYRECIPE.easyrecipeURL = '$url';
+EASYRECIPE.wpVersion = '$this->wpVersion';
 EASYRECIPE.version = '$this->pluginVersion';
 EASYRECIPE.ajaxURL = '$ajaxURL';
 EASYRECIPE.styleThumbs = '$thumbs';
@@ -818,9 +833,9 @@ EOD;
         }
 
         /**
-        * If the post is formatted already then it came from the Object cache
-        * If that's the case we need to re-read the original
-        */
+         * If the post is formatted already then it came from the Object cache
+         * If that's the case we need to re-read the original
+         */
         if ($postDOM->isFormatted) {
             $post = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "posts WHERE ID = $postID");
             $postDOM = new EasyRecipeDocument($post->post_content);
@@ -992,8 +1007,8 @@ EOD;
 
 
     /**
-     * Set a the filterExcerpt flag that will get checked in theContent
-     * This function only get's hooked in if our "Filter excerpt" option is checked
+     * Set a the filterExcerpt flag that will get checked in theContent()
+     * This function only gets hooked in if our "Filter excerpt" option is checked
      *
      * @param string $text
      * @return string
@@ -1008,7 +1023,8 @@ EOD;
 
     /**
      * Do any [br] shortcode replacement here (after wpauto()) so we get around the complete mess that function makes of multiple line breaks
-     * Also try to clean up any mess wpauto *did* make
+     * Also try to clean up any mess wpauto *did* make.
+     * And decode any quotes inside title and alt attribues on images we inserted. See why we need to do this in the javascript comments for insertUploadedImage()
      *
      * @param $content
      * @return mixed
@@ -1027,13 +1043,19 @@ EOD;
         $content = str_replace("[br]", "<br />", $content);
 
         /**
+         * Decode any quotes that have possibly been "double encoded" when we inserted an image
+         */
+        $content = str_replace("&amp;quot;", '&quot;', $content);
+        /**
          * If we are filtering excerpts and THIS is an excerpt (the filterExcerpt flag is only set if so) ), remove non-display stuff
          * Although it's expensive to do, use a DOMDocument - we could try to strip stuff with regex's
          * but trying to keep regex's up to date with old, current and future recipe structures would be a maintenance nightmare
          *
          * This has the fortuitous side effect of cleaning up any mess that wpauto() made (else do that explicitly)
          */
-        if ($this->filterExcerpt) {
+        if ($this->filterExcerpt || ( /* $this->settings->filterRSS && */
+                is_feed())
+        ) {
             $dom = new EasyRecipeDOMDocument($content);
             $dom->removeElementsByClassName('ERSSavePrint', 'div');
             $dom->removeElementsByClassName('ERSRating', 'div');
@@ -1176,6 +1198,7 @@ EOD;
             $data->recipeurl = get_permalink($post->ID);
             $data->convertFractions = $this->settings->convertFractions;
 
+
             if ($this->styleName[0] == '_') {
                 $styleName = substr($this->styleName, 1);
                 $templateFile = $this->settings->customTemplates . "/styles/$styleName/style.html";
@@ -1200,7 +1223,6 @@ EOD;
 
             $newPosts[] = $post;
         }
-
         return $newPosts;
     }
 
@@ -1362,8 +1384,8 @@ EOD;
      */
     function mcePlugins($plugins) {
         $plugins = (array) $plugins;
-        $plugins['easyrecipe'] = self::$EasyRecipeURL . "/js/easyrecipe-mce.js?v=$this->pluginVersion";
-        $plugins['noneditable'] = self::$EasyRecipeURL . "/tinymce/noneditable.js?v=$this->pluginVersion";
+        $plugins['easyrecipe'] = self::$EasyRecipeURL . "/js/easyrecipe-mce{$this->mceVersion}.js?v=$this->pluginVersion";
+        $plugins['noneditable'] = self::$EasyRecipeURL . "/tinymce/noneditable{$this->mceVersion}.js?v=$this->pluginVersion";
         return $plugins;
     }
 
@@ -1447,11 +1469,10 @@ EOD;
         if (!function_exists('get_upload_iframe_src')) {
             require_once(ABSPATH . 'wp-admin/includes/media.php');
         }
-        $upIframeSrc = get_upload_iframe_src();
+        // $upIframeSrc = get_upload_iframe_src();
         $guestPost = $this->isGuest ? 'true' : 'false';
         $wpurl = get_bloginfo('wpurl');
         $url = self::$EasyRecipeURL;
-        $wpVersion = $GLOBALS['wp_version'];
         echo <<<EOD
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -1469,10 +1490,9 @@ EASYRECIPE.testURL = '$testURL';
 EASYRECIPE.author = '$author';
 EASYRECIPE.recipeTypes = '$recipeTypes';
 EASYRECIPE.cuisines = '$cuisines';
-EASYRECIPE.upIframeSrc = '$upIframeSrc';
 EASYRECIPE.isGuest = $guestPost;
 EASYRECIPE.wpurl = '$wpurl';
-EASYRECIPE.wpVersion = '$wpVersion';
+EASYRECIPE.wpVersion = '$this->wpVersion';
 EASYRECIPE.postID = $post->ID;
 /* ]]> */
 </script>

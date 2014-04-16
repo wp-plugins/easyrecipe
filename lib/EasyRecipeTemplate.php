@@ -16,6 +16,8 @@ class EasyRecipeTemplate {
     const CLASSREPLACE = 2;
     const REPEATREPLACE = 3;
     const INCLUDEIF = 4;
+    const STARTSTRIP = 5;
+    const ENDSTRIP = 6;
 
     const PRESERVEWHITESPACE = 1;
     const PRESERVECOMMENTS = 2;
@@ -24,6 +26,12 @@ class EasyRecipeTemplate {
     private $delimiter = '#';
     private static $translate = false;
     private static $textDomain = '';
+
+    /**
+     * @var array Whitespace strip positions in the output string
+     * +ve is a start position and -ve is an end position
+     */
+    private $stripWhitespace = array();
 
     /**
      * Process a template file or text doing variable replacements and repeated elements
@@ -60,7 +68,7 @@ class EasyRecipeTemplate {
                 break;
 
             /**
-             * PAGE is a V4 template file which should have START PAGE and END PAGE lines
+             * PAGE is a V4 template file which should have <!-- START PAGE --> and <!-- END PAGE --> lines
              */
             case self::PAGE :
                 $page = @file_get_contents($file);
@@ -89,7 +97,7 @@ class EasyRecipeTemplate {
                 $startPosition += strlen($startPage);
                 $page = substr($page, $startPosition, $endPosition - $startPosition);
                 /**
-                 * See if we have any IGNORES and remove them and their contents if we do
+                 * Remove anything between <!-- START IGNORE --> and <!-- END IGNORE -->
                  */
                 $startIgnore = '<!-- START IGNORE -->';
                 $endIgnore = '<!-- END IGNORE -->';
@@ -106,8 +114,11 @@ class EasyRecipeTemplate {
                 $this->inText = $page;
                 break;
         }
+        /**
+         * Normalize up line breaks
+         */
         $this->inText = str_replace("\r\n", "\n", $this->inText);
-        $this->inText = str_replace("\r", "", $this->inText);
+        $this->inText = str_replace("\r", "\n", $this->inText);
     }
 
     static function setTranslate($textDomain) {
@@ -115,6 +126,13 @@ class EasyRecipeTemplate {
         self::$textDomain = $textDomain;
     }
 
+    /**
+     * A simple non-significant whitespace remover
+     *
+     * @param $html
+     * @param $options
+     * @return string
+     */
     private function cleanWhitespace($html, $options) {
         if (($options & self::PRESERVECOMMENTS) == 0) {
             $html = preg_replace('/<!-- .*? -->/', '', $html);
@@ -179,11 +197,83 @@ class EasyRecipeTemplate {
                 $firstType = self::INCLUDEIF;
             }
 
+            $startStripPosition = strpos($inText, '<!-- START STRIP WHITESPACE ', $currentPosition);
+            if ($startStripPosition !== false && $startStripPosition < $firstPosition) {
+                $firstPosition = $startStripPosition;
+                $firstType = self::STARTSTRIP;
+            }
+
+            $endStripPosition = strpos($inText, '<!-- END STRIP WHITESPACE ', $currentPosition);
+            if ($endStripPosition !== false && $endStripPosition < $firstPosition) {
+                $firstPosition = $endStripPosition;
+                $firstType = self::ENDSTRIP;
+            }
+
             /**
              * If there's nothing to do, just return what we've got
              */
             if ($firstPosition == strlen($inText)) {
+                /**
+                 * Copy any remaining input over to the output
+                 */
                 $this->opText .= substr($inText, $currentPosition);
+
+                /*
+                 * If there's any block to whitespace strip, do it
+                 * Tidy up the start/stop positions first to make it easy to process
+                 * This allows overlapping and unterminated stip blocks
+                 */
+                if (count($this->stripWhitespace) > 0) {
+                    $stripBlocks = array();
+                    $startPosition = -1;
+                    foreach ($this->stripWhitespace as $position) {
+                        /**
+                         * End strip?
+                         */
+                        if ($position < 0) {
+                            /**
+                             * If there's no previous unterminated START STRIP, ignore this END
+                             */
+                            if ($startPosition == -1) {
+                                continue;
+                            }
+                            $stripBlocks[] = array($startPosition, abs($position));
+                            $startPosition = -1;
+                        } else {
+                            /**
+                             * If there's a previous unterminated START STRIP, ignore this one
+                             */
+                            if ($startPosition != -1) {
+                                continue;
+                            }
+                            $startPosition = $position;
+                        }
+                    }
+                    /**
+                     * Allow for a missing END STRIP
+                     */
+                    if ($startPosition != -1) {
+                        $stripBlocks[] = array($startPosition, strlen($this->opText));
+                    }
+                    /**
+                     * Actually strip out whitespace in the strip blocks
+                     */
+                    $currentPosition = 0;
+                    $strippedText = '';
+                    foreach ($stripBlocks as $stripBlock) {
+                        $strippedText .= substr($this->opText, $currentPosition, $stripBlock[0] - $currentPosition);
+                        $text = substr($this->opText, $stripBlock[0], $stripBlock[1] - $stripBlock[0]);
+                        $text = preg_replace('/>\s+</', '><', $text);
+                        $strippedText .= trim($text);
+                        $currentPosition = $stripBlock[1];
+                    }
+                    $strippedText .= substr($this->opText, $currentPosition, strlen($this->opText) - $currentPosition);
+
+                    $this->opText = $strippedText;
+                }
+                /**
+                 * If we aren't translating, then just (optionally) clean up whitespace and return
+                 */
                 if (!self::$translate || !class_exists('EasyRecipeDOMDocument')) {
                     return $this->cleanWhitespace($this->opText, $options);
                 }
@@ -267,6 +357,24 @@ class EasyRecipeTemplate {
                     } else {
                         $inText = substr($inText, 0, $currentPosition) . substr($inText, $endPosition + $endIncludeLength);
                     }
+                    break;
+
+                /**
+                 * Remove whitespace between tags.
+                 * Useful to remove unwanted significant HTML whitespace that may have been introduced by auto formatting the source template
+                 */
+                case self::STARTSTRIP :
+                    $currentPosition += 31;
+                    $this->stripWhitespace[] = strlen($this->opText);
+
+                    break;
+
+                /**
+                 * Save the output position at which to stop stripping. -ve indicates that it's an end position
+                 */
+                case self::ENDSTRIP :
+                    $currentPosition += 29;
+                    $this->stripWhitespace[] = -strlen($this->opText);
                     break;
 
                 /**

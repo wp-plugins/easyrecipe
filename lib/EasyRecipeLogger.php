@@ -7,37 +7,39 @@
 /**
  * If EasyLogger isn't installed, create stub classes
  */
-if (!class_exists('EasyLogger')) {
+if (!class_exists('EasyLogger', false)) {
     class EasyRecipeLogger {
         static function getLog($logfile) {
             return new EasyLoggerLog();
         }
     }
 
-    class EasyLoggerLog {
+    if (!class_exists('EasyLoggerLog', false)) {
+        class EasyLoggerLog {
 
-        function comment($msg) {
-        }
+            function comment($msg) {
+            }
 
-        function disable($level) {
-        }
+            function disable($level) {
+            }
 
-        function enable($level) {
-        }
+            function enable($level) {
+            }
 
-        function debug($msg) {
-        }
+            function debug($msg) {
+            }
 
-        function info($msg) {
-        }
+            function info($msg) {
+            }
 
-        function warn($msg) {
-        }
+            function warn($msg) {
+            }
 
-        function error($msg) {
-        }
+            function error($msg) {
+            }
 
-        function fatal($msg) {
+            function fatal($msg) {
+            }
         }
     }
 } else {

@@ -61,6 +61,7 @@ class EasyRecipeSettings {
             'ratings' => 'EasyRecipe',
 
             'filterExcerpts' => true,
+            'filterFeeds' => true,
 
             'lblIngredients' => 'Ingredients', 'lblInstructions' => 'Instructions', 'lblNotes' => 'Notes', 'lblNutrition' => 'Nutrition Information', 'lblAuthor' => 'Author', 'lblCuisine' => 'Cuisine',
             'lblRecipeType' => 'Recipe type', 'lblPrepTime' => 'Prep time', 'lblCookTime' => 'Cook time', 'lblTotalTime' => 'Total time', 'lblServes' => 'Serves', 'lblServeSize' => 'Serving size',
@@ -302,7 +303,7 @@ class EasyRecipeSettings {
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
 //        $data->fdsiteurl = htmlentities($data->wpurl);
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.2.1284';
+        $data->pluginversion = '3.2.1290';
         $data->license = $this->licenseKey;
 
         $data->useFeaturedImageChecked = $this->useFeaturedImage ? 'checked="checked"' : '';

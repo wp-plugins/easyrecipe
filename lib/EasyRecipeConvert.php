@@ -70,12 +70,45 @@ class EasyRecipeConvert {
                 if ($result->recipe->cook_time == '' && $result->recipe->prep_time == '') {
                     $result->recipe->cook_time = $result->recipe->total_time;
                 }
-                $ingredients = explode("\n", str_replace('\r', "", $result->recipe->ingredients));
+                $ingredients = explode("\n", str_replace("\r", "", $result->recipe->ingredients));
                 $result->ingredients = array();
                 foreach ($ingredients as $ingredient) {
+                    if (preg_match('/^%([^\s]+)/', $ingredient, $regs)) {
+                        if (($n = count($result->ingredients)) > 0 && $result->ingredients[$n - 1][0] != '!') {
+                            $result->ingredients[$n - 1] .= '[br][img src="' . $regs[1] . '"]';
+                            continue;
+                        } else {
+                            $ingredient = '[img src="' . $regs[1] . '"]';
+                        }
+                    } else {
+                        $ingredient = preg_replace('/_(.+?)_/', '[i]$1[/i]', $ingredient);
+                        $ingredient = preg_replace('/\*(.+?)\*/', '[b]$1[/b]', $ingredient);
+                    }
                     $result->ingredients[] = $ingredient;
                 }
                 unset($result->recipe->ingredients);
+
+                $instructions = explode("\n", str_replace("\r", "", $result->recipe->instructions));
+                $convertedInstructions = array();
+                foreach ($instructions as $instruction) {
+                    if (preg_match('/^%([^\s]+)/', $instruction, $regs)) {
+                        if (($n = count($convertedInstructions)) > 0 && $convertedInstructions[$n - 1][0] != '!') {
+                            $convertedInstructions[$n - 1] .= '[br][img src="' . $regs[1] . '"]';
+                            continue;
+                        } else {
+                            $instruction = '[img src="' . $regs[1] . '"]';
+                        }
+                    } else {
+                        $instruction = preg_replace('/_(.+?)_/', '[i]$1[/i]', $instruction);
+                        $instruction = preg_replace('/\*(.+?)\*/', '[b]$1[/b]', $instruction);
+                    }
+
+                    $convertedInstructions[] = $instruction;
+                }
+                /**
+                 * For silly historical reasons, instructions are returned as a string
+                 */
+                $result->recipe->instructions = implode("\n", $convertedInstructions);
                 break;
 
             case 'recipress' :

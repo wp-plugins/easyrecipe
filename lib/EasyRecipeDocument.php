@@ -41,12 +41,12 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
 
 
     private $fractions = array(
-        1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'),
-        2 => array(3 => '&#8532;'),
-        3 => array(4 => '&frac34;', 8 => '&#8540;'),
-        4 => array(5 => '&#8536;'),
-        5 => array(6 => '&#8538;', 8 => '&#8541;'),
-        7 => array(8 => '&#8542;'));
+            1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'),
+            2 => array(3 => '&#8532;'),
+            3 => array(4 => '&frac34;', 8 => '&#8540;'),
+            4 => array(5 => '&#8536;'),
+            5 => array(6 => '&#8538;', 8 => '&#8541;'),
+            7 => array(8 => '&#8542;'));
 
     /**
      * If there's an EasyRecipe in the content, load the HTML and pre-process, else just return
@@ -132,6 +132,10 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
 
             case "url" :
                 return "<a {$match[2]}>{$match[3]}</a>";
+
+            case "cap" :
+                return "[caption {$match[2]}]{$match[3]}[/caption]";
+
         }
         return $match[0];
     }
@@ -205,6 +209,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
             $html = preg_replace_callback('%\[(i|b|u)\](.*?)\[/\1\]%si', array($this, "shortCodes"), $html);
             $html = preg_replace_callback('%\[(img) +(.*?) */?\]%i', array($this, "shortCodes"), $html);
             $html = preg_replace_callback('%\[(url) +([^\]]+?)\](.*?)\[/url\]%si', array($this, "shortCodes"), $html);
+            $html = preg_replace_callback('%\[(cap) +([^\]]+?)\](.*?)\[/cap\]%si', array($this, "shortCodes"), $html);
         }
 
         /**
@@ -604,7 +609,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
             }
         }
 
-        $data->hasInstructions= $section != null;
+        $data->hasInstructions = $section != null;
         if ($data->hasInstructions) {
             $data->INSTRUCTIONSTEPS[] = $section;
         }

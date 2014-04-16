@@ -1432,6 +1432,7 @@ button.ui-button::-moz-focus-inner {
     border-bottom: 0 !important;
     padding: 0;
     white-space: nowrap;
+    width:auto;
 }
 
 .easyrecipeUI .ui-tabs .ui-tabs-nav li a {

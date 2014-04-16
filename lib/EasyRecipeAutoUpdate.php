@@ -1,4 +1,5 @@
 <?php
+
 /**
  * Copyright (c) 2010-2013 Box Hill LLC
  *
@@ -30,7 +31,7 @@ class EasyRecipeAutoUpdate {
         add_filter('pre_set_site_transient_update_plugins', array($this, 'checkUpdate'));
         add_filter('plugins_api', array($this, 'checkInfo'), 10, 3);
         /**
-         * This action gets fired when when we call update.php?action=update-___plugin___ (which is what the plugin site check version api should return as the "update" link)
+         * This action gets fired when when we call update.php?action=update-easyrecipe (which is what the plugin site check version api should return as the "update" link)
          * Need to concatenate the strings below because the phing token replacement croaks on 4 underscores
          */
         add_action('update-custom_' . 'easyrecipe-update', array($this, 'forceUpdate'));

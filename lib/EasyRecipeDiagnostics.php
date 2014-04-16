@@ -19,7 +19,7 @@ class EasyRecipeDiagnostics {
     public $dataVersion = 4;
 
     public $pluginName = 'easyrecipe';
-    public $pluginVersion = '3.2.1284';
+    public $pluginVersion = '3.2.1290';
 
     public $pluginURL = '';
     public $pluginDir = '';
@@ -111,6 +111,10 @@ class EasyRecipeDiagnostics {
 
         }
 
+    }
+
+    function __wakeup() {
+        $this->haveData = true;
     }
 
 
@@ -243,7 +247,15 @@ class EasyRecipeDiagnostics {
         if (!$this->haveData) {
             $this->get();
         }
-        $this->settings = print_r($this->settings, true);
+        /**
+         * Get only public settings properties
+         */
+        $settings = new stdClass();
+        foreach ($this->settings as $property => $value) {
+            $settings->{$property} = $value;
+        }
+
+        $this->settings = print_r($settings, true);
         $template = new EasyRecipeTemplate($this->getTemplate(), EasyRecipeTemplate::TEXT);
         $html = $template->replace($this, EasyRecipeTemplate::PRESERVEWHITESPACE);
 

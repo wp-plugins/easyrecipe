@@ -1,2 +1,1 @@
-/*! EasyRecipe  3.2.1284 Copyright (c) 2014 BoxHill LLC */
-(function(a){a(function(){var b;b=EASYRECIPE;a(b.wppSelector).pointer({pointerWidth:b.wppWidth,content:b.wppHTML,position:b.wppPosition,close:function(){a.post(ajaxurl,{pointer:"easyrecipe-fooderific",action:"dismiss-wp-pointer"})}}).pointer("open")})}(jQuery));
+(function(b){b(function(){var a;a=EASYRECIPE;b(a.wppSelector).pointer({pointerWidth:a.wppWidth,content:a.wppHTML,position:a.wppPosition,close:function(){b.post(ajaxurl,{pointer:"easyrecipe-fooderific",action:"dismiss-wp-pointer"})}}).pointer("open")})})(jQuery);

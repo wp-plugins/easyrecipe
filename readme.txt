@@ -1,9 +1,9 @@
 === Easy Recipe ===
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
-Requires at least: 3.5
-Tested up to: 3.8.1
-Stable tag:  3.2.1284
+Requires at least: 3.6
+Tested up to: 3.9
+Stable tag:  3.2.1290
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,6 +78,12 @@ You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1290 =
+* Enhancement: Convert italic and bold formatting and image links in Ziplist recipes
+* Enhancement: Use latest WP media manager
+* Enhancement: Get caption, alt text and title data for images inserted into recipes (Plus version)
+* Update: Changes for Wordpress 3.9
+
 = 3.2 Build 1284 =
 * Update: Changed support/diganostics to use the EasySupport plugin
 
