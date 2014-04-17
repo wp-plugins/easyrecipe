@@ -26,7 +26,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1290';
+    private $pluginVersion = '3.2.1294';
 
     private $pluginName = 'EasyRecipe';
 
@@ -175,17 +175,7 @@ class EasyRecipe {
 
         $this->settings = EasyRecipeSettings::getInstance();
 
-        /**
-         * Don't need update_plugin capability to just check for a new update
-         */
-        $autoUpdate = new EasyRecipeAutoUpdate($this->pluginVersion, self::VERSIONCHECKURL, $this->settings->licenseKey);
 
-        /**
-         * But no need to hook into the license check if the user can't update
-         */
-        if (current_user_can('update_plugins')) {
-            $autoUpdate->upgradeHook();
-        }
         /**
          * Show the Fooderific admin wp_pointer
          */
@@ -529,7 +519,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1290';
+        $data->version = '3.2.1294';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -537,9 +527,7 @@ EOD;
         echo <<<EOD
 <script type="text/javascript">
 // <![CDATA[
-if (typeof EASYRECIPE === "undefined") {
-    var EASYRECIPE = {};
-}
+window.EASYRECIPE = window.EASYRECIPE || {};
 EASYRECIPE.wppHTML = '$html';
 EASYRECIPE.wppWidth = 425;
 EASYRECIPE.wppPosition = {edge:'top', align:'center'};
@@ -773,10 +761,7 @@ EOD;
         $html .= <<<EOD
 <script type="text/javascript">
 /* <![CDATA[ */
-
-if (typeof EASYRECIPE === "undefined") {
-  var EASYRECIPE = {};
-}
+window.EASYRECIPE = window.EASYRECIPE || {};
 EASYRECIPE.isPrint = $print;
 EASYRECIPE.formatting = '$formats';
 EASYRECIPE.customCSS = '$customCSS';
@@ -889,58 +874,8 @@ EOD;
 
         $recipe = $postDOM->getRecipe($recipeIX);
         $photoURL = $postDOM->findPhotoURL($recipe);
-        /**
-         * Look for an image and try to scale it proportionally Pretty crap way
-         * of doing it - we really should create a thumb so it only needs to be
-         * done once ever - in a later version maybe!
-         */
-        if ($photoURL) {
-            $imageSize = 200;
+        $data->hasPhoto = !empty($photoURL);
 
-            /**
-             * Try for a file on the current server first
-             */
-            $parsedURL = parse_url($photoURL);
-            $fName = $_SERVER['DOCUMENT_ROOT'] . $parsedURL['path'];
-            $img = false;
-            /**
-             * If it exists on the server's doc root, and it's a file, try reading it
-             */
-            if (@is_file($fName)) {
-                $img = @file_get_contents($fName);
-            }
-            /**
-             * If reading the file didn't work, try getting the URL
-             */
-            if (!$img) {
-                $img = @file_get_contents($photoURL);
-            }
-            /**
-             * If still no go, try sockets as a last resort
-             */
-            if (!$img) {
-                $img = $this->getImage($parsedURL);
-            }
-
-            if ($img) {
-                $image = @imagecreatefromstring($img);
-                if ($image) {
-                    $x = imagesx($image);
-                    $y = imagesy($image);
-                    if ($x > $y) {
-                        $tx = $imageSize;
-                        $ty = floor($y * $imageSize / $x);
-                    } else {
-                        $ty = $imageSize;
-                        $tx = floor($x * $imageSize / $y);
-                    }
-
-                    $data->tx = $tx;
-                    $data->ty = $ty;
-                    $data->hasPhoto = true;
-                }
-            }
-        }
         $data->jqueryjs = self::JQUERYJS;
         $data->jqueryuijs = self::JQUERYUIJS;
         $data->jqueryuicss = self::JQUERYUICSS;
@@ -1004,6 +939,8 @@ EOD;
 
         }
     }
+
+
 
 
     /**
@@ -1198,7 +1135,6 @@ EOD;
             $data->recipeurl = get_permalink($post->ID);
             $data->convertFractions = $this->settings->convertFractions;
 
-
             if ($this->styleName[0] == '_') {
                 $styleName = substr($this->styleName, 1);
                 $templateFile = $this->settings->customTemplates . "/styles/$styleName/style.html";
@@ -1216,6 +1152,7 @@ EOD;
             /**
              * Some themes do a get_post() again instead of using the posts as modified by plugins
              * So make sure our modified post is in cache so the get_post() picks up the modified version not the original
+
              * Need to do both add and replace since add doesn't replace and replace doesn't add and we can't be sure if the cache key exists at this point
              */
             wp_cache_add($post->ID, $post, 'posts');
@@ -1366,16 +1303,23 @@ EOD;
     }
 
     /**
-     * Allow <link> and <time> tags
+     * Allow <link> and <time> tags in <divs>
      */
     function mcePreInitialise($init) {
-        $ext = 'link[itemprop|href],time[itemprop|datetime]';
+        $extendedElements = 'link[itemprop|href],time[itemprop|datetime]';
+        $validChildren = '+div[time|link]';
 
         if (isset($init['extended_valid_elements'])) {
-            $init['extended_valid_elements'] .= ',' . $ext;
+            $init['extended_valid_elements'] .= ',' . $extendedElements;
         } else {
-            $init['extended_valid_elements'] = $ext;
+            $init['extended_valid_elements'] = $extendedElements;
         }
+        if (isset($init['valid_children'])) {
+            $init['valid_children'] .= ',' . $validChildren;
+        } else {
+            $init['valid_children'] = $validChildren;
+        }
+
         return $init;
     }
 
@@ -1471,15 +1415,13 @@ EOD;
         }
         // $upIframeSrc = get_upload_iframe_src();
         $guestPost = $this->isGuest ? 'true' : 'false';
+        $noWarn = $this->settings->noHTMLWarn ? 'true' : 'false';
         $wpurl = get_bloginfo('wpurl');
         $url = self::$EasyRecipeURL;
         echo <<<EOD
 <script type="text/javascript">
 /* <![CDATA[ */
-
-if (typeof EASYRECIPE === "undefined") {
-  var EASYRECIPE = {};
-}
+window.EASYRECIPE = window.EASYRECIPE || {};
 EASYRECIPE.ingredients ='$ingredients';
 EASYRECIPE.instructions ='$instructions';
 EASYRECIPE.notes ='$notes';
@@ -1494,6 +1436,7 @@ EASYRECIPE.isGuest = $guestPost;
 EASYRECIPE.wpurl = '$wpurl';
 EASYRECIPE.wpVersion = '$this->wpVersion';
 EASYRECIPE.postID = $post->ID;
+EASYRECIPE.noHTMLWarn = $noWarn;
 /* ]]> */
 </script>
 EOD;

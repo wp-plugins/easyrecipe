@@ -1,7 +1,7 @@
 <?php
 
 /*
- Copyright (c) 2010-2013 Box Hill LLC
+ Copyright (c) 2010-2014 Box Hill LLC
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
@@ -16,14 +16,11 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-*/
 
-/**
- * Handles conversions from other plugins
  */
 
 /**
- * Class EasyRecipeConvert
+ * Class EasyRecipePlusConvert
  *
  * Handles conversions from other plugins
  *
@@ -39,21 +36,17 @@ class EasyRecipeConvert {
         return sprintf("PT%dH%dM", $hours, $minutes);
     }
 
-    /*
-    * Return RecipeSEO/ZipList data/Yumprint/ReciPress
-    */
-    function convertRecipe() {
+    private function doConvert($postID, $postType) {
         /** @global $wpdb wpdb */
         global $wpdb;
 
-        $id = (int) $_POST['id'];
         $result = new stdClass();
 
-        switch ($_POST['type']) {
+        switch ($postType) {
 
             case 'recipeseo`' :
-                $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_recipes WHERE recipe_id=" . $id);
-                $ingredients = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_ingredients WHERE recipe_id=" . $id . " ORDER BY ingredient_id");
+                $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_recipes WHERE recipe_id=" . $postID);
+                $ingredients = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_ingredients WHERE recipe_id=" . $postID . " ORDER BY ingredient_id");
 
                 $result->ingredients = array();
                 foreach ($ingredients as $ingredient) {
@@ -62,7 +55,7 @@ class EasyRecipeConvert {
                 break;
 
             case 'zlrecipe' :
-                $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_zlrecipe_recipes WHERE recipe_id=" . $id);
+                $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_zlrecipe_recipes WHERE recipe_id=" . $postID);
                 /**
                  * If only total time is specified, use it as the cook time
                  * TODO - Do this for all plugins?
@@ -112,7 +105,7 @@ class EasyRecipeConvert {
                 break;
 
             case 'recipress' :
-                $meta = get_post_custom($id);
+                $meta = get_post_custom($postID);
                 $result->recipe = new stdClass();
                 $result->ingredients = array();
                 $result->recipe->instructions = '';
@@ -123,10 +116,10 @@ class EasyRecipeConvert {
                 $photo = wp_get_attachment_image_src($meta['photo'][0], 'thumbnail', false);
                 $result->recipe->recipe_image = $photo ? $photo[0] : '';
                 $result->recipe->summary = $meta['summary'][0] ? $meta['summary'][0] : '';
-                $terms = get_the_terms($id, 'cuisine');
+                $terms = get_the_terms($postID, 'cuisine');
                 $result->recipe->cuisine = $terms[0]->name;
 
-                $terms = get_the_terms($id, 'course');
+                $terms = get_the_terms($postID, 'course');
                 $result->recipe->mealType = $terms[0]->name;
 
                 /** @noinspection PhpUndefinedFunctionInspection */
@@ -163,7 +156,7 @@ class EasyRecipeConvert {
              * Make the Recipe Card data look like RecipeSEO/Ziplist - only because we already have the JS for those
              */
             case 'yumprint' :
-                $post = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "yumprint_recipe_recipe WHERE id=" . $id);
+                $post = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "yumprint_recipe_recipe WHERE id=" . $postID);
                 $nutrition = json_decode($post->nutrition);
                 $result->recipe = json_decode($post->recipe);
                 $result->recipe->recipe_title = $result->recipe->title;
@@ -241,31 +234,31 @@ class EasyRecipeConvert {
                 }
                 $result->recipe = new stdClass();
 
-                $post = get_post($id);
+                $post = get_post($postID);
 
-                $result->recipe->recipe_title = html_entity_decode(get_the_title($id), ENT_COMPAT, 'UTF-8');
-                $result->recipe->author = get_post_meta($id, 'gmc-source-name', true);
+                $result->recipe->recipe_title = html_entity_decode(get_the_title($postID), ENT_COMPAT, 'UTF-8');
+                $result->recipe->author = get_post_meta($postID, 'gmc-source-name', true);
                 $result->recipe->summary = get_post_meta($post->ID, "gmc-description", true);
 
-                $thumbID = get_post_thumbnail_id($id);
+                $thumbID = get_post_thumbnail_id($postID);
                 $postThumb = $thumbID != 0 ? wp_get_attachment_image_src($thumbID, 'medium') : '';
                 if (!empty($postThumb)) {
                     $result->recipe->recipe_image = $postThumb[0];
                 }
-                $prepHour = (int) get_post_meta($id, "gmc-prep-time-hours", true);
-                $prepMinute = (int) get_post_meta($id, "gmc-prep-time-mins", true);
-                $cookHour = (int) get_post_meta($id, "gmc-cooking-time-hours", true);
-                $cookMinute = (int) get_post_meta($id, "gmc-cooking-time-mins", true);
+                $prepHour = (int) get_post_meta($postID, "gmc-prep-time-hours", true);
+                $prepMinute = (int) get_post_meta($postID, "gmc-prep-time-mins", true);
+                $cookHour = (int) get_post_meta($postID, "gmc-cooking-time-hours", true);
+                $cookMinute = (int) get_post_meta($postID, "gmc-cooking-time-mins", true);
                 $result->recipe->prep_time = "{$prepHour}H{$prepMinute}M";
                 $result->recipe->cook_time = "{$cookHour}H{$cookMinute}M";
 
-                $mealTypes = wp_get_object_terms($id, 'gmc_course');
+                $mealTypes = wp_get_object_terms($postID, 'gmc_course');
 
                 if (count($mealTypes) > 0) {
                     $result->recipe->mealType = $mealTypes[0]->name;
                 }
 
-                $regions = wp_get_object_terms($id, 'gmc_region');
+                $regions = wp_get_object_terms($postID, 'gmc_region');
                 if (count($regions) > 0) {
                     $result->recipe->cuisine = $regions[0]->name;
                 }
@@ -273,7 +266,7 @@ class EasyRecipeConvert {
                 $result->ingredients = array();
                 $result->recipe->instructions = '';
 
-                $steps = get_posts('post_status=publish&post_type=gmc_recipestep&nopaging=1&orderby=menu_order&order=ASC&post_parent=' . $id);
+                $steps = get_posts('post_status=publish&post_type=gmc_recipestep&nopaging=1&orderby=menu_order&order=ASC&post_parent=' . $postID);
                 /** @var $step WP_Post */
                 foreach ($steps as $step) {
                     if (!empty($step->post_content)) {
@@ -281,7 +274,7 @@ class EasyRecipeConvert {
                     }
                 }
                 $result->recipe->instructions = rtrim($result->recipe->instructions, "\n");
-                $ingredients = get_posts('post_status=publish&post_type=gmc_recipeingredient&nopaging=1&orderby=menu_order&order=ASC&post_parent=' . $id);
+                $ingredients = get_posts('post_status=publish&post_type=gmc_recipeingredient&nopaging=1&orderby=menu_order&order=ASC&post_parent=' . $postID);
                 /** @var $ingredient WP_Post */
                 foreach ($ingredients as $ingredient) {
                     if ($gmcInstalled) {
@@ -302,7 +295,7 @@ class EasyRecipeConvert {
                 $result->recipe->notes = strip_tags($post->post_content);
                 $result->recipe->yield = $servings = get_post_meta($post->ID, "gmc-nr-servings", true);
                 $nutrition = new stdClass();
-                if (get_post_meta($id, "gmc_has_nutrition", true)) {
+                if (get_post_meta($postID, "gmc_has_nutrition", true)) {
 
                     $result->recipe->serving_size = get_post_meta($post->ID, "gmc_gda_servings", true);
                     $nutrition->calories = get_post_meta($post->ID, "gmc_nutrition_kcal_serving", true);
@@ -328,8 +321,18 @@ class EasyRecipeConvert {
                 break;
 
         }
-        echo json_encode($result);
+        return $result;
+
+    }
+
+    /**
+     * Return RecipeSEO/ZipList data/Yumprint/ReciPress
+     */
+    function convertRecipe() {
+        echo json_encode($this->doConvert((int) $_POST['id'], $_POST['type']));
         die();
     }
 
+
 }
+

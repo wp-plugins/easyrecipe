@@ -56,7 +56,7 @@ class EasyRecipeSettings {
 
             'cuisines' => 'African|American|French|Greek|Indian|Italian|Kosher|Mexican|Middle Eastern|Spanish',
 
-            'recipeTypes' => 'Appetiser|Breakfast|Brunch|Dessert|Drinks|Entree|Main',
+            'recipeTypes' => 'Appetizer|Breakfast|Brunch|Dessert|Drinks|Entree|Main',
 
             'ratings' => 'EasyRecipe',
 
@@ -99,6 +99,7 @@ class EasyRecipeSettings {
             'customTemplates' => '',
 
             'forcejQuery' => false,
+            'noHTMLWarn' => false,
 
             'enableFooderific' => '',
             'fooderificAPIKey' => '',
@@ -189,6 +190,7 @@ class EasyRecipeSettings {
     public $erFirstName;
     public $customTemplates;
     public $forcejQuery;
+    public $noHTMLWarn;
     public $enableFooderific;
     public $lastScanStarted;
     public $lastScanFinished;
@@ -303,7 +305,7 @@ class EasyRecipeSettings {
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
 //        $data->fdsiteurl = htmlentities($data->wpurl);
         $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.2.1290';
+        $data->pluginversion = '3.2.1294';
         $data->license = $this->licenseKey;
 
         $data->useFeaturedImageChecked = $this->useFeaturedImage ? 'checked="checked"' : '';
@@ -316,6 +318,7 @@ class EasyRecipeSettings {
         $data->enableSwoopChecked = $this->enableSwoop ? 'checked="checked"' : '';
         $data->swoopclass = $this->enableSwoop ? '' : 'ERSNoSwoop';
         $data->forcejQueryChecked = $this->forcejQuery ? 'checked="checked"' : '';
+        $data->noHTMLWarnChecked = $this->noHTMLWarn ? 'checked="checked"' : '';
 
         $data->saveButtonZiplistChecked = $data->saveButtonSaltyFigChecked = $data->saveButtonNoneChecked = '';
         $data->ziplistclass = $data->saltyfigclass = "ERSDisplayNone";
@@ -507,8 +510,9 @@ class EasyRecipeSettings {
                 case 'enableSwoop' :
                 case 'erSubscribe' :
                 case 'gpHideFooter' :
-//                case 'gpUseGravity' :
                 case 'forcejQuery' :
+                case 'noHTMLWarn' :
+                    // case 'gpUseGravity' :
                     $this->$key = isset($settings[$key]);
                     break;
 
