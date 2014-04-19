@@ -26,7 +26,6 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  */
 class EasyRecipeConvert {
-
     private function yumprintTime($time) {
         $time = (int) $time;
 
@@ -56,6 +55,7 @@ class EasyRecipeConvert {
 
             case 'zlrecipe' :
                 $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_zlrecipe_recipes WHERE recipe_id=" . $postID);
+                $result->recipe->nReviews = 1;
                 /**
                  * If only total time is specified, use it as the cook time
                  * TODO - Do this for all plugins?

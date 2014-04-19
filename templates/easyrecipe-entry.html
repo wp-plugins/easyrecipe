@@ -2,21 +2,24 @@
 <html>
 <head>
 <meta charset="utf-8">
-    <meta name="robots" content="noindex, noarchive">
-    <link href="../css/easyrecipe-entry.css" rel="stylesheet" type="text/css" />
+<meta name="robots" content="noindex, noarchive">
+<link href="../css/easyrecipe-entry.css" rel="stylesheet" type="text/css" />
 <style type="text/css">
 #apDiv20 {
-	position: absolute;
-	left: 445px;
-	top: 10px;
-	width: 655px;
-	height: 6426px;
+  position: absolute;
+  left: 445px;
+  top: 10px;
+  width: 655px;
+  height: 6426px;
+}
+#divERContainer {
+  display: block;
 }
 </style>
 </head>
 
 <body>
-<div id="apDiv20" class="easyrecipeUI">
+<div id="apDiv20" class="easyrecipeUI"> 
   <!-- START PAGE -->
   <div id="easyrecipeEntry">
     <div id="divERContainer">
@@ -37,9 +40,9 @@
               <li class="ERIconLineBreak" title="Line break"></li>
               <li class="ERIconLink" title="Insert Link"></li>
               <li class="ERIconImage" title="Insert Image"></li>
-                <!-- START IGNORE -->
+              <!-- START IGNORE -->
               <li class="ERIconVideo" title="Insert Video"></li>
-                <!-- END IGNORE -->
+              <!-- END IGNORE -->
             </ul>
           </div>
           <div id="divERDetails">
@@ -59,12 +62,19 @@
               <label>Cuisine</label>
               <input name="inpERCuisine" type="text" id="inpERCuisine" />
             </div>
-            <!-- START IGNORE -->
-            <div class="ERLabel" id="divERTags">
-              <label>Tags</label>
-              <input name="inpERTags" type="text" id="inpERTags" />
+            <!-- START INCLUDEIF isSelfRated -->
+            <div class="ERLabel ERLabelTop" id="divERRating">
+              <label>Rating</label>
+              <select id="inpERRating">
+                <option value="0">Unrated</option>
+                <option value="1">1 star</option>
+                <option value="2">2 stars</option>
+                <option value="3">3 stars</option>
+                <option value="4">4 stars</option>
+                <option value="5" selected>5 stars</option>
+              </select>
             </div>
-            <!-- END IGNORE -->
+            <!-- END INCLUDEIF isSelfRated -->
             <div class="ERLabel ERLabelSummary" id="lblERSummary">Summary</div>
             <div id="divERSummary">
               <textarea name="taERSummary" class="ERTextArea" id="taERSummary"></textarea>
@@ -72,9 +82,9 @@
             <div class="ERLabel" id="lblERIngredients"> Ingredients<br />
               <span style="font-size: 12px; font-weight: normal;font-style:italic;">One ingredient per line. You don't
               have to use numbers or use bullets. You can add images, links and recipe headings. <a href="http://www.easyrecipeplugin.com/videos/links-images-formatting" target="_blank">Find out how..</a></span> </div>
-          <div id="divERIngredients">
-            <textarea name="taERIngredients" class="ERTextArea" id="taERIngredients"></textarea>
-          </div>
+            <div id="divERIngredients">
+              <textarea name="taERIngredients" class="ERTextArea" id="taERIngredients"></textarea>
+            </div>
             <div class="ERLabel" id="lblERInstructions"> Instructions<br />
               <span style="font-weight: normal; font-size: 12px; font-style:italic;">Put each instruction on a separate
               lineYou don't have to use numbers or use bullets. You can add images, links and recipe headings. <a href="http://www.easyrecipeplugin.com/videos/links-images-formatting" target="_blank">Find out how..</a></span> </div>
@@ -176,7 +186,7 @@
       </div>
     </div>
   </div>
-  <!-- END PAGE -->
+  <!-- END PAGE --> 
 </div>
 </body>
 </html>

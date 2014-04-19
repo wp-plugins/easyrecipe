@@ -233,10 +233,11 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      *
      * @param EasyRecipeTemplate $template
      * @param $originalData
+     * @param $postID
      * @param null $recipe
      * @return mixed|string
      */
-    function applyStyle(EasyRecipeTemplate $template, $originalData, $recipe = null) {
+    function applyStyle(EasyRecipeTemplate $template, $originalData, $postID, $recipe = null) {
         $nRecipe = 0;
         $recipes = ($recipe == null) ? $this->easyrecipes : array($recipe);
 
@@ -245,12 +246,29 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
              * Get a fresh copy of the original data
              */
             $data = clone $originalData;
+            /**
+             * If there no rating data has been passed in AND there's a self-rating, get and use the self rating
+             * This badly needs to be rewritten. It's a hack to get over the problems caused by not originally allowing
+             * for multiple recipes in a post and self rating
+             */
+            if (empty($data->hasRating)) {
+                $rating = $this->getElementAttributeByClassName('easyrecipe', 'data-rating');
+                if (!empty($rating)) {
+                    $data->ratingCount = 1;
+                    $data->ratingValue = $rating;
+                    $data->ratingPC = $rating * 100 / 5;
+                    $data->hasRating = true;
+                }
+            }
+
             $this->easyrecipesHTML[$nRecipe] = trim($this->formatRecipe($recipe, $template, $data, $nRecipe));
 
-            $placeHolder = $this->createElement("div");
-            $placeHolder->setAttribute("id", "_easyrecipe_" . $nRecipe);
-
-
+            /**
+             * Insert a shortcode placeholder for the recipe. We need to remove the recipe from the content before wpauto() mangles it
+             * It gets re-inserted during the "the_content" hook. The placeholder stores the postID and the index of the recipe on the post
+             */
+            $shortCode = "[easyrecipe id=\"$postID\" n=\"$nRecipe\"]";
+            $placeHolder = $this->createTextNode($shortCode);
             try {
                 /** @var $recipe DOMNode */
                 $recipe->parentNode->replaceChild($placeHolder, $recipe);
@@ -262,11 +280,18 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
 
         $html = $this->getHTML();
 
+        /**
+         * Return the content (now has shortcode placeholders for recipes) and the recipe HTML itself
+         */
+        $result = new stdClass();
+        $result->html = $html;
+        $result->recipesHTML = $this->easyrecipesHTML;
+        return $result;
 
-        for ($i = 0; $i < $nRecipe; $i++) {
-            $html = str_replace("<div id=\"_easyrecipe_$i\"></div>", $this->easyrecipesHTML[$i], $html);
-        }
-        return $html;
+//        for ($i = 0; $i < $nRecipe; $i++) {
+//            $html = str_replace("<div id=\"_easyrecipe_$i\"></div>", $this->easyrecipesHTML[$i], $html);
+//        }
+//        return $html;
     }
 
     /**

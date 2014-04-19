@@ -101,6 +101,8 @@ class EasyRecipeSettings {
             'forcejQuery' => false,
             'noHTMLWarn' => false,
 
+            'displayZiplist' => false,
+
             'enableFooderific' => '',
             'fooderificAPIKey' => '',
             'lastScanStarted' => 0,
@@ -198,6 +200,7 @@ class EasyRecipeSettings {
     public $fooderificAPIKey;
     public $pluginVersion;
 
+    public $displayZiplist;
 
     /**
      * @var EasyRecipeSettings
@@ -281,6 +284,7 @@ class EasyRecipeSettings {
     public function showPage() {
         /* @var $wp_rewrite WP_Rewrite */
         global $wp_rewrite;
+        global $wp_version;
 
         if (isset($_POST['action']) && $_POST['action'] == 'save') {
             $this->save($_POST["EasyRecipe"]);
@@ -291,9 +295,54 @@ class EasyRecipeSettings {
             $data->{$setting} = isset($this->{$setting}) ? $this->{$setting} : $default;
         }
 
-        $data->settingsname = "EasyRecipe";
+        $data->settingsname = 'EasyRecipe';
+        $wpurl = get_bloginfo("wpurl");
+        $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
+        $isWP39 = version_compare($wp_version, '3.9.dev', '>') > 0 ? 'true' : 'false';
+        $editURL = "$wpurl/wp-admin/edit.php";
+        $data->pluginversion = $pluginversion = '3.2.1300';
+        $license = $this->licenseKey;
 
-        $data->wpurl = get_bloginfo("wpurl");
+        /**
+         * Figure out what we need to display on the Fooderific tab
+         *
+         * If we had MBRB enabled but this is the first run, show the welcome (firstRun = true) and hide the "retrieving" splash
+         * Otherwise, show the "retrieving" splash
+         */
+        $data->fdFirstRun = false;
+        $data->fdNotEnabled = false;
+        $fdAPIKey = $this->fooderificAPIKey;
+        if (!$this->enableFooderific) {
+            $data->fdNotEnabled = true;
+            $data->retrieveclass = 'FDDisplayNone';
+            $lastScan = 0;
+        } else if ($this->lastScanStarted == 0) {
+            $data->fdFirstRun = true;
+            $data->retrieveclass = 'FDDisplayNone';
+            $lastScan = 0;
+        } else {
+            $data->retrieveclass = '';
+            $tzOffet = get_option('gmt_offset');
+            $lastScan = date_i18n("j M y g:ia", $this->lastScanStarted + $tzOffet * 3600);
+        }
+
+        $data->javascript = <<<EOD
+<script type="text/javascript">
+//<![CDATA[
+    window.EASYRECIPE = window.EASYRECIPE || {};
+    EASYRECIPE.settingsName = 'EasyRecipe';
+    EASYRECIPE.editURL = '$editURL';
+    EASYRECIPE.pluginVersion = '$pluginversion';
+    EASYRECIPE.wpurl = '$wpurl';
+    EASYRECIPE.license = '$license';
+    EASYRECIPE.lastScan = '$lastScan';
+    EASYRECIPE.fdAPIKey = '$fdAPIKey';
+    EASYRECIPE.isWP39 = $isWP39;
+//]]>
+</script>
+EOD;
+
+
         /**
          * If the site isn't using permalinks then just pass the print stuff as a qurerystring param
          */
@@ -302,15 +351,11 @@ class EasyRecipeSettings {
             $data->siteDiagnosticsURL .= "?";
         }
 
-        $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
-//        $data->fdsiteurl = htmlentities($data->wpurl);
-        $data->editURL = "$data->wpurl/wp-admin/edit.php";
-        $data->pluginversion = '3.2.1294';
-        $data->license = $this->licenseKey;
 
         $data->useFeaturedImageChecked = $this->useFeaturedImage ? 'checked="checked"' : '';
         $data->displayPrintChecked = $this->displayPrint ? 'checked="checked"' : '';
         $data->filterExcerptsChecked = $this->filterExcerpts ? 'checked="checked"' : '';
+        $data->displayZiplistChecked = $this->displayZiplist ? 'checked="checked"' : '';
         $data->allowLinkChecked = $this->allowLink ? 'checked="checked"' : '';
         $data->convertFractionsChecked = $this->convertFractions ? 'checked="checked"' : '';
         $data->removeMFChecked = $this->removeMicroformat ? 'checked="checked"' : '';
@@ -339,7 +384,7 @@ class EasyRecipeSettings {
                 break;
         }
 
-        $data->ratingEasyRecipeChecked = $data->ratingDisabledChecked = '';
+        $data->ratingEasyRecipeChecked = $data->ratingSelfRatedChecked = $data->ratingDisabledChecked = '';
         $ratingChecked = "rating" . $this->ratings . "Checked";
         $data->{$ratingChecked} = 'checked="checked"';
 
@@ -438,33 +483,10 @@ class EasyRecipeSettings {
         $data->customTemplates = $this->customTemplates;
 
 
-        /**
-         * Figure out what we need to display on the Fooderific tab
-         *
-         * If we had MBRB enabled but this is the first run, show the welcome (firstRun = true) and hide the "retrieving" splash
-         * Otherwise, show the "retrieving" splash
-         */
-        $data->fdFirstRun = false;
-        $data->fdNotEnabled = false;
-        $data->fdAPIKey = $this->fooderificAPIKey;
-        if (!$this->enableFooderific) {
-            $data->fdNotEnabled = true;
-            $data->retrieveclass = 'FDDisplayNone';
-            $data->lastScan = 0;
-        } else if ($this->lastScanStarted == 0) {
-            $data->fdFirstRun = true;
-            $data->retrieveclass = 'FDDisplayNone';
-            $data->lastScan = 0;
-        } else {
-            $data->retrieveclass = '';
-            $tzOffet = get_option('gmt_offset');
-            $data->lastScan = date_i18n("j M y g:ia", $this->lastScanStarted + $tzOffet * 3600);
-        }
 
         /*
          * We need to preserve whitespace on this template because newlines in the the textareas are significant
         */
-
         $template = new EasyRecipeTemplate(EasyRecipe::$EasyRecipeDir . "/templates/easyrecipe-settings.html");
         $html = $template->replace($data, EasyRecipeTemplate::PRESERVEWHITESPACE);
 
@@ -503,6 +525,7 @@ class EasyRecipeSettings {
                 case 'displayPrint' :
                 case 'allowLink' :
                 case 'filterExcerpts':
+                case 'displayZiplist':
                 case 'useFeaturedImage' :
                 case 'convertFractions' :
                 case 'removeMicroformat' :

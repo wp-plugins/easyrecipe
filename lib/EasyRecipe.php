@@ -26,7 +26,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1294';
+    private $pluginVersion = '3.2.1300';
 
     private $pluginName = 'EasyRecipe';
 
@@ -45,7 +45,8 @@ class EasyRecipe {
     /** @var EasyRecipeSettings */
     private $settings;
 
-    private $postContent;
+    private $postContent = array();
+    private $recipesHTML = array();
 
     private $easyrecipes = array();
     private $formatting = false;
@@ -519,7 +520,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1294';
+        $data->version = '3.2.1300';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -810,7 +811,6 @@ EOD;
         $content = str_replace("[br]", "<br />", $post->post_content);
         $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
 
-
         $postDOM = new EasyRecipeDocument($content);
 
         if (!$postDOM->isEasyRecipe) {
@@ -959,14 +959,40 @@ EOD;
     }
 
     /**
+     * Get the recipe HTML
+     *
+     * @param array $match
+     * @return string
+     */
+    function getRecipeHTML($match) {
+        return $this->recipesHTML[$match[1]][$match[2]];
+    }
+
+
+    /**
+     * EasyRecipe's were expanded and formatted during thePosts() processing. The recipe html was replaced in the content by a shortcode to get around the
+     * problem of wpauto() making a total mess of the HTML.
+     *
+     * By the time theContent() is called, wpauto() has done it's damage and we can replace the shortcode with the actual recipe HTML
+     *
+     * TODO - we should be able to move the [br] shortcode handling back to where it was originally. Just need to test it
      * Do any [br] shortcode replacement here (after wpauto()) so we get around the complete mess that function makes of multiple line breaks
      * Also try to clean up any mess wpauto *did* make.
-     * And decode any quotes inside title and alt attribues on images we inserted. See why we need to do this in the javascript comments for insertUploadedImage()
+     *
+     * Decode any quotes inside title and alt attribues on images we inserted. See why we need to do this in the javascript comments for insertUploadedImage()
+     *
+     * Remove stuff we don't need to display in excerpts (like the Print button etc)
      *
      * @param $content
      * @return mixed
      */
     function theContent($content) {
+
+        /**
+         * Replace the easyrecipe shortcode with actual HTML
+         */
+        $content = preg_replace_callback('/\[easyrecipe id="(\d+)" n="(\d)"\]/', array($this, 'getRecipeHTML'), $content);
+
         /**
          * Only fiddle the content if there's an EasyRecipe in it
          */
@@ -1043,6 +1069,8 @@ EOD;
             }
 
 
+
+
             $postDOM = new EasyRecipeDocument($post->post_content);
 
             if (!$postDOM->isEasyRecipe) {
@@ -1092,7 +1120,8 @@ EOD;
             $data = new stdClass();
 
             /**
-             * Get the ratings from the comment meta table
+             * Get the ratings from the comment meta table if we use the EasyRecipe comment method
+             * Other rating methods are handled in EasyRecipeDocument->applyStyle()
              */
 
             if ($this->settings->ratings == 'EasyRecipe') {
@@ -1108,7 +1137,6 @@ EOD;
                 } else {
                     $data->hasRating = false;
                 }
-
             }
 
 
@@ -1126,6 +1154,7 @@ EOD;
              * If the site isn't using permalinks then just pass the print stuff as a qurerystring param
              */
             if ($wp_rewrite->using_permalinks()) {
+
                 $data->sitePrintURL = $data->siteURL;
             } else {
                 $data->sitePrintURL = $data->siteURL . "?";
@@ -1145,18 +1174,21 @@ EOD;
 
 
             /**
-             * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
-             * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
+             * Apply styles to the recipe data and return the content with recipes replace by a shortcode and also each recipe's HTML
+             * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again TODO - is this necessary now?
              */
-            $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
+            $result = $postDOM->applyStyle($template, $data, $post->ID);
+            $this->postContent[$post->ID] = $post->post_content = $result->html;
+            $this->recipesHTML[$post->ID] = $result->recipesHTML;
             /**
              * Some themes do a get_post() again instead of using the posts as modified by plugins
              * So make sure our modified post is in cache so the get_post() picks up the modified version not the original
-
              * Need to do both add and replace since add doesn't replace and replace doesn't add and we can't be sure if the cache key exists at this point
+             *
+             * FIXME - we may need to find another way around this?
              */
-            wp_cache_add($post->ID, $post, 'posts');
-            wp_cache_replace($post->ID, $post, 'posts');
+            // wp_cache_add($post->ID, $post, 'posts');
+            // wp_cache_replace($post->ID, $post, 'posts');
 
             $newPosts[] = $post;
         }
@@ -1356,9 +1388,10 @@ EOD;
         if (!$this->isGuest && !isset($post)) {
             return;
         }
-
+        $data = new stdClass();
+        $data->isSelfRated = $this->settings->ratings == 'SelfRated';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-entry.html");
-        echo $template->replace();
+        echo $template->replace($data);
 
         $data = new stdClass();
         $data->easyrecipeURL = self::$EasyRecipeURL;

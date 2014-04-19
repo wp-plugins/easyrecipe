@@ -4,32 +4,32 @@
     <meta name="robots" content="noindex, noarchive">
     <style type="text/css">
 #apDiv1 {
-	position: absolute;
-	left: 310px;
-	top: 21px;
-	width: 1146px;
-	height: 571px;
-	z-index: 1;
+  position: absolute;
+  left: 310px;
+  top: 21px;
+  width: 1146px;
+  height: 571px;
+  z-index: 1;
 }
 </style>
     <style type="text/css">
 body, td, th {
-	font-family: sans-serif;
-	font-size: 12px;
+  font-family: sans-serif;
+  font-size: 12px;
 }
 .form-table td {
-	font-size: 12px;
-	line-height: 20px;
-	margin-bottom: 9px;
-	padding: 8px 10px;
+  font-size: 12px;
+  line-height: 20px;
+  margin-bottom: 9px;
+  padding: 8px 10px;
 }
 #apDiv2 {
-	position: absolute;
-	left: 456px;
-	top: 12px;
-	width: 951px;
-	height: 442px;
-	z-index: 1;
+  position: absolute;
+  left: 456px;
+  top: 12px;
+  width: 951px;
+  height: 442px;
+  z-index: 1;
 }
 </style>
     <link href="../css/easyrecipe-settings.css" rel="stylesheet" type="text/css"/>
@@ -125,26 +125,26 @@ body, td, th {
                           <input name="#settingsname#[ratings]" type="radio" value="EasyRecipe" #ratingEasyRecipeChecked# />
                           EasyRecipe</label>
                           <br/>
-
-                          <!-- START IGNORE -->
-
-                          <input type="radio" name="radio" value="radio"/>
-                          <a href="http://rating-widget.com/">Rating Widget</a><br/>
-                          <input type="radio" name="radio" value="radio"/>
-                          <a href="http://disqus.com/">Disqus Comments</a><br/>
-
-                          <!-- END IGNORE -->
-
+                          <label>
+                          <input name="#settingsname#[ratings]" type="radio" value="SelfRated" #ratingSelfRatedChecked# />
+                          Self Rated
+                          </label>
+                          <br/>
                           <label>
                           <input name="#settingsname#[ratings]" type="radio" value="Disabled" #ratingDisabledChecked# />
                           Disable</label></td>
                     </tr>
-                                        <tr>
-                        <th scope="row"><span class="xlate">Filter excerpts</span><br/>
-                            <span class="ERSExplain xlate">Remove non-text from recipe in excerpts<br />(e.g. Print button)</span></th>
-                        <td style="width:37%"><input type="checkbox" name="#settingsname#[filterExcerpts]" #filterExcerptsChecked# /></td>
+                      <tr>
+                      <th scope="row"><span class="xlate">Filter excerpts</span><br/>
+                          <span class="ERSExplain xlate">Remove non-text from recipe in excerpts<br/>
+                        (e.g. Print button)</span></th>
+                      <td style="width:37%"><input type="checkbox" name="#settingsname#[filterExcerpts]" #filterExcerptsChecked# /></td>
                     </tr>
-
+                      <tr>
+                      <th scope="row"><span class="xlate">Display Ziplist recipes</span><br/>
+                          <span class="ERSExplain xlate">Allow EasyRecipe to format and display Ziplist recipes</span></th>
+                      <td style="width:37%"><input id="cbDisplayZiplist" type="checkbox" name="#settingsname#[displayZiplist]" #displayZiplistChecked# /></td>
+                    </tr>
                     </table></td>
                   <td><table style="border-spacing:0 10px;width:100%">
                       <tr>
@@ -630,7 +630,7 @@ body, td, th {
                 </label>
                 <br>
                 <span class="ERSExplain xlate">This attempts to fix problems caused by badly behaved themes and plugins. <a href="http://www.easyrecipeplugin.com/load_jquery.php" target="_blank">More information...</a></span></div>
-                              <div id="divERSNoHTMLWarn">
+              <div id="divERSNoHTMLWarn">
                 <label>Supress HTML editor warning
                   <input type="checkbox" name="#settingsname#[noHTMLWarn]" #noHTMLWarnChecked# />
                 </label>
@@ -674,20 +674,7 @@ body, td, th {
           </div>
         </form>
       </div>
-      <script type="text/javascript">
-    //<![CDATA[
-    if (typeof EASYRECIPE == "undefined") {
-        EASYRECIPE = {};
-    }
-    EASYRECIPE.settingsName = '#settingsname#';
-    EASYRECIPE.editURL = '#editURL#';
-    EASYRECIPE.pluginVersion = '#pluginversion#';
-    EASYRECIPE.wpurl = '#wpurl#';
-    EASYRECIPE.license = '#license#';
-    EASYRECIPE.lastScan = '#lastScan#';
-    EASYRECIPE.fdAPIKey = '#fdAPIKey#';
-    //]]>
-</script>
+      #javascript#
       <!-- END PAGE -->
     </div>
 </body>
