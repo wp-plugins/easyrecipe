@@ -35,6 +35,20 @@ class EasyRecipeConvert {
         return sprintf("PT%dH%dM", $hours, $minutes);
     }
 
+    /**
+     * Decode markdown
+     * TODO - this is a pretty naive implementation. It doesn't handle markdown embedded in markdown well
+     * e.g. It will handle [*bold*|link.com] but not *[bold|link.com]*
+     *
+     * @param $string
+     * @return mixed
+     */
+    private function decodeMarkdown($string) {
+        $string = preg_replace('/\[([^|[\]]+?)\|(.+?)\]/', '[url href="$2" target="_blank"]$1[/url]', $string);
+        $string = preg_replace('/([\W]|^)_([^_]+?)_(\W|$)/', '$1[i]$2[/i]$3', $string);
+        return preg_replace('/([\W]|^)\*([^*]+?)\*(\W|$)/', '$1[b]$2[/b]$3', $string);
+    }
+
     private function doConvert($postID, $postType) {
         /** @global $wpdb wpdb */
         global $wpdb;
@@ -74,8 +88,7 @@ class EasyRecipeConvert {
                             $ingredient = '[img src="' . $regs[1] . '"]';
                         }
                     } else {
-                        $ingredient = preg_replace('/_(.+?)_/', '[i]$1[/i]', $ingredient);
-                        $ingredient = preg_replace('/\*(.+?)\*/', '[b]$1[/b]', $ingredient);
+                        $ingredient = $this->decodeMarkdown($ingredient);
                     }
                     $result->ingredients[] = $ingredient;
                 }
@@ -92,8 +105,7 @@ class EasyRecipeConvert {
                             $instruction = '[img src="' . $regs[1] . '"]';
                         }
                     } else {
-                        $instruction = preg_replace('/_(.+?)_/', '[i]$1[/i]', $instruction);
-                        $instruction = preg_replace('/\*(.+?)\*/', '[b]$1[/b]', $instruction);
+                        $instruction = $this->decodeMarkdown($instruction);
                     }
 
                     $convertedInstructions[] = $instruction;

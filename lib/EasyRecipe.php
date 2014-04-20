@@ -26,7 +26,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1300';
+    private $pluginVersion = '3.2.1301';
 
     private $pluginName = 'EasyRecipe';
 
@@ -520,7 +520,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1300';
+        $data->version = '3.2.1301';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -994,6 +994,11 @@ EOD;
         $content = preg_replace_callback('/\[easyrecipe id="(\d+)" n="(\d)"\]/', array($this, 'getRecipeHTML'), $content);
 
         /**
+         * Process any non-EasyRecipe shortcodes that may be the recipe itself
+         */
+        $content = do_shortcode($content);
+
+        /**
          * Only fiddle the content if there's an EasyRecipe in it
          */
         if (strpos($content, '<div class="easyrecipe"') === false) {
@@ -1151,10 +1156,10 @@ EOD;
             $data->siteURL = $this->homeURL;
 
             /**
+
              * If the site isn't using permalinks then just pass the print stuff as a qurerystring param
              */
             if ($wp_rewrite->using_permalinks()) {
-
                 $data->sitePrintURL = $data->siteURL;
             } else {
                 $data->sitePrintURL = $data->siteURL . "?";

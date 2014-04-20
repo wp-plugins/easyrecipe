@@ -38,7 +38,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     const regexTime = '/^(?:([0-9]+) *(?:hours|hour|hrs|hr|h))? *(?:([0-9]+) *(?:minutes|minute|mins|min|mns|mn|m))?$/i';
     const regexImg = '%<img ([^>]*?)/?>%si';
     const regexPhotoClass = '/class\s*=\s*["\'](?:[a-z0-9-_]+ )*?photo[ \'"]/si';
-
+    const regexShortCodes = '%(?:\[(i|b|u)\](.*?)\[/\1\])|(?:\[(img) +(.*?) */?\])|(?:\[(url|a) +([^\]]+?)\](.*?)\[/url\])|(?:\[(cap) +([^\]]+?)\](.*?)\[/cap\])%i';
 
     private $fractions = array(
             1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'),
@@ -111,33 +111,53 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     /**
      * Process the shotcodes.
      * Called as the preg_replace callback
+     * TODO - this is a pretty naive implementation. It doesn't handle markdown embedded in markdown very well
+     * e.g. [b]bold[b]another bold[/b][/b] won't work
+     * It may not be worthwhile fixing this
      *
-     * @param $match array
-     *            The match array returned by the regex
+     * @param array $match The match array returned by the regex
      * @return string The replacement code, or the original complete match if we don't recognise the shortcode
      */
     private function shortCodes($match) {
         switch ($match[1]) {
             case "i" :
-                return "<em>{$match[2]}</em>";
+                $replacement = "<em>{$match[2]}</em>";
+                break;
 
             case "u" :
-                return "<u>{$match[2]}</u>";
+                $replacement = "<u>{$match[2]}</u>";
+                break;
 
             case "b" :
-                return "<strong>{$match[2]}</strong>";
+                $replacement = "<strong>{$match[2]}</strong>";
+                break;
 
             case "img" :
-                return "<img {$match[2]} />";
+                $replacement = "<img {$match[2]} />";
+                break;
 
+            case "a" :
             case "url" :
-                return "<a {$match[2]}>{$match[3]}</a>";
+                $replacement = "<a {$match[2]}>{$match[3]}</a>";
+                break;
 
             case "cap" :
-                return "[caption {$match[2]}]{$match[3]}[/caption]";
+                $replacement = "[caption {$match[2]}]{$match[3]}[/caption]";
+                break;
+
+            default:
+                return $match[0];
 
         }
-        return $match[0];
+        while (preg_match(self::regexShortCodes, $replacement)) {
+            $replacement = preg_replace_callback('%\[(i|b|u)\](.*?)\[/\1\]%si', array($this, "shortCodes"), $replacement);
+            $replacement = preg_replace_callback('%\[(img) +(.*?) */?\]%i', array($this, "shortCodes"), $replacement);
+            $replacement = preg_replace_callback('%\[(url|a) +([^\]]+?)\](.*?)\[/url\]%si', array($this, "shortCodes"), $replacement);
+            $replacement = preg_replace_callback('%\[(cap) +([^\]]+?)\](.*?)\[/cap\]%si', array($this, "shortCodes"), $replacement);
+
+        }
+
+        return $replacement;
     }
 
     /**
@@ -200,16 +220,18 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         // $html = str_replace("[br]", "<br />", $html);
 
         /**
-         * There's probably a really smart regex that could handle everything at once but
-         * it's much easier and more robust to handle the cases separately.
-         * WP does it in one regex - but then WP's implementation doesn't actually work
+         * Do our own shortcode handling
          * Don't bother with the regex's if there's no need - saves a few cycles
+         * Not a great way of doing these - shortcodes embedded in shortcodes aren't always handled all that well
+         * Would be better implemented using a stack so we we can absolutely match beginning and end codes and eliminate the possibilty of infinite recursion
          */
         if (strpos($html, "[") !== false) {
-            $html = preg_replace_callback('%\[(i|b|u)\](.*?)\[/\1\]%si', array($this, "shortCodes"), $html);
-            $html = preg_replace_callback('%\[(img) +(.*?) */?\]%i', array($this, "shortCodes"), $html);
-            $html = preg_replace_callback('%\[(url) +([^\]]+?)\](.*?)\[/url\]%si', array($this, "shortCodes"), $html);
-            $html = preg_replace_callback('%\[(cap) +([^\]]+?)\](.*?)\[/cap\]%si', array($this, "shortCodes"), $html);
+            if (preg_match(self::regexShortCodes, $html)) {
+                $html = preg_replace_callback('%\[(i|b|u)\](.*?)\[/\1\]%si', array($this, "shortCodes"), $html);
+                $html = preg_replace_callback('%\[(img) +(.*?) */?\]%i', array($this, "shortCodes"), $html);
+                $html = preg_replace_callback('%\[(url|a) +([^\]]+?)\](.*?)\[/url\]%si', array($this, "shortCodes"), $html);
+                $html = preg_replace_callback('%\[(cap) +([^\]]+?)\](.*?)\[/cap\]%si', array($this, "shortCodes"), $html);
+            }
         }
 
         /**
@@ -251,7 +273,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
              * This badly needs to be rewritten. It's a hack to get over the problems caused by not originally allowing
              * for multiple recipes in a post and self rating
              */
-            if (empty($data->hasRating)) {
+            if (!empty($rating) && is_numeric($rating) && $rating > 0) {
                 $rating = $this->getElementAttributeByClassName('easyrecipe', 'data-rating');
                 if (!empty($rating)) {
                     $data->ratingCount = 1;
