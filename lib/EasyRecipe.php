@@ -26,7 +26,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1303';
+    private $pluginVersion = '3.2.1308';
 
     private $pluginName = 'EasyRecipe';
 
@@ -69,7 +69,11 @@ class EasyRecipe {
     private $wpVersion = '';
     private $pluploadVersion = '';
 
+    private $ratingMethod;
+
+
     function __construct($pluginDir, $pluginURL) {
+
 
 
         /**
@@ -122,7 +126,7 @@ class EasyRecipe {
         add_action('admin_init', array($this, 'initialiseAdmin'));
         add_action('init', array($this, 'initialise'));
 
-
+        add_action('the_post', array($this, 'thePost'));
 
         /**
          * Need this to explicitly allow the datetime & link tags when future posts are published
@@ -276,7 +280,7 @@ EOD;
         /** @var $wp_admin_bar WP_Admin_Bar */
         global $wp_admin_bar;
 
-        $root_menu = array('parent' => false, 'id' => 'ERFormatMenu', 'title' => 'EasyRecipe Format', 'href' => admin_url('#'), 'meta' => array('onclick' => 'EASYRECIPE.openFormat(); return false'));
+        $root_menu = array('parent' => false, 'id' => 'ERFormatMenu', 'title' => 'EasyRecipe Format', 'href' => '#');
         $wp_admin_bar->add_menu($root_menu);
     }
 
@@ -313,6 +317,7 @@ EOD;
          * TODO - add an option to select which post types EasyRecipe should be active on rather than test individual cases
          */
         if (empty($_REQUEST['post_type']) || $_REQUEST['post_type'] != 'soliloquy' || $_REQUEST['post_type'] != 'easyindex') {
+
 
             wp_enqueue_style("easyrecipe-UI");
             wp_enqueue_style("easyrecipe-entry", self::$EasyRecipeURL . "/css/easyrecipe-entry.css", array('easyrecipe-UI'), $this->pluginVersion);
@@ -433,7 +438,7 @@ EOD;
             /*
              * Use an unobtrusive grey scheme for the formatting dialog so it doesn't visually overpower the recipe's styling
             */
-            wp_enqueue_style("easyrecipe-FormatUI", self::$EasyRecipeURL . "/formatui/easyrecipeFormatUI.css", array(), $this->pluginVersion);
+            wp_enqueue_style("easyrecipe-FormatUI", self::$EasyRecipeURL . "/formatui/easyrecipeFormatUI{$this->uiVersion}.css", array(), $this->pluginVersion);
             wp_enqueue_style("easyrecipeformat", self::$EasyRecipeURL . "/css/easyrecipe-format.css", array('easyrecipe-FormatUI'), $this->pluginVersion);
 
             wp_enqueue_script('easyrecipeformat', self::$EasyRecipeURL . "/js/easyrecipe-format.js", array('jquery', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-accordion',
@@ -520,7 +525,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1303';
+        $data->version = '3.2.1308';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -598,8 +603,8 @@ EOD;
             foreach ($customCSS as $selector => $style) {
                 $style = addslashes($style);
                 /*
-                * Make the selectors VERY specific to override theme CSS
-                * Aloso make them "important"
+                * Make the selectors VERY specific in an attempt override theme CSS
+                * Also make them "important"
                 */
                 if (stripos($selector, ".easyrecipe") === 0) {
                     $selector = "html body div" . $selector;
@@ -623,10 +628,13 @@ EOD;
                     $styles = explode(';', $style);
                     $style = '';
                     foreach ($styles as $s) {
-                        if (!preg_match('/!\s*important\s*/', $s)) {
-                            $s .= '!important';
+                        $s = trim($s);
+                        if (!empty($s)) {
+                            if (!preg_match('/!\s*important\s*/', $s)) {
+                                $s .= '!important';
+                            }
+                            $style .= "$s;";
                         }
-                        $style .= "$s;";
                     }
 
                 }
@@ -673,13 +681,13 @@ EOD;
             }
 
             $setting = isset($_POST['isPrint']) ? "customPrintCSS" : "customCSS";
-            $this->settings->{$setting} = isset($_POST['css']) ? $_POST['css'] : "";
+            $this->settings->{$setting} = isset($_POST['css']) ? stripslashes($_POST['css']) : "";
             $this->settings->update();
 
         }
-        /*
-        * The return isn't necessary but it helps with unit testing
-        */
+        /**
+         * The return isn't necessary but it helps with unit testing
+         */
         die('OK');
     }
 
@@ -808,7 +816,7 @@ EOD;
         /**
          * Process the [br] shortcodes and remove the spurious <br>'s that wp_auto() inserts
          */
-        $content = str_replace("[br]", "<br />", $post->post_content);
+        $content = str_replace("[br]", "<br>", $post->post_content);
         $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
 
         $postDOM = new EasyRecipeDocument($content);
@@ -943,6 +951,28 @@ EOD;
 
 
 
+
+    /**
+     * Remove non display stuff
+     *
+     * @param $content
+     * @return mixed
+     */
+    function filterExcerpt($content) {
+        $dom = new EasyRecipeDOMDocument($content);
+        $dom->removeElementsByClassName('ERSSavePrint', 'div');
+        $dom->removeElementsByClassName('ERSRating', 'div');
+        $dom->removeElementsByClassName('ERSRatings', 'div');
+        $dom->removeElementsByClassName('ERSClear', 'div');
+        $dom->removeElementsByClassName('endeasyrecipe', 'div');
+        $dom->removeElementsByClassName('ERSLinkback', 'div');
+        $content = $dom->getHTML(true);
+        /**
+         * Remove empty lines left over from the deletions
+         */
+        return preg_replace('/(\r\n|\n)(?:\r\n|\n)+/', '$1', $content);
+    }
+
     /**
      * Set a the filterExcerpt flag that will get checked in theContent()
      * This function only gets hooked in if our "Filter excerpt" option is checked
@@ -959,88 +989,58 @@ EOD;
     }
 
     /**
-     * Get the recipe HTML
+     * Replaces a formatted recipe's HTML with a shortcode
+     *
+     * @param $match
+     * @return string
+     */
+    function getRecipeShortcode($match) {
+        $nRecipe = count($this->recipesHTML);
+        $this->recipesHTML[] = $match[1];
+        return "[easyrecipe n=\"$nRecipe\"]";
+    }
+
+    /**
+     * Retreive the original formatted recipe HTML
+     * If we are filtering excerpts, do it (takes out stuff that's not relevant like Print and Save buttons and elements that are display:none)
      *
      * @param array $match
      * @return string
      */
     function getRecipeHTML($match) {
-        return $this->recipesHTML[$match[1]][$match[2]];
+        $html = $this->recipesHTML[$match[1]];
+        /**
+         * If we are filtering expcerpts
+         */
+        if ($this->filterExcerpt) {
+            $html = $this->filterExcerpt($html);
+        }
+        return $html;
     }
 
+    /**
+     * Replace a recipe shortcode with the original HTML
+     * @param $attributes
+     * @return mixed
+     */
+    function replaceRecipeShortcode($attributes) {
+        return $this->recipesHTML[$attributes['n']];
+    }
 
     /**
-     * EasyRecipe's were expanded and formatted during thePosts() processing. The recipe html was replaced in the content by a shortcode to get around the
-     * problem of wpauto() making a total mess of the HTML.
-     *
-     * By the time theContent() is called, wpauto() has done it's damage and we can replace the shortcode with the actual recipe HTML
-     *
-     * TODO - we should be able to move the [br] shortcode handling back to where it was originally. Just need to test it
-     * Do any [br] shortcode replacement here (after wpauto()) so we get around the complete mess that function makes of multiple line breaks
-     * Also try to clean up any mess wpauto *did* make.
-     *
-     * Decode any quotes inside title and alt attribues on images we inserted. See why we need to do this in the javascript comments for insertUploadedImage()
-     *
-     * Remove stuff we don't need to display in excerpts (like the Print button etc)
+     * Replace formatted EasyRecipe HTML with a shortcode
+     * This function will be called before wpauto() mangles the recipe HTML by replacing it with a shortcode which gets expanded in replaceRecipeShortcode() after
+     * wpauto() has done its worst. The "the_content" filter doesn't get applied in some themes and in that case, we'll just have to live with mangled HTML
      *
      * @param $content
      * @return mixed
      */
+
     function theContent($content) {
-
         /**
-         * Replace the easyrecipe shortcode with actual HTML
+         * Replace the recipe HTML with a shortcode
          */
-        $content = preg_replace_callback('/\[easyrecipe id="(\d+)" n="(\d)"\]/', array($this, 'getRecipeHTML'), $content);
-
-        /**
-         * Process any non-EasyRecipe shortcodes that may be the recipe itself
-         */
-        $content = do_shortcode($content);
-
-        /**
-         * Only fiddle the content if there's an EasyRecipe in it
-         */
-        if (strpos($content, '<div class="easyrecipe"') === false) {
-            $this->filterExcerpt = false;
-            return $content;
-        }
-        /**
-         * Do break shortcodes
-         */
-        $content = str_replace("[br]", "<br />", $content);
-
-        /**
-         * Decode any quotes that have possibly been "double encoded" when we inserted an image
-         */
-        $content = str_replace("&amp;quot;", '&quot;', $content);
-        /**
-         * If we are filtering excerpts and THIS is an excerpt (the filterExcerpt flag is only set if so) ), remove non-display stuff
-         * Although it's expensive to do, use a DOMDocument - we could try to strip stuff with regex's
-         * but trying to keep regex's up to date with old, current and future recipe structures would be a maintenance nightmare
-         *
-         * This has the fortuitous side effect of cleaning up any mess that wpauto() made (else do that explicitly)
-         */
-        if ($this->filterExcerpt || ( /* $this->settings->filterRSS && */
-                is_feed())
-        ) {
-            $dom = new EasyRecipeDOMDocument($content);
-            $dom->removeElementsByClassName('ERSSavePrint', 'div');
-            $dom->removeElementsByClassName('ERSRating', 'div');
-            $dom->removeElementsByClassName('ERSRatings', 'div');
-            $dom->removeElementsByClassName('ERSClear', 'div');
-            $dom->removeElementsByClassName('endeasyrecipe', 'div');
-            $dom->removeElementsByClassName('ERSLinkback', 'div');
-            $content = $dom->getHTML(true);
-            /**
-             * Remove empty lines left over from the deletions
-             */
-            $content = preg_replace('/(\r\n|\n)(?:\r\n|\n)+/', '$1', $content);
-            $this->filterExcerpt = false;
-        } else {
-            $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
-        }
-        return $content;
+        return preg_replace_callback('%(<div[^>]+class="easyrecipe.*?<div[^>]+class="endeasyrecipe".+?</div>.*?</div>)%si', array($this, 'getRecipeShortcode'), $content);
     }
 
     /**
@@ -1056,6 +1056,8 @@ EOD;
 
         /** @global  $wpdb wpdb */
         global $wpdb;
+
+        global $shortcode_tags;
 
         $guestpost = null;
         $newPosts = array();
@@ -1073,6 +1075,10 @@ EOD;
                 continue;
             }
 
+            /**
+             * We may have to change the rating method (e.g. for Ziplist recipes) so make a local copy
+             */
+            $this->ratingMethod = $this->settings->ratings;
 
 
 
@@ -1083,17 +1089,10 @@ EOD;
                 continue;
             }
 
-            /**
-             * If we haven't already done so, hook into the_content to do [br] replacements
-             * We can't do it when we process the other shortcodes because the horribly broken wpautop() function stuffs up double line breaks very badly
-             * It also has to be way late in the filter chain so the chance of wpauto getting called after our hook is minimal
-             */
-            if (!has_filter('the_content', array($this, 'theContent'))) {
-                add_filter('the_content', array($this, 'theContent'), 32767);
-            }
 
             $postDOM->setSettings($this->settings);
             /**
+
              * Mark this post as an easyrecipe so that the comment and rating processing know
              */
             $this->easyrecipes[$post->ID] = true;
@@ -1127,9 +1126,10 @@ EOD;
             /**
              * Get the ratings from the comment meta table if we use the EasyRecipe comment method
              * Other rating methods are handled in EasyRecipeDocument->applyStyle()
+             * hasRatings is left unset for Self Rating
              */
 
-            if ($this->settings->ratings == 'EasyRecipe') {
+            if ($this->ratingMethod == 'EasyRecipe') {
                 $q = "SELECT COUNT(*) AS count, SUM(meta_value) AS sum FROM $wpdb->comments JOIN $wpdb->commentmeta ON $wpdb->commentmeta.comment_id = $wpdb->comments.comment_ID ";
                 $q .= "WHERE comment_approved = 1 AND meta_key = 'ERRating' AND comment_post_ID = $post->ID AND meta_value > 0";
                 $ratings = $wpdb->get_row($q);
@@ -1142,6 +1142,8 @@ EOD;
                 } else {
                     $data->hasRating = false;
                 }
+            } else if ($this->ratingMethod == 'Disabled') {
+                $data->hasRating = false;
             }
 
 
@@ -1156,7 +1158,6 @@ EOD;
             $data->siteURL = $this->homeURL;
 
             /**
-
              * If the site isn't using permalinks then just pass the print stuff as a qurerystring param
              */
             if ($wp_rewrite->using_permalinks()) {
@@ -1180,20 +1181,32 @@ EOD;
 
             /**
              * Apply styles to the recipe data and return the content with recipes replace by a shortcode and also each recipe's HTML
-             * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again TODO - is this necessary now?
+             * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
+             *
+             * This didn't work!  Some themes don't call the_content() (esp for excerpts) so we can't rely on hooking into that to supply the formatted html
+             * We need to do it right here - it seems that the_posts is the only reliable place to replace the base recipe HTML with the formatted recipe HTML
              */
-            $result = $postDOM->applyStyle($template, $data, $post->ID);
-            $this->postContent[$post->ID] = $post->post_content = $result->html;
-            $this->recipesHTML[$post->ID] = $result->recipesHTML;
+
+            /**
+             * Replace the original content with the one that has the easyrecipe(s) nicely formatted and marked up
+             * Also keep a copy so we don't have to reformat in the case where the theme asks for the same post again
+             */
+            $this->postContent[$post->ID] = $post->post_content = $postDOM->applyStyle($template, $data);
+            /**
+             * If we haven't already done so, hook into the_content filter to stop wpauto() messing with recipe HTML
+             */
+            if (empty($shortcode_tags['easyrecipe'])) {
+                add_filter('the_content', array($this, 'theContent'), 0);
+                add_shortcode('easyrecipe', array($this, 'replaceRecipeShortcode'));
+            }
+
             /**
              * Some themes do a get_post() again instead of using the posts as modified by plugins
              * So make sure our modified post is in cache so the get_post() picks up the modified version not the original
              * Need to do both add and replace since add doesn't replace and replace doesn't add and we can't be sure if the cache key exists at this point
-             *
-             * FIXME - we may need to find another way around this?
              */
-            // wp_cache_add($post->ID, $post, 'posts');
-            // wp_cache_replace($post->ID, $post, 'posts');
+            wp_cache_add($post->ID, $post, 'posts');
+            wp_cache_replace($post->ID, $post, 'posts');
 
             $newPosts[] = $post;
         }
@@ -1480,52 +1493,11 @@ EASYRECIPE.noHTMLWarn = $noWarn;
 EOD;
     }
 
-
     /**
      * Convert a recipe from other plugins
      */
     function convertRecipe() {
         $convert = new EasyRecipeConvert();
         $convert->convertRecipe();
-    }
-
-    function socketIO($method, $host, $port, $path, $data = "", $timeout = 5) {
-        $fp = @fsockopen($host, $port, $errno, $errstr, $timeout);
-
-        if (!$fp) {
-            return false;
-        }
-
-        @fputs($fp, "$method $path HTTP/1.1\r\nHost: $host\r\n");
-
-        if ($method == "POST") {
-            fputs($fp, "Content-type: application/x-www-form-urlencoded\r\n");
-            fputs($fp, "Content-length: " . strlen($data) . "\r\n");
-            fputs($fp, "Connection: close\r\n\r\n");
-            fputs($fp, $data);
-        } else {
-            fputs($fp, "Connection: close\r\n\r\n");
-        }
-
-        $inData = "";
-        while (($data = @fread($fp, 4096)) !== '' && $data !== false) {
-            $inData .= $data;
-        }
-        @fclose($fp);
-
-        $endHeaders = strpos($inData, "\r\n\r\n");
-        return substr($inData, $endHeaders + 4);
-    }
-
-    /*
-    * Read image from a URL
-    */
-    function getImage($parsedURL) {
-        $host = $parsedURL['host'];
-        $path = isset($parsedURL['path']) ? $parsedURL['path'] : ' / ';
-        $path .= isset($parsedURL['query']) ? $parsedURL['query'] : '';
-        $port = isset($parsedURL['port']) ? $parsedURL['port'] : "80";
-
-        return $this->socketIO("GET", $host, $port, $path);
     }
 }

@@ -100,6 +100,7 @@ class EasyRecipeSettings {
 
             'forcejQuery' => false,
             'noHTMLWarn' => false,
+            'genesisGrid' => false,
 
             'displayZiplist' => false,
 
@@ -127,7 +128,6 @@ class EasyRecipeSettings {
 
     public $convertFractions;
     public $removeMicroformat;
-//    public $pingMBRB;
     public $enableSwoop;
     public $swoopSiteID;
     public $saveButton;
@@ -193,6 +193,7 @@ class EasyRecipeSettings {
     public $customTemplates;
     public $forcejQuery;
     public $noHTMLWarn;
+    public $genesisGrid;
     public $enableFooderific;
     public $lastScanStarted;
     public $lastScanFinished;
@@ -215,6 +216,7 @@ class EasyRecipeSettings {
     static function getInstance() {
         $v32Settings = false;
         $updateOptions = false;
+        $previousSettings = false;
 
         /**
          * If we haven't already instantiated settings, try to do it from the options
@@ -226,6 +228,7 @@ class EasyRecipeSettings {
              */
             if (!self::$instance) {
                 self::$instance = new EasyRecipeSettings();
+                // FIXME - plus not picking up free settings?
                 /**
                  * See if we had existing 3.1 style settings
                  */
@@ -258,6 +261,15 @@ class EasyRecipeSettings {
              */
             if ($v32Settings) {
                 foreach ($v32Settings as $setting => $value) {
+                    if (isset(self::$instance->$setting)) {
+                        self::$instance->$setting = $value;
+                    }
+                }
+                $updateOptions = true;
+            }
+
+            if ($previousSettings) {
+                foreach ($previousSettings as $setting => $value) {
                     if (isset(self::$instance->$setting)) {
                         self::$instance->$setting = $value;
                     }
@@ -300,7 +312,7 @@ class EasyRecipeSettings {
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
         $isWP39 = version_compare($wp_version, '3.9.dev', '>') > 0 ? 'true' : 'false';
         $editURL = "$wpurl/wp-admin/edit.php";
-        $data->pluginversion = $pluginversion = '3.2.1303';
+        $data->pluginversion = $pluginversion = '3.2.1308';
         $license = $this->licenseKey;
 
         /**
@@ -364,6 +376,7 @@ EOD;
         $data->swoopclass = $this->enableSwoop ? '' : 'ERSNoSwoop';
         $data->forcejQueryChecked = $this->forcejQuery ? 'checked="checked"' : '';
         $data->noHTMLWarnChecked = $this->noHTMLWarn ? 'checked="checked"' : '';
+        $data->genesisGridChecked = $this->genesisGrid ? 'checked="checked"' : '';
 
         $data->saveButtonZiplistChecked = $data->saveButtonSaltyFigChecked = $data->saveButtonNoneChecked = '';
         $data->ziplistclass = $data->saltyfigclass = "ERSDisplayNone";
@@ -415,6 +428,8 @@ EOD;
 
         $data->easyrecipeURL = EasyRecipe::$EasyRecipeURL;
         $data->siteurl = get_site_url();
+
+
 
         $data->erplus = '';
         $data->author = $this->author;
@@ -519,6 +534,7 @@ EOD;
         if (!isset($settings)) {
             return;
         }
+        $settings = stripslashes_deep($settings);
 
         foreach (self::$defaultSettings as $key => $value) {
             switch ($key) {
@@ -535,6 +551,7 @@ EOD;
                 case 'gpHideFooter' :
                 case 'forcejQuery' :
                 case 'noHTMLWarn' :
+                case 'genesisGrid' :
                     // case 'gpUseGravity' :
                     $this->$key = isset($settings[$key]);
                     break;

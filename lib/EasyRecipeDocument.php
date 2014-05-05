@@ -38,7 +38,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     const regexTime = '/^(?:([0-9]+) *(?:hours|hour|hrs|hr|h))? *(?:([0-9]+) *(?:minutes|minute|mins|min|mns|mn|m))?$/i';
     const regexImg = '%<img ([^>]*?)/?>%si';
     const regexPhotoClass = '/class\s*=\s*["\'](?:[a-z0-9-_]+ )*?photo[ \'"]/si';
-    const regexShortCodes = '%(?:\[(i|b|u)\](.*?)\[/\1\])|(?:\[(img) +(.*?) */?\])|(?:\[(url|a) +([^\]]+?)\](.*?)\[/url\])|(?:\[(cap) +([^\]]+?)\](.*?)\[/cap\])%i';
+    const regexShortCodes = '%(?:\[(i|b|u)\](.*?)\[/\1\])|(?:\[(img)(?:&nbsp; *| +|\p{Zs}+)(.*?) */?\])|(?:\[(url|a)(?:&nbsp; *| +|\p{Zs}+)([^\]]+?)\](.*?)\[/url\])|(?:\[(cap)(?:&nbsp; *| +|\p{Zs}+)([^\]]+?)\](.*?)\[/cap\])%iu';
 
     private $fractions = array(
             1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'),
@@ -151,9 +151,9 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         }
         while (preg_match(self::regexShortCodes, $replacement)) {
             $replacement = preg_replace_callback('%\[(i|b|u)\](.*?)\[/\1\]%si', array($this, "shortCodes"), $replacement);
-            $replacement = preg_replace_callback('%\[(img) +(.*?) */?\]%i', array($this, "shortCodes"), $replacement);
-            $replacement = preg_replace_callback('%\[(url|a) +([^\]]+?)\](.*?)\[/url\]%si', array($this, "shortCodes"), $replacement);
-            $replacement = preg_replace_callback('%\[(cap) +([^\]]+?)\](.*?)\[/cap\]%si', array($this, "shortCodes"), $replacement);
+            $replacement = preg_replace_callback('%\[(img)(?:&nbsp; *| +|\p{Zs}+)(.*?) */?\]%iu', array($this, "shortCodes"), $replacement);
+            $replacement = preg_replace_callback('%\[(url|a)(?:&nbsp; *| +|\p{Zs}+)([^\]]+?)\](.*?)\[/url\]%iu', array($this, "shortCodes"), $replacement);
+            $replacement = preg_replace_callback('%\[(cap)(?:&nbsp; *| +|\p{Zs}+)([^\]]+?)\](.*?)\[/cap\]%iu', array($this, "shortCodes"), $replacement);
 
         }
 
@@ -212,30 +212,32 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         }
 
         /**
-         * Handle our own shortcodes because Wordpress's braindead implementation can't handle consecutive shortcodes (!)
-         *
-         * The [br] shortcode has to be handled later otherwise wpauto() will generate invalid HTML and completely mess it up
-         * See the "the_content" hook in EasyRecipe.php
+         * Handle our own shortcodes because Wordpress's braindead implementation doesn't handle consecutive shortcodes properly
          */
-        // $html = str_replace("[br]", "<br />", $html);
+        $html = str_replace("[br]", "<br>", $html);
 
         /**
          * Do our own shortcode handling
          * Don't bother with the regex's if there's no need - saves a few cycles
          * Not a great way of doing these - shortcodes embedded in shortcodes aren't always handled all that well
-         * Would be better implemented using a stack so we we can absolutely match beginning and end codes and eliminate the possibilty of infinite recursion
+         * TODO - Would be better implemented using a stack so we we can absolutely match beginning and end codes and eliminate the possibilty of infinite recursion
          */
         if (strpos($html, "[") !== false) {
             if (preg_match(self::regexShortCodes, $html)) {
                 $html = preg_replace_callback('%\[(i|b|u)\](.*?)\[/\1\]%si', array($this, "shortCodes"), $html);
-                $html = preg_replace_callback('%\[(img) +(.*?) */?\]%i', array($this, "shortCodes"), $html);
-                $html = preg_replace_callback('%\[(url|a) +([^\]]+?)\](.*?)\[/url\]%si', array($this, "shortCodes"), $html);
-                $html = preg_replace_callback('%\[(cap) +([^\]]+?)\](.*?)\[/cap\]%si', array($this, "shortCodes"), $html);
+                $html = preg_replace_callback('%\[(img)(?:&nbsp; *| +|\p{Zs}+)(.*?) */?\]%iu', array($this, "shortCodes"), $html);
+                $html = preg_replace_callback('%\[(url|a)(?:&nbsp; *| +|\p{Zs}+)([^\]]+?)\](.*?)\[/url\]%iu', array($this, "shortCodes"), $html);
+                $html = preg_replace_callback('%\[(cap)(?:&nbsp; *| +|\p{Zs}+)([^\]]+?)\](.*?)\[/cap\]%iu', array($this, "shortCodes"), $html);
             }
         }
 
         /**
-         * Remove leftover template comments and then remove linebreaks and blank lines so wpauto() doesn't mangle the HTML
+         * Decode any quotes that have possibly been "double encoded" when we inserted an image
+         */
+        $html = str_replace("&amp;quot;", '&quot;', $html);
+
+        /**
+         * Remove leftover template comments and then remove linebreaks and blank lines
          */
 
         $html = preg_replace('/<!-- .*? -->/', '', $html);
@@ -254,43 +256,55 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * Replaces the raw easyrecipe(s) with the formatted version
      *
      * @param EasyRecipeTemplate $template
-     * @param $originalData
-     * @param $postID
+     * @param object $originalData
      * @param null $recipe
-     * @return mixed|string
+     * @return string
      */
-    function applyStyle(EasyRecipeTemplate $template, $originalData, $postID, $recipe = null) {
+    function applyStyle(EasyRecipeTemplate $template, $originalData, $recipe = null) {
         $nRecipe = 0;
         $recipes = ($recipe == null) ? $this->easyrecipes : array($recipe);
 
         foreach ($recipes as $recipe) {
-            /*
-             * Get a fresh copy of the original data
+            /**
+             * Get a fresh copy of the original data because we may mess with it
              */
             $data = clone $originalData;
             /**
-             * If there no rating data has been passed in AND there's a self-rating, get and use the self rating
+             * If no rating data has been passed in AND there's a self-rating, get and use the self rating
              * This badly needs to be rewritten. It's a hack to get over the problems caused by not originally allowing
-             * for multiple recipes in a post and self rating
+             * for multiple recipes in a post and self rating.
+             * $data-hasRating will be:
+             *   true  - Using EasyRecipe ratings and ratings exist
+             *   false - Using EasyRecipe ratings and ratings do NOT exist OR ratings are disabled
+             *   not set - possibly using self rating
              */
-            if (!empty($rating) && is_numeric($rating) && $rating > 0) {
+            if (!isset($data->hasRating)) {
                 $rating = $this->getElementAttributeByClassName('easyrecipe', 'data-rating');
-                if (!empty($rating)) {
+                if (!empty($rating) && is_numeric($rating) && $rating > 0) {
                     $data->ratingCount = 1;
                     $data->ratingValue = $rating;
                     $data->ratingPC = $rating * 100 / 5;
                     $data->hasRating = true;
                 }
             }
-
+            /**
+             * Format the recipe and save the formatted recipe HTML
+             */
             $this->easyrecipesHTML[$nRecipe] = trim($this->formatRecipe($recipe, $template, $data, $nRecipe));
 
             /**
              * Insert a shortcode placeholder for the recipe. We need to remove the recipe from the content before wpauto() mangles it
              * It gets re-inserted during the "the_content" hook. The placeholder stores the postID and the index of the recipe on the post
              */
-            $shortCode = "[easyrecipe id=\"$postID\" n=\"$nRecipe\"]";
-            $placeHolder = $this->createTextNode($shortCode);
+//            $shortCode = "[easyrecipe id=\"$postID\" n=\"$nRecipe\"]";
+//            $placeHolder = $this->createTextNode($shortCode);
+
+            /**
+             * Replace the original recipe (the unformatted version from the post) with a place holder
+             */
+            $placeHolder = $this->createElement("div");
+            $placeHolder->setAttribute("id", "_easyrecipe_" . $nRecipe);
+
             try {
                 /** @var $recipe DOMNode */
                 $recipe->parentNode->replaceChild($placeHolder, $recipe);
@@ -300,20 +314,27 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
             $nRecipe++;
         }
 
+        /**
+         * Get the post's HTML which now has placeholders where the formatted recipes should be inserted
+         */
         $html = $this->getHTML();
 
         /**
          * Return the content (now has shortcode placeholders for recipes) and the recipe HTML itself
+         * Try plan C. Some themes don't call the_content() so we can't rely on hooking in to that to supply the formatted recipe HTML
          */
-        $result = new stdClass();
-        $result->html = $html;
-        $result->recipesHTML = $this->easyrecipesHTML;
-        return $result;
+//        $result = new stdClass();
+//        $result->html = $html;
+//        $result->recipesHTML = $this->easyrecipesHTML;
+//        return $result;
 
-//        for ($i = 0; $i < $nRecipe; $i++) {
-//            $html = str_replace("<div id=\"_easyrecipe_$i\"></div>", $this->easyrecipesHTML[$i], $html);
-//        }
-//        return $html;
+        /**
+         * Recplace the placeholders with the formatted recipe HTML
+         */
+        for ($i = 0; $i < $nRecipe; $i++) {
+            $html = str_replace("<div id=\"_easyrecipe_$i\"></div>", $this->easyrecipesHTML[$i], $html);
+        }
+        return $html;
     }
 
     /**

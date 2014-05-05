@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.6
 Tested up to: 3.9
-Stable tag:  3.2.1303
+Stable tag:  3.2.1308
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,6 +78,19 @@ You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1308 =
+* Update: Strip blank lines from Ziplist ingredients and instructions (Plus version)
+* Update: Allow for non-breaking spaces in [img], [url] shortcodes
+* Update: Remove some old unused code
+* Update: Standardise Live Formatting popup layout across more themes
+* Update: Changes to handle themes that globally set <div> spacing (recipe entry)
+* Update: Handle Genesis grid items better (Plus version)
+* Bug fix: Fix recipe displaying as a shortcode when some other plugins present
+* Bug fix: Process [br] shortcodes in Ziplist recipes correctly (Plus version)
+* Bug fix: Remove extra "!important" from Live Formatting CSS
+* Bug fix: Strip slashes from quoted extra CSS
+* Bug fix: Remove spurious <a> tag when addding links in IE11
+
 = 3.2 Build 1303 =
 * Bug fix: Handle embedded links properly in Ziplist recipes (Plus version)
 * Bug fix: Suppress rating display properly if ratings disabled or no ratings present

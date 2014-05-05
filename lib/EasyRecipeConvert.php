@@ -70,6 +70,8 @@ class EasyRecipeConvert {
             case 'zlrecipe' :
                 $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_zlrecipe_recipes WHERE recipe_id=" . $postID);
                 $result->recipe->nReviews = 1;
+                $result->recipe->summary = $this->decodeMarkdown($result->recipe->summary);
+                $result->recipe->notes = $this->decodeMarkdown($result->recipe->notes);
                 /**
                  * If only total time is specified, use it as the cook time
                  * TODO - Do this for all plugins?
@@ -80,35 +82,41 @@ class EasyRecipeConvert {
                 $ingredients = explode("\n", str_replace("\r", "", $result->recipe->ingredients));
                 $result->ingredients = array();
                 foreach ($ingredients as $ingredient) {
-                    if (preg_match('/^%([^\s]+)/', $ingredient, $regs)) {
-                        if (($n = count($result->ingredients)) > 0 && $result->ingredients[$n - 1][0] != '!') {
-                            $result->ingredients[$n - 1] .= '[br][img src="' . $regs[1] . '"]';
-                            continue;
+                    $ingredient = trim($ingredient);
+                    if ($ingredient != '') {
+                        if (preg_match('/^%([^\s]+)/', $ingredient, $regs)) {
+                            if (($n = count($result->ingredients)) > 0 && $result->ingredients[$n - 1][0] != '!') {
+                                $result->ingredients[$n - 1] .= '[br][img src="' . $regs[1] . '"]';
+                                continue;
+                            } else {
+                                $ingredient = '[img src="' . $regs[1] . '"]';
+                            }
                         } else {
-                            $ingredient = '[img src="' . $regs[1] . '"]';
+                            $ingredient = $this->decodeMarkdown($ingredient);
                         }
-                    } else {
-                        $ingredient = $this->decodeMarkdown($ingredient);
+                        $result->ingredients[] = $ingredient;
                     }
-                    $result->ingredients[] = $ingredient;
                 }
                 unset($result->recipe->ingredients);
 
                 $instructions = explode("\n", str_replace("\r", "", $result->recipe->instructions));
                 $convertedInstructions = array();
                 foreach ($instructions as $instruction) {
-                    if (preg_match('/^%([^\s]+)/', $instruction, $regs)) {
-                        if (($n = count($convertedInstructions)) > 0 && $convertedInstructions[$n - 1][0] != '!') {
-                            $convertedInstructions[$n - 1] .= '[br][img src="' . $regs[1] . '"]';
-                            continue;
+                    $instruction = trim($instruction);
+                    if ($instruction != '') {
+                        if (preg_match('/^%([^\s]+)/', $instruction, $regs)) {
+                            if (($n = count($convertedInstructions)) > 0 && $convertedInstructions[$n - 1][0] != '!') {
+                                $convertedInstructions[$n - 1] .= '[br][img src="' . $regs[1] . '"]';
+                                continue;
+                            } else {
+                                $instruction = '[img src="' . $regs[1] . '"]';
+                            }
                         } else {
-                            $instruction = '[img src="' . $regs[1] . '"]';
+                            $instruction = $this->decodeMarkdown($instruction);
                         }
-                    } else {
-                        $instruction = $this->decodeMarkdown($instruction);
-                    }
 
-                    $convertedInstructions[] = $instruction;
+                        $convertedInstructions[] = $instruction;
+                    }
                 }
                 /**
                  * For silly historical reasons, instructions are returned as a string
