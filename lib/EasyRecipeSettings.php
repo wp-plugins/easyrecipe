@@ -312,7 +312,7 @@ class EasyRecipeSettings {
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
         $isWP39 = version_compare($wp_version, '3.9.dev', '>') > 0 ? 'true' : 'false';
         $editURL = "$wpurl/wp-admin/edit.php";
-        $data->pluginversion = $pluginversion = '3.2.1309';
+        $data->pluginversion = $pluginversion = '3.2.1310';
         $license = $this->licenseKey;
 
         /**

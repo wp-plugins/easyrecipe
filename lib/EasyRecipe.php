@@ -26,7 +26,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1309';
+    private $pluginVersion = '3.2.1310';
 
     private $pluginName = 'EasyRecipe';
 
@@ -525,7 +525,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1309';
+        $data->version = '3.2.1310';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -758,6 +758,7 @@ EOD;
         $ajaxURL = admin_url('admin-ajax.php');
         $cssType = $isPrint ? 'customPrintCSS' : 'customCSS';
         $customCSS = $this->settings->$cssType;
+        $customCSS = str_replace("'", "\\'", $this->settings->$cssType);
         if ($customCSS == '') {
             $customCSS = '{}';
         }
@@ -1091,8 +1092,8 @@ EOD;
 
 
             $postDOM->setSettings($this->settings);
-            /**
 
+            /**
              * Mark this post as an easyrecipe so that the comment and rating processing know
              */
             $this->easyrecipes[$post->ID] = true;
