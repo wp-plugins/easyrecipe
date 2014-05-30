@@ -232,6 +232,13 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         }
 
         /**
+         * Process possible captions that have been exposed by the easyrecipe shortcode expansion
+         */
+        if (strpos($html, '[caption ') !== false) {
+            $html = do_shortcode($html);
+        }
+
+        /**
          * Decode any quotes that have possibly been "double encoded" when we inserted an image
          */
         $html = str_replace("&amp;quot;", '&quot;', $html);
@@ -329,7 +336,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
 //        return $result;
 
         /**
-         * Recplace the placeholders with the formatted recipe HTML
+         * Replace the placeholders with the formatted recipe HTML
          */
         for ($i = 0; $i < $nRecipe; $i++) {
             $html = str_replace("<div id=\"_easyrecipe_$i\"></div>", $this->easyrecipesHTML[$i], $html);
@@ -346,7 +353,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      *            The html to search
      * @return boolean/string The adjusted html if an <img> was found, else false
      */
-    private function makePhotoClass($html) {
+    private
+    function makePhotoClass($html) {
         if (!@preg_match('/^(.*?)<img ([^>]+>)(.*)$/si', $html, $regs)) {
             return false;
         }
@@ -372,7 +380,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * Add the "photo" class name to the first image in the html inside or outside the EasyRecipe
      * Check first to see if there is already an image anywhere in the post with the "photo" class
      */
-    public function addPhotoClass() {
+    public
+    function addPhotoClass() {
         /*
        * Check to see if there's an image anywhere in the post that already has a photo class
        */
@@ -468,7 +477,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         }
     }
 
-    private function convertFractionsCallback($match) {
+    private
+    function convertFractionsCallback($match) {
         if (isset($this->fractions[$match[2]][$match[3]])) {
             $pre = $match[1] != '' && is_numeric($match[1][0]) ? $match[1][0] : $match[1];
             return $pre . $this->fractions[$match[2]][$match[3]] . $match[4];
@@ -486,12 +496,14 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * @param bool $bodyOnly
      * @return bool|string
      */
-    public function getHTML($bodyOnly = false) {
+    public
+    function getHTML($bodyOnly = false) {
         $html = $this->saveHTML();
         return rtrim(preg_replace(self::regexDOCTYPE, '$1', $html));
     }
 
-    public static function getPrintRecipe($content) {
+    public
+    static function getPrintRecipe($content) {
         if (!@preg_match(self::regexEasyRecipe, $content, $regs)) {
             return "";
         }

@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.6
 Tested up to: 3.9
-Stable tag:  3.2.1310
+Stable tag:  3.2.1311
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -64,7 +64,7 @@ If you have comments, questions or problems, we want to help.
 
 The best way to contact us is from the Support tab in the EasyRecipe settings.
 
-You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/)
+You can also visit [EasyRecipe Support](http://support.easyrecipeplugin.com/)
 
 == Screenshots ==
 1. Simple recipe entry. You don't have to pre-define ingredients, enter quantities separately or worry about taxonomies
@@ -78,6 +78,16 @@ You can also visit [EasyRecipe Support](http://www.easyrecipeplugin.com/support/
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2 Build 1311 =
+* Enhancement: Display Get Me Cooking recipes without the need to convert (Plus version)
+* Enhancement: Display Recipe Card recipes without the need to convert (Plus version)
+* Enhancement: Display WP Ultimate Recipe recipes without the need to convert (Plus version)
+* Enhancement: Strip Jetpack and TinyMCE spellcheck plugin data before editing recipes (Plus version)
+* Update: Changes to Google live snippet preview: timeout and format (Plus version)
+* Bug fix: Some Live Formatting CSS saved with earlier versions crashed Live Formatting
+* Bug fix: Captions on images inside recipes were not processed in some circumstances
+
+
 = 3.2 Build 1310 =
 * Bug fix: Oops again! Fix Live Formatting sections not being displayed
 

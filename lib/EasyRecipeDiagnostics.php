@@ -16,10 +16,10 @@
 class EasyRecipeDiagnostics {
 
     private $haveData = false;
-    public $dataVersion = 4;
+    public $dataVersion = 5;
 
     public $pluginName = 'easyrecipe';
-    public $pluginVersion = '3.2.1310';
+    public $pluginVersion = '3.2.1311';
 
     public $pluginURL = '';
     public $pluginDir = '';
@@ -39,7 +39,7 @@ class EasyRecipeDiagnostics {
     public $wpSiteURL = '';
     public $wpHomeURL = '';
     public $wpMultiSite = '';
-
+    public $mysqlVersion = '';
 
     public $wpTheme = '';
     public $wpThemeVersion = '';
@@ -126,9 +126,12 @@ class EasyRecipeDiagnostics {
     function get() {
         global $wp_version;
 
+        /** @var wpdb $wpdb */
+        global $wpdb;
+
 
         /**
-         * Get the php info.  Save anything in
+         * Get the php info.  Save anything already in the output buffer
          */
         $existingOP = ob_get_clean();
         ob_start();
@@ -183,6 +186,7 @@ class EasyRecipeDiagnostics {
         $this->wpSiteURL = site_url();
         $this->wpHomeURL = home_url();
         $this->wpMultiSite = is_multisite() ? 'Yes' : 'No';
+        $this->mysqlVersion = $wpdb->db_version();
 
         $this->gmtOffset = get_option('gmt_offset');
         $this->timezone = get_option('timezone_string');
@@ -297,7 +301,7 @@ class EasyRecipeDiagnostics {
          */
         if (!empty($_POST['sendDiagnostics'])) {
             $this->get();
-            $diagnostics = new stdClass();
+            //$diagnostics = new stdClass();
             $post['diagnostics'] = @serialize((object) $this);
         } else {
             $post['diagnostics'] = '';
@@ -516,6 +520,10 @@ body {
           <tr>
             <th scope="row">GMT Offset</th>
             <td>#gmtOffset#</td>
+          </tr>
+          <tr>
+            <th scope="row">MySQL Version</th>
+            <td>#mysqlVersion#</td>
           </tr>
         </table>
         <h3>Plugins</h3>

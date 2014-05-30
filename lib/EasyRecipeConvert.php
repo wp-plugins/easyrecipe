@@ -57,7 +57,120 @@ class EasyRecipeConvert {
 
         switch ($postType) {
 
-            case 'recipeseo`' :
+            case 'ultimate-recipe' :
+                $result->recipe = new stdClass();
+
+                if ($postID == 'random') {
+                    $posts = get_posts(array(
+                            'post_type' => 'recipe',
+                            'nopaging' => true
+                    ));
+                    $post = $posts[array_rand($posts)];
+                } else {
+                    $post = get_post($postID);
+                }
+
+                $recipe = get_post_custom($post->ID);
+                $user = get_userdata($post->post_author);
+                $image = wp_get_attachment_image_src(get_post_thumbnail_id($post->ID), 'full');
+                $cuisine = wp_get_object_terms($post->ID, 'cuisine');
+                if ($cuisine instanceof WP_Error) {
+                    register_taxonomy('cuisine', 'recipe');
+                    $cuisine = wp_get_object_terms($post->ID, 'cuisine');
+                }
+
+                $course = wp_get_object_terms($post->ID, 'course');
+                if ($course instanceof WP_Error) {
+                    register_taxonomy('course', 'recipe');
+                    $course = wp_get_object_terms($post->ID, 'course');
+                }
+
+                /**
+                 * Very dodgy way of processing times - not sure what else we can do!
+                 * Times other than "x minutes" are going to be unparsable reliably
+                 * Will have to adjust this based on real user values as we come across them
+                 *
+                 * Try for xlated "minutes" first
+                 * If that doesn't work, at least try some likely English duration specifiers
+                 */
+                $xMinutes = __('minutes', 'wp-ultimate-recipe');
+                $timeText = $recipe['recipe_prep_time_text'][0];
+                if ($timeText == $xMinutes || $timeText == 'minute') {
+                    $result->recipe->prep_time = 'PT' . $recipe['recipe_prep_time'][0] . 'M';
+                } elseif ($timeText == 'hours' || $timeText == 'hour') {
+                    $result->recipe->prep_time = 'PT' . $recipe['recipe_prep_time'][0] . 'H0M';
+                }
+
+                $timeText = $recipe['recipe_cook_time_text'][0];
+                if ($timeText == $xMinutes || $timeText == 'minute') {
+                    $result->recipe->cook_time = 'PT' . $recipe['recipe_cook_time'][0] . 'M';
+                } elseif ($timeText == 'hours' || $timeText == 'hour') {
+                    $result->recipe->cook_time = 'PT' . $recipe['recipe_cook_time'][0] . 'H0M';
+                }
+
+                $result->recipe->recipe_image = !empty($image) ? $image[0] : '';
+
+                if (is_array($cuisine) && !empty($cuisine[0])) {
+                    $result->recipe->cuisine = htmlspecialchars($cuisine[0]->name);
+                }
+
+                if (is_array($course) && !empty($course[0])) {
+                    $result->recipe->mealType = htmlspecialchars($course[0]->name);
+                }
+
+                $result->recipe->recipe_title = htmlspecialchars($recipe['recipe_title'][0]);
+                /** @noinspection PhpUndefinedFieldInspection */
+                $result->recipe->author = htmlspecialchars($user->data->display_name);
+                $result->recipe->summary = htmlspecialchars($recipe['recipe_description'][0]);
+
+                $notes = preg_replace_callback('%<(strong|em)>(.*?)</\1>%', array($this, 'notesConversion'), $recipe['recipe_notes'][0]);
+                $result->recipe->notes = preg_replace('%<a ([^>]+)>(.*?)</a>%i', '[url $1]$2[/url]', $notes);
+
+                $section = '';
+                $ingredients = array();
+
+                $urIngredients = @unserialize($recipe['recipe_ingredients'][0]);
+                if (!$urIngredients) {
+                    $urIngredients = array();
+                }
+                foreach ($urIngredients as $urIngredient) {
+                    if ($urIngredient['group'] != $section) {
+                        $section = $urIngredient['group'];
+                        $ingredients[] = '!' . htmlspecialchars($urIngredient['group']);
+                    }
+                    $ingredient = htmlspecialchars($urIngredient['amount']) . ' ' . htmlspecialchars($urIngredient['unit']) . ' ' . htmlspecialchars($urIngredient['ingredient']);
+                    if (!empty($urIngredient['notes'])) {
+                        $ingredient .= ' ' . htmlspecialchars($urIngredient['notes']);
+                    }
+                    $ingredients[] = $ingredient;
+                }
+                $result->ingredients = $ingredients;
+
+                $section = '';
+                $instructions = array();
+                $urInstructions = @unserialize($recipe['recipe_instructions'][0]);
+                if (!$urInstructions) {
+                    $urInstructions = array();
+                }
+                foreach ($urInstructions as $urInstruction) {
+                    if ($urInstruction['group'] != $section) {
+                        $section = $urInstruction['group'];
+                        $instructions[] = '!' . htmlspecialchars($urInstruction['group']);
+                    }
+                    $instruction = htmlspecialchars($urInstruction['description']);
+                    if (!empty($urInstruction['image'])) {
+                        $instructionImage = wp_get_attachment_image_src($urInstruction['image'], 'large');
+                        if (!empty($instructionImage)) {
+                            $instruction .= '[br][img src="' . $instructionImage[0] . '" width="' . $instructionImage[1] . '" height="' . $instructionImage[2] . '" /]';
+                        }
+                    }
+                    $instructions[] = $instruction;
+                }
+
+                $result->recipe->instructions = implode("\n", $instructions);
+                break;
+
+            case 'recipeseo' :
                 $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_recipes WHERE recipe_id=" . $postID);
                 $ingredients = $wpdb->get_results("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_ingredients WHERE recipe_id=" . $postID . " ORDER BY ingredient_id");
 
@@ -193,17 +306,9 @@ class EasyRecipeConvert {
 
                 $result->recipe->nutrition = $nutrition;
 
-                $serves = $result->recipe->servings;
-                $yields = $result->RCommentrecipe->yields;
+                $serves = (int) $result->recipe->servings;
 
-                $unit = 1;
-                if (!empty($serves)) {
-                    $unit = $serves;
-                } else if (!empty($yields)) {
-                    $unit = $yields;
-                }
-
-                $div = !empty($unit) ? $unit : 1;
+                $div = !empty($serves) ? $serves : 1;
 
                 /** @noinspection PhpUnusedLocalVariableInspection */
                 foreach ($nutrition as $key => &$value) {
@@ -217,15 +322,13 @@ class EasyRecipeConvert {
                 $nutrition->polyunsaturatedFat = round($nutrition->polyunsaturatedFat);
                 $nutrition->monounsaturatedFat = round($nutrition->monounsaturatedFat);
                 $nutrition->unsaturatedFat = ($nutrition->polyunsaturatedFat + $nutrition->monounsaturatedFat) . 'g';
-
                 $nutrition->cholesterol = round($nutrition->cholesterol) . 'mg';
-
                 $nutrition->sodium = round($nutrition->sodium) . 'mg';
                 $nutrition->totalCarbohydrates = round($nutrition->totalCarbohydrates) . 'g';
                 $nutrition->dietaryFiber = round($nutrition->dietaryFiber) . 'g';
                 $nutrition->sugars = round($nutrition->sugars) . 'g';
                 $nutrition->protein = round($nutrition->protein) . 'g';
-
+                $result->recipe->nutrition = $nutrition;
 
                 unset($result->recipe->prepTime);
                 unset($result->recipe->cookTime);
@@ -243,6 +346,7 @@ class EasyRecipeConvert {
              * Get me cooking
              */
             case 'gmc' :
+            case 'gmc_recipe' :
                 /**
                  * If GMC is installed, use it to get ingredients, but turn off error reporting to stop it crashing
                  */
@@ -269,34 +373,61 @@ class EasyRecipeConvert {
                 $prepMinute = (int) get_post_meta($postID, "gmc-prep-time-mins", true);
                 $cookHour = (int) get_post_meta($postID, "gmc-cooking-time-hours", true);
                 $cookMinute = (int) get_post_meta($postID, "gmc-cooking-time-mins", true);
-                $result->recipe->prep_time = "{$prepHour}H{$prepMinute}M";
-                $result->recipe->cook_time = "{$cookHour}H{$cookMinute}M";
+                $result->recipe->prep_time = "PT{$prepHour}H{$prepMinute}M";
+                $result->recipe->cook_time = "PT{$cookHour}H{$cookMinute}M";
 
                 $mealTypes = wp_get_object_terms($postID, 'gmc_course');
-
-                if (count($mealTypes) > 0) {
+                if ($mealTypes instanceof WP_Error) {
+                    register_taxonomy('gmc_course', 'gmc_recipe');
+                    $mealTypes = wp_get_object_terms($postID, 'gmc_course');
+                }
+                if (is_array($mealTypes) && count($mealTypes) > 0) {
                     $result->recipe->mealType = $mealTypes[0]->name;
                 }
 
                 $regions = wp_get_object_terms($postID, 'gmc_region');
-                if (count($regions) > 0) {
+                if ($regions instanceof WP_Error) {
+                    register_taxonomy('gmc_region', 'gmc_recipe');
+                    $regions = wp_get_object_terms($postID, 'gmc_region');
+                }
+                if (is_array($regions) && count($regions) > 0) {
                     $result->recipe->cuisine = $regions[0]->name;
                 }
 
                 $result->ingredients = array();
                 $result->recipe->instructions = '';
-
+                $currentSection = '';
                 $steps = get_posts('post_status=publish&post_type=gmc_recipestep&nopaging=1&orderby=menu_order&order=ASC&post_parent=' . $postID);
                 /** @var $step WP_Post */
                 foreach ($steps as $step) {
                     if (!empty($step->post_content)) {
-                        $result->recipe->instructions .= $step->post_content . "\n";
+                        $section = get_post_meta($step->ID, 'gmc_stepgroup', true);
+                        if (!empty($section) && $section != $currentSection) {
+                            $result->recipe->instructions .= "!$section\n";
+                            $currentSection = $section;
+                        }
+                        $content = preg_replace('/\r?\n/i', '[br]', $step->post_content);
+                        $thumbID = get_post_thumbnail_id($step->ID);
+                        if ($thumbID) {
+                            $postThumb = wp_get_attachment_image_src($thumbID, 'medium');
+                            if ($postThumb) {
+                                $content .= '[br][img src="' . $postThumb[0] . '" width="' . $postThumb[1] . '" height="' . $postThumb[2] . '"]';
+                            }
+                        }
+
+                        $result->recipe->instructions .= $content . "\n";
                     }
                 }
                 $result->recipe->instructions = rtrim($result->recipe->instructions, "\n");
                 $ingredients = get_posts('post_status=publish&post_type=gmc_recipeingredient&nopaging=1&orderby=menu_order&order=ASC&post_parent=' . $postID);
+                $currentSection = '';
                 /** @var $ingredient WP_Post */
                 foreach ($ingredients as $ingredient) {
+                    $section = get_post_meta($ingredient->ID, "gmc-ingredientgroup", true);
+                    if (!empty($section) && $section != $currentSection) {
+                        $result->ingredients[] = "!$section";
+                        $currentSection = $section;
+                    }
                     if ($gmcInstalled) {
                         /** @noinspection PhpUndefinedFunctionInspection */
                         $iLine = trim(print_ingredient_description($ingredient));
@@ -312,7 +443,12 @@ class EasyRecipeConvert {
 
                 }
 
-                $result->recipe->notes = strip_tags($post->post_content);
+                /**
+                 * Try to convert HTML in notes into something EasyRecipe will understand
+                 */
+                $notes = preg_replace_callback('%<(strong|em)>(.*?)</\1>%', array($this, 'notesConversion'), $post->post_content);
+                $notes = preg_replace('%<a ([^>]+)>(.*?)</a>%i', '[url $1]$2[/url]', $notes);
+                $result->recipe->notes = strip_tags($notes);
                 $result->recipe->yield = $servings = get_post_meta($post->ID, "gmc-nr-servings", true);
                 $nutrition = new stdClass();
                 if (get_post_meta($postID, "gmc_has_nutrition", true)) {
@@ -332,9 +468,6 @@ class EasyRecipeConvert {
                 }
                 $result->recipe->nutrition = $nutrition;
 
-//                $serves = get_post_meta($post->ID,"gmc-nr-servings",true);
-//                $yields = $result->RCommentrecipe->yields;
-
                 break;
 
             case 'kitchebug' :
@@ -343,6 +476,16 @@ class EasyRecipeConvert {
         }
         return $result;
 
+    }
+
+    /**
+     * Convert HTML we can handle to shortcodes
+     * @param $matches
+     * @return string
+     */
+    function notesConversion($matches) {
+        $shortcode = $matches[1] == 'em' ? 'i' : 'b';
+        return "[$shortcode]" . $matches[2] . "[/$shortcode]";
     }
 
     /**

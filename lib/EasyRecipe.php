@@ -26,7 +26,7 @@ class EasyRecipe {
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1310';
+    private $pluginVersion = '3.2.1311';
 
     private $pluginName = 'EasyRecipe';
 
@@ -113,7 +113,7 @@ class EasyRecipe {
 
 
         /**
-         * The new jQuery UI and tinymce versions introduced in WP 3.9 required major changes to EasyRecipe code
+         * The new jQuery UI and tinymce versions introduced in WP 3.9 required major changes to EasyRecipe code and UI CSS
          * It's just a lot easier (and safer) to create separate JS and CSS sources for WP 3.9+
          */
         if (version_compare($wp_version, '3.9.dev', '>')) {
@@ -525,7 +525,7 @@ EOD;
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1310';
+        $data->version = '3.2.1311';
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -681,7 +681,7 @@ EOD;
             }
 
             $setting = isset($_POST['isPrint']) ? "customPrintCSS" : "customCSS";
-            $this->settings->{$setting} = isset($_POST['css']) ? stripslashes($_POST['css']) : "";
+            $this->settings->{$setting} = isset($_POST['css']) ? stripslashes_deep($_POST['css']) : "";
             $this->settings->update();
 
         }
@@ -704,7 +704,7 @@ EOD;
 
         /**
          * Get the formatting data for each formattable element
-         * Add more specificity to each target so it should override any specific theme CSS
+         * Add more specificity to each target in an attempt to override any specific theme CSS
          */
         $formats = @json_decode($styleData->formatting);
         if ($formats) {
@@ -728,10 +728,10 @@ EOD;
             }
         }
 
-        /*
-        * Get all the styles we have
-        */
-//        $styles = call_user_func(array($this->stylesClass, 'getStyles'), $this->settings->get('customTemplates'), $isPrint);
+        /**
+         * Get all the styles we have
+         */
+
         $styles = EasyRecipeStyles::getStyles($this->settings->customTemplates, $isPrint);
 
         $data->STYLES = array();
@@ -757,8 +757,11 @@ EOD;
         $fontChangeHTML = trim(preg_replace('/> \s+</i', '> <', $fontChangeHTML));
         $ajaxURL = admin_url('admin-ajax.php');
         $cssType = $isPrint ? 'customPrintCSS' : 'customCSS';
-        $customCSS = $this->settings->$cssType;
-        $customCSS = str_replace("'", "\\'", $this->settings->$cssType);
+        /**
+         * Fix extra slashes that may be hanging around from earlier versions
+         * Then escape single quotes with a slash
+         */
+        $customCSS = str_replace("'", "\\'", stripslashes_deep($this->settings->$cssType));
         if ($customCSS == '') {
             $customCSS = '{}';
         }
@@ -1058,6 +1061,12 @@ EOD;
         /** @global  $wpdb wpdb */
         global $wpdb;
 
+        /**
+         * We don't want to process anything if it's a missing URL
+         */
+        if (is_404()) {
+            return $posts;
+        }
         global $shortcode_tags;
 
         $guestpost = null;
@@ -1092,7 +1101,6 @@ EOD;
 
 
             $postDOM->setSettings($this->settings);
-
             /**
              * Mark this post as an easyrecipe so that the comment and rating processing know
              */

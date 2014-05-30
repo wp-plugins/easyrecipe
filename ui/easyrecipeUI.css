@@ -1543,3 +1543,6 @@ button.ui-button::-moz-focus-inner {
     top: 0;
 }
 
+#easyrecipeUI.easyrecipeUI .ui-widget-content {
+    background: #F7F7FF url(images/ui-bg_inset-hard_100_f7f7ff_1x100.png);
+}

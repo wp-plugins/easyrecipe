@@ -103,6 +103,9 @@ class EasyRecipeSettings {
             'genesisGrid' => false,
 
             'displayZiplist' => false,
+            'displayRecipeCard' => false,
+            'displayGMC' => false,
+            'displayUltimateRecipe' => false,
 
             'enableFooderific' => '',
             'fooderificAPIKey' => '',
@@ -202,6 +205,9 @@ class EasyRecipeSettings {
     public $pluginVersion;
 
     public $displayZiplist;
+    public $displayRecipeCard;
+    public $displayGMC;
+    public $displayUltimateRecipe;
 
     /**
      * @var EasyRecipeSettings
@@ -312,7 +318,7 @@ class EasyRecipeSettings {
         $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
         $isWP39 = version_compare($wp_version, '3.9.dev', '>') > 0 ? 'true' : 'false';
         $editURL = "$wpurl/wp-admin/edit.php";
-        $data->pluginversion = $pluginversion = '3.2.1310';
+        $data->pluginversion = $pluginversion = '3.2.1311';
         $license = $this->licenseKey;
 
         /**
@@ -368,6 +374,9 @@ EOD;
         $data->displayPrintChecked = $this->displayPrint ? 'checked="checked"' : '';
         $data->filterExcerptsChecked = $this->filterExcerpts ? 'checked="checked"' : '';
         $data->displayZiplistChecked = $this->displayZiplist ? 'checked="checked"' : '';
+        $data->displayRecipeCardChecked = $this->displayRecipeCard ? 'checked="checked"' : '';
+        $data->displayGMCChecked = $this->displayGMC ? 'checked="checked"' : '';
+        $data->displayUltimateRecipeChecked = $this->displayUltimateRecipe ? 'checked="checked"' : '';
         $data->allowLinkChecked = $this->allowLink ? 'checked="checked"' : '';
         $data->convertFractionsChecked = $this->convertFractions ? 'checked="checked"' : '';
         $data->removeMFChecked = $this->removeMicroformat ? 'checked="checked"' : '';
@@ -542,6 +551,9 @@ EOD;
                 case 'allowLink' :
                 case 'filterExcerpts':
                 case 'displayZiplist':
+                case 'displayRecipeCard':
+                case 'displayGMC':
+                case 'displayUltimateRecipe':
                 case 'useFeaturedImage' :
                 case 'convertFractions' :
                 case 'removeMicroformat' :
