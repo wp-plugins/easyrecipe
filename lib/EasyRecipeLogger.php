@@ -9,7 +9,13 @@
  */
 if (!class_exists('EasyLogger', false)) {
     class EasyRecipeLogger {
-        static function getLog($logfile) {
+        /**
+         * @param $logfile
+         *
+         * @return EasyLoggerLog
+         */
+        static function getLog(/** @noinspection PhpUnusedParameterInspection */
+            $logfile) {
             return new EasyLoggerLog();
         }
     }
@@ -51,6 +57,7 @@ if (!class_exists('EasyLogger', false)) {
     class EasyRecipeLogger {
         /**
          * @param string $logfile
+         *
          * @return EasyLoggerLog
          */
         static function getLog($logfile) {

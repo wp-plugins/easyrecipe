@@ -2,31 +2,28 @@
 
 /*
  Copyright (c) 2010-2014 Box Hill LLC
-
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
 of the License, or (at your option) any later version.
-
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 GNU General Public License for more details.
-
 You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
-
  */
 
 /**
  * Class EasyRecipe
  */
 class EasyRecipe {
+
     public static $EasyRecipeDir;
     public static $EasyRecipeURL;
 
-    private $pluginVersion = '3.2.1311';
+    public static $pluginVersion;
 
     private $pluginName = 'EasyRecipe';
 
@@ -72,19 +69,23 @@ class EasyRecipe {
     private $ratingMethod;
 
 
-    function __construct($pluginDir, $pluginURL) {
+    function __construct($pluginDir, $pluginURL, $version) {
+
 
 
 
         /**
          * For convenience
+         *
+         * Save some gulp build time by not having to reprocess this file every time the version changes
          * Fix up HTTP protocol for admin using SSL
          */
+        self::$pluginVersion = $version;
+
         self::$EasyRecipeDir = $pluginDir;
         self::$EasyRecipeURL = is_ssl() ? preg_replace('%^http://%i', 'https://', $pluginURL) : $pluginURL;
 
         $this->homeURL = home_url();
-
 
 
         /**
@@ -126,7 +127,6 @@ class EasyRecipe {
         add_action('admin_init', array($this, 'initialiseAdmin'));
         add_action('init', array($this, 'initialise'));
 
-        add_action('the_post', array($this, 'thePost'));
 
         /**
          * Need this to explicitly allow the datetime & link tags when future posts are published
@@ -144,6 +144,9 @@ class EasyRecipe {
      */
     function initialiseAdmin() {
 
+        /**
+         * If Foodereific is enabled, hook into the save and status transition actions
+         */
         if ($this->settings->enableFooderific) {
             /**
              * Hook into post updates and status transitions as late as possible
@@ -151,6 +154,11 @@ class EasyRecipe {
             add_action('save_post', array($this, 'fdPostChanged'), 32000, 2);
             add_action('transition_post_status', array($this, 'fdPostStatusChanged'), 32000, 3);
         }
+
+        /**
+         * Hook into the post save action to check if we need to tweak taxomonmies for the post
+         */
+        add_action('save_post', array($this, 'postChanged'), 10, 2);
 
         /**
          * Need to be able to edit posts at a minimum
@@ -199,11 +207,29 @@ class EasyRecipe {
      * Set up stuff we'll need on non-admin pages and stuff we'll need in both admin and non-admin
      */
     function initialise() {
-        wp_register_style("easyrecipe-UI", self::$EasyRecipeURL . "/ui/easyrecipeUI{$this->uiVersion}.css", array('wp-admin', 'wp-pointer'), $this->pluginVersion);
 
+        /**
+         * Register our taxonomies now - this must be done before we ever instantiate the settings
+         * TODO - what if we want to use custom names/slugs?
+         */
+        $args = array('public'            => true,
+                      'show_admin_column' => false,
+                      'show_in_menu'      => false,
+                      'show_in_nav_menu'  => false,
+                      'show_tagcloud'     => false,
+                      'show_ui'           => false,
+                      'rewrite'           => false);
+
+        $args['label'] = 'Courses';
+        register_taxonomy('course', 'post', $args);
+        // enable for pages too?
+
+        $args['label'] = 'Cuisines';
+        register_taxonomy('cuisine', 'post', $args);
+
+        wp_register_style("easyrecipe-UI", self::$EasyRecipeURL . "/ui/easyrecipeUI{$this->uiVersion}.css", array('wp-admin', 'wp-pointer'), self::$pluginVersion);
 
         $this->settings = EasyRecipeSettings::getInstance();
-
 
         /*
         * Everything past here is not needed on admin pages
@@ -289,10 +315,11 @@ EOD;
      */
     function loadSettingsPage() {
         wp_enqueue_style("easyrecipe-UI");
-        wp_enqueue_style("easyrecipe-settings", self::$EasyRecipeURL . "/css/easyrecipe-settings.css", array('easyrecipe-UI'), $this->pluginVersion);
+        wp_enqueue_style("easyrecipe-settings", self::$EasyRecipeURL . "/css/easyrecipe-settings.css", array('easyrecipe-UI'), self::$pluginVersion);
         wp_enqueue_style("thickbox");
         wp_enqueue_script('thickbox');
-        wp_enqueue_script('easyrecipe-settings', self::$EasyRecipeURL . "/js/easyrecipe-settings.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs', 'jquery-ui-button', 'thickbox'), $this->pluginVersion, true);
+        wp_enqueue_script('easyrecipe-settings', self::$EasyRecipeURL . "/js/easyrecipe-settings.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs', 'jquery-ui-button', 'thickbox'),
+            self::$pluginVersion, true);
 
 
         $this->settings = EasyRecipeSettings::getInstance();
@@ -320,14 +347,13 @@ EOD;
 
 
             wp_enqueue_style("easyrecipe-UI");
-            wp_enqueue_style("easyrecipe-entry", self::$EasyRecipeURL . "/css/easyrecipe-entry.css", array('easyrecipe-UI'), $this->pluginVersion);
+            wp_enqueue_style("easyrecipe-entry", self::$EasyRecipeURL . "/css/easyrecipe-entry.css", array('easyrecipe-UI'), self::$pluginVersion);
 
             wp_enqueue_script('jquery-ui-dialog');
             wp_enqueue_script('jquery-ui-autocomplete');
             wp_enqueue_script('jquery-ui-button');
             wp_enqueue_script('jquery-ui-tabs');
-            wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry{$this->wpVersion}.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button',
-                    'jquery-ui-tabs'), $this->pluginVersion, true);
+            wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeURL . "/js/easyrecipe-entry{$this->wpVersion}.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button', 'jquery-ui-tabs'), self::$pluginVersion, true);
 
             add_filter('tiny_mce_before_init', array($this, 'mcePreInitialise'));
             add_filter('mce_external_plugins', array($this, 'mcePlugins'));
@@ -348,6 +374,7 @@ EOD;
 
     /**
      * Enqueues the scripts to handle guest post stuff on the posts page
+     *
      * @param $hook
      */
     function enqueAdminScripts($hook) {
@@ -370,6 +397,9 @@ EOD;
         if ($this->settings->ratings == 'EasyRecipe') {
             add_action('comment_form', array($this, 'commentForm'), 0);
             add_action('comment_post', array($this, 'ratingSave'));
+
+            // TODO - get ratings from all comments in one DB read when the comments start to display
+            // Otherwise we'll have heaps of single row accesses if there's loads of comments
             add_filter('get_comment_text', array($this, 'ratingDisplay'), 100);
         }
 
@@ -398,22 +428,22 @@ EOD;
 
         $this->styleData = EasyRecipeStyles::getStyleData($this->styleName, $this->settings->customTemplates);
 
-        wp_enqueue_style('easyrecipestyle-reset', self::$EasyRecipeURL . "/css/easyrecipe-style-reset.css", array(), $this->pluginVersion);
-        wp_enqueue_style("easyrecipebuttonUI", self::$EasyRecipeURL . "/ui/easyrecipe-buttonUI.css", array('easyrecipestyle-reset'), $this->pluginVersion);
+        wp_enqueue_style('easyrecipestyle-reset', self::$EasyRecipeURL . "/css/easyrecipe-style-reset.css", array(), self::$pluginVersion);
+        wp_enqueue_style("easyrecipebuttonUI", self::$EasyRecipeURL . "/ui/easyrecipe-buttonUI.css", array('easyrecipestyle-reset'), self::$pluginVersion);
         /**
          * If the style directory starts with an underscore, it's a custom style
          */
         if ($this->styleData->directory[0] == '_') {
-            wp_enqueue_style("easyrecipestyle", "/easyrecipe-style/style.css", array('easyrecipestyle-reset'), "$this->pluginVersion.{$this->styleData->version}");
+            wp_enqueue_style("easyrecipestyle", "/easyrecipe-style/style.css", array('easyrecipestyle-reset'), self::$pluginVersion . ".{$this->styleData->version}");
         } else {
-            wp_enqueue_style("easyrecipestyle", self::$EasyRecipeURL . "/styles/$this->styleName/style.css", array('easyrecipestyle-reset'), "$this->pluginVersion.{$this->styleData->version}");
+            wp_enqueue_style("easyrecipestyle", self::$EasyRecipeURL . "/styles/$this->styleName/style.css", array('easyrecipestyle-reset'), self::$pluginVersion . ".{$this->styleData->version}");
         }
 
         if (file_exists(self::$EasyRecipeDir . "/styles/$this->styleName/style.js")) {
-            wp_enqueue_script('easyrecipestyle', self::$EasyRecipeURL . "/styles/$this->styleName/style.js", array($this->pluginName), "$this->pluginVersion.{$this->styleData->version}", $this->loadJSInFooter);
+            wp_enqueue_script('easyrecipestyle', self::$EasyRecipeURL . "/styles/$this->styleName/style.js", array($this->pluginName), self::$pluginVersion . ".{$this->styleData->version}", $this->loadJSInFooter);
         }
 
-        wp_enqueue_script($this->pluginName, self::$EasyRecipeURL . "/js/easyrecipe.js", array('jquery', 'jquery-ui-button'), $this->pluginVersion, $this->loadJSInFooter);
+        wp_enqueue_script($this->pluginName, self::$EasyRecipeURL . "/js/easyrecipe.js", array('jquery', 'jquery-ui-button'), self::$pluginVersion, $this->loadJSInFooter);
 
         /**
          * Load any fonts used by the style
@@ -438,12 +468,11 @@ EOD;
             /*
              * Use an unobtrusive grey scheme for the formatting dialog so it doesn't visually overpower the recipe's styling
             */
-            wp_enqueue_style("easyrecipe-FormatUI", self::$EasyRecipeURL . "/formatui/easyrecipeFormatUI{$this->uiVersion}.css", array(), $this->pluginVersion);
-            wp_enqueue_style("easyrecipeformat", self::$EasyRecipeURL . "/css/easyrecipe-format.css", array('easyrecipe-FormatUI'), $this->pluginVersion);
+            wp_enqueue_style("easyrecipe-FormatUI", self::$EasyRecipeURL . "/formatui/easyrecipeFormatUI{$this->uiVersion}.css", array(), self::$pluginVersion);
+            wp_enqueue_style("easyrecipeformat", self::$EasyRecipeURL . "/css/easyrecipe-format.css", array('easyrecipe-FormatUI'), self::$pluginVersion);
 
-            wp_enqueue_script('easyrecipeformat', self::$EasyRecipeURL . "/js/easyrecipe-format.js", array('jquery', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-accordion',
-                    'jquery-ui-dialog', 'jquery-ui-tabs', 'jquery-ui-button',
-                    'json2'), $this->pluginVersion, $this->loadJSInFooter);
+            wp_enqueue_script('easyrecipeformat', self::$EasyRecipeURL . "/js/easyrecipe-format.js",
+                array('jquery', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-accordion', 'jquery-ui-dialog', 'jquery-ui-tabs', 'jquery-ui-button', 'json2'), self::$pluginVersion, $this->loadJSInFooter);
             add_action('wp_footer', array($this, 'addFormatDialog'), 0);
         }
 
@@ -469,6 +498,8 @@ EOD;
 
     /**
      * Actually run the site scan
+     *
+     * @param $postID
      */
     function fdScan($postID) {
         $fooderific = new EasyRecipeFooderific();
@@ -477,7 +508,22 @@ EOD;
 
 
     /**
+     * A post has changed - see if we need to update the terms/taxonomies
+     *
+     * @param integer $postID
+     * @param WP_Post $post
+     */
+    function postChanged(/** @noinspection PhpUnusedParameterInspection */
+        $postID, $post) {
+        $taxonomies = new EasyRecipeTaxonomies();
+        $taxonomies->update($post);
+    }
+
+    /**
      * A post has changed - Let the Fooderific code decide what to do
+     *
+     * @param      $postID
+     * @param null $post
      */
     function fdPostChanged($postID, $post = null) {
         $fooderific = new EasyRecipeFooderific();
@@ -486,6 +532,10 @@ EOD;
 
     /**
      * A post's status has changed. Let the Fooderific code decide what to do
+     *
+     * @param $newStatus
+     * @param $oldStatus
+     * @param $post
      */
     function fdPostStatusChanged($newStatus, $oldStatus, $post) {
         $fooderific = new EasyRecipeFooderific();
@@ -504,7 +554,7 @@ EOD;
             if (!in_array('easyrecipe-fooderific', $dismissed)) {
                 wp_enqueue_style('wp-pointer');
                 wp_enqueue_script('wp-pointer');
-                wp_enqueue_script('easyrecipe-wppointer', self::$EasyRecipeURL . "/js/easyrecipe-wppointer.js", array('wp-pointer'), $this->pluginVersion);
+                wp_enqueue_script('easyrecipe-wppointer', self::$EasyRecipeURL . "/js/easyrecipe-wppointer.js", array('wp-pointer'), self::$pluginVersion);
 
                 add_action('admin_print_footer_scripts', array($this, 'adminPostsFooterFooderific'));
             }
@@ -518,14 +568,14 @@ EOD;
     /**
      * Output the stuff for the wp_pointer message after an update
      * Save the new version so we only display the message once
+     * TODO - re-do this
      */
     function adminPostsFooterFooderific() {
-        $this->settings->pluginVersion = $this->pluginVersion;
         $this->settings->update();
 
         $data = new stdClass();
         $data->plus = '';
-        $data->version = '3.2.1311';
+        $data->version = self::$pluginVersion;
         $template = new EasyRecipeTemplate(self::$EasyRecipeDir . "/templates/easyrecipe-fooderific.html");
         $html = str_replace("'", '&apos;', $template->replace($data));
         $html = str_replace("\r", "", $html);
@@ -550,6 +600,10 @@ EOD;
      * These errors prevent the Google Rich Snippet test tool from generating a rich snippet sample
      * We don't know if it affects the Google results or just the test tool - but better to be safe than sorry by removing the broken stuff
      * It appears that removing the broken stuff has no effect on the blog - which makes sense as it's broken anyway!
+     *
+     * @param $page
+     *
+     * @return mixed
      */
     function fixMicroformats($page) {
         $page = str_replace("hfeed", "", $page);
@@ -566,6 +620,7 @@ EOD;
      * stuff up output buffer handlers by arbitrarily doing a buffer clean
      *
      * @param $classes
+     *
      * @return mixed
      */
     function postClass($classes) {
@@ -582,6 +637,7 @@ EOD;
      * Extra CSS is from the settings page and is plain text
      *
      * @param string $print
+     *
      * @return string
      */
     private function getCSS($print = '') {
@@ -693,6 +749,7 @@ EOD;
 
     /**
      * @param bool $isPrint
+     *
      * @return string
      */
     function getFormatDialog($isPrint = false) {
@@ -771,6 +828,7 @@ EOD;
         $print = $isPrint ? 'true' : 'false';
         $thumbs = json_encode($styleThumbs);
         $url = self::$EasyRecipeURL;
+        $pluginVersion = self::$pluginVersion;
         $html .= <<<EOD
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -780,7 +838,7 @@ EASYRECIPE.formatting = '$formats';
 EASYRECIPE.customCSS = '$customCSS';
 EASYRECIPE.easyrecipeURL = '$url';
 EASYRECIPE.wpVersion = '$this->wpVersion';
-EASYRECIPE.version = '$this->pluginVersion';
+EASYRECIPE.version = '$pluginVersion';
 EASYRECIPE.ajaxURL = '$ajaxURL';
 EASYRECIPE.styleThumbs = '$thumbs';
 EASYRECIPE.fontChangeHTML = '$fontChangeHTML';
@@ -792,7 +850,7 @@ EOD;
         * The print page exits before enqueues get output so add the script manually now
         */
         if ($isPrint && current_user_can("edit_theme_options")) {
-            $html .= sprintf('<script type="text/javascript" src="%s/js/easyrecipe-format.js?version=%s"></script>', self::$EasyRecipeURL, $this->pluginVersion);
+            $html .= sprintf('<script type="text/javascript" src="%s/js/easyrecipe-format.js?version=%s"></script>', self::$EasyRecipeURL, self::$pluginVersion);
         }
         return $html;
     }
@@ -907,7 +965,7 @@ EOD;
             $templateFile = self::$EasyRecipeDir . "/printstyles/$data->style/style.html";
         }
 
-        $data->css .= "/style.css?version=$this->pluginVersion.{$this->printStyleData->version}";
+        $data->css .= "/style.css?version=" . self::$pluginVersion . ".{$this->printStyleData->version}";
 
         $template = new EasyRecipeTemplate($templateFile);
 
@@ -960,6 +1018,7 @@ EOD;
      * Remove non display stuff
      *
      * @param $content
+     *
      * @return mixed
      */
     function filterExcerpt($content) {
@@ -982,6 +1041,7 @@ EOD;
      * This function only gets hooked in if our "Filter excerpt" option is checked
      *
      * @param string $text
+     *
      * @return string
      */
     function theExcerpt($text = '') {
@@ -996,6 +1056,7 @@ EOD;
      * Replaces a formatted recipe's HTML with a shortcode
      *
      * @param $match
+     *
      * @return string
      */
     function getRecipeShortcode($match) {
@@ -1009,6 +1070,7 @@ EOD;
      * If we are filtering excerpts, do it (takes out stuff that's not relevant like Print and Save buttons and elements that are display:none)
      *
      * @param array $match
+     *
      * @return string
      */
     function getRecipeHTML($match) {
@@ -1024,7 +1086,9 @@ EOD;
 
     /**
      * Replace a recipe shortcode with the original HTML
+     *
      * @param $attributes
+     *
      * @return mixed
      */
     function replaceRecipeShortcode($attributes) {
@@ -1037,6 +1101,7 @@ EOD;
      * wpauto() has done its worst. The "the_content" filter doesn't get applied in some themes and in that case, we'll just have to live with mangled HTML
      *
      * @param $content
+     *
      * @return mixed
      */
 
@@ -1052,6 +1117,7 @@ EOD;
      * We need to do this here rather than in the_content hook because by then it's too late to queue up the scripts/styles we'll need
      *
      * @param $posts
+     *
      * @return array
      */
     function thePosts($posts) {
@@ -1151,8 +1217,10 @@ EOD;
                 } else {
                     $data->hasRating = false;
                 }
-            } else if ($this->ratingMethod == 'Disabled') {
-                $data->hasRating = false;
+            } else {
+                if ($this->ratingMethod == 'Disabled') {
+                    $data->hasRating = false;
+                }
             }
 
 
@@ -1246,10 +1314,15 @@ EOD;
      * Check to see if the post content contains the wrappers we use to facilitate line insertion above & below a recipe
      *
      * If they exist, strip them out FIXME
+     *
+     * @param $data
+     * @param $postarr
+     *
+     * @return
      */
     function postSave($data, /** @noinspection PhpUnusedParameterInspection */
-                      $postarr) {
-
+        $postarr) {
+// TODO - update the taxonomy stuff
         /*
                 if (strpos($data['post_content'], 'easyrecipeWrapper') !== false) {
                     $content = stripslashes($data['post_content']);
@@ -1344,12 +1417,6 @@ EOD;
      */
     function pluginActivated() {
 
-        /**
-         * Get the settings and save the current version so we don't trigger the update message on an actual activation
-         */
-        $this->settings = EasyRecipeSettings::getInstance();
-        $this->settings->pluginVersion = $this->pluginVersion;
-        $this->settings->update();
 
         $data = http_build_query(array('action' => 'activate', 'site' => get_site_url()));
         wp_remote_post("http://www.easyrecipeplugin.com/installed.php", array('body' => $data, "blocking" => false));
@@ -1363,6 +1430,10 @@ EOD;
 
     /**
      * Allow <link> and <time> tags in <divs>
+     *
+     * @param $init
+     *
+     * @return
      */
     function mcePreInitialise($init) {
         $extendedElements = 'link[itemprop|href],time[itemprop|datetime]';
@@ -1384,16 +1455,24 @@ EOD;
 
     /**
      * Add our tinyMCE plugin
+     *
+     * @param $plugins
+     *
+     * @return array
      */
     function mcePlugins($plugins) {
         $plugins = (array) $plugins;
-        $plugins['easyrecipe'] = self::$EasyRecipeURL . "/js/easyrecipe-mce{$this->mceVersion}.js?v=$this->pluginVersion";
-        $plugins['noneditable'] = self::$EasyRecipeURL . "/tinymce/noneditable{$this->mceVersion}.js?v=$this->pluginVersion";
+        $plugins['easyrecipe'] = self::$EasyRecipeURL . "/js/easyrecipe-mce{$this->mceVersion}.js?v=" . self::$pluginVersion;
+        $plugins['noneditable'] = self::$EasyRecipeURL . "/tinymce/noneditable{$this->mceVersion}.js?v=" . self::$pluginVersion;
         return $plugins;
     }
 
     /**
      * Add our tinyMCE buttons
+     *
+     * @param $buttons
+     *
+     * @return array
      */
     function mceButtons($buttons) {
         if ($this->isGuest) {
@@ -1478,6 +1557,7 @@ EOD;
         $noWarn = $this->settings->noHTMLWarn ? 'true' : 'false';
         $wpurl = get_bloginfo('wpurl');
         $url = self::$EasyRecipeURL;
+        $pluginVersion = self::$pluginVersion;
         echo <<<EOD
 <script type="text/javascript">
 /* <![CDATA[ */
@@ -1485,7 +1565,7 @@ window.EASYRECIPE = window.EASYRECIPE || {};
 EASYRECIPE.ingredients ='$ingredients';
 EASYRECIPE.instructions ='$instructions';
 EASYRECIPE.notes ='$notes';
-EASYRECIPE.version = '$this->pluginVersion';
+EASYRECIPE.version = '$pluginVersion';
 EASYRECIPE.easyrecipeURL = '$url';
 EASYRECIPE.recipeTemplate = '$html';
 EASYRECIPE.testURL = '$testURL';
@@ -1510,3 +1590,4 @@ EOD;
         $convert->convertRecipe();
     }
 }
+

@@ -19,7 +19,7 @@ class EasyRecipeDiagnostics {
     public $dataVersion = 5;
 
     public $pluginName = 'easyrecipe';
-    public $pluginVersion = '3.2.1311';
+    public $pluginVersion = '3.2.2802';
 
     public $pluginURL = '';
     public $pluginDir = '';

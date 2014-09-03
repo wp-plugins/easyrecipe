@@ -41,17 +41,17 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     const regexShortCodes = '%(?:\[(i|b|u)\](.*?)\[/\1\])|(?:\[(img)(?:&nbsp; *| +|\p{Zs}+)(.*?) */?\])|(?:\[(url|a)(?:&nbsp; *| +|\p{Zs}+)([^\]]+?)\](.*?)\[/url\])|(?:\[(cap)(?:&nbsp; *| +|\p{Zs}+)([^\]]+?)\](.*?)\[/cap\])%iu';
 
     private $fractions = array(
-            1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'),
-            2 => array(3 => '&#8532;'),
-            3 => array(4 => '&frac34;', 8 => '&#8540;'),
-            4 => array(5 => '&#8536;'),
-            5 => array(6 => '&#8538;', 8 => '&#8541;'),
-            7 => array(8 => '&#8542;'));
+        1 => array(2 => '&frac12;', 3 => '&#8531;', 4 => '&frac14;', 5 => '&#8533;', 6 => '&#8537;', 8 => '&#8539;'),
+        2 => array(3 => '&#8532;'),
+        3 => array(4 => '&frac34;', 8 => '&#8540;'),
+        4 => array(5 => '&#8536;'),
+        5 => array(6 => '&#8538;', 8 => '&#8541;'),
+        7 => array(8 => '&#8542;'));
 
     /**
      * If there's an EasyRecipe in the content, load the HTML and pre-process, else just return
      *
-     * @param $content
+     * @param      $content
      * @param bool $load
      */
     public function __construct($content, $load = true) {
@@ -80,7 +80,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
          * Sanity check - make sure we could actually find at least one
          */
         if (count($this->easyrecipes) == 0) {
-            echo "<!-- ER COUNT = 0 -->\n";
+            // echo "<!-- ER COUNT = 0 -->\n";
             return;
         }
 
@@ -116,6 +116,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * It may not be worthwhile fixing this
      *
      * @param array $match The match array returned by the regex
+     *
      * @return string The replacement code, or the original complete match if we don't recognise the shortcode
      */
     private function shortCodes($match) {
@@ -165,12 +166,12 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * labels for various significant tags, just the tags themselves.
      * This method modifies the labels for those tags
      *
-     * @param $className string
-     *            The class of the tag
-     * @param $value string
-     *            The text value to set for the label (which will be the parent of $className)
+     * @param $className    string
+     *                      The class of the tag
+     * @param $value        string
+     *                      The text value to set for the label (which will be the parent of $className)
      * @param $currentValue string
-     *            The value to replace
+     *                      The value to replace
      */
     public function setParentValueByClassName($className, $value, $currentValue = "") {
         $nodes = $this->getElementsByClassName($className);
@@ -193,10 +194,11 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      *
      * Later versions of tinyMCE may silently remove the <a> tag altogether, so we need to put it back if it's not there
      *
-     * @param $recipe
-     * @param $template
-     * @param $data
+     * @param     $recipe
+     * @param     $template
+     * @param     $data
      * @param int $nRecipe
+     *
      * @return string
      */
     function formatRecipe($recipe, EasyRecipeTemplate $template, $data, $nRecipe = 0) {
@@ -263,8 +265,9 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * Replaces the raw easyrecipe(s) with the formatted version
      *
      * @param EasyRecipeTemplate $template
-     * @param object $originalData
-     * @param null $recipe
+     * @param object               $originalData
+     * @param null                 $recipe
+     *
      * @return string
      */
     function applyStyle(EasyRecipeTemplate $template, $originalData, $recipe = null) {
@@ -350,7 +353,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * If no <img> is found, returns false
      *
      * @param $html string
-     *            The html to search
+     *              The html to search
+     *
      * @return boolean/string The adjusted html if an <img> was found, else false
      */
     private
@@ -434,6 +438,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * (What do they think that "class" stuff is in there for???)
      *
      * This repairs the value-title classes necessary for times
+     *
+     * @param $timeElement
      */
     function fixTimes($timeElement) {
         foreach ($this->easyrecipes as $recipe) {
@@ -494,6 +500,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      *         TODO - standardise the way body only is done!
      *
      * @param bool $bodyOnly
+     *
      * @return bool|string
      */
     public
@@ -552,6 +559,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      * Translate the time labels to custome labels (if they're different)
      *
      * @param $time
+     *
      * @return mixed
      */
     private function timeTranslate($time) {
@@ -584,7 +592,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         $data->cuisine = $this->getElementValueByClassName("cuisine", "span", $recipe);
 
         $data->type = $this->getElementValueByClassName("type", "span", $recipe);
-        // FIXME - oops for OC
+        // TODO - oops for OC
         if (!$data->type) {
             $data->type = $this->getElementValueByClassName("tag", "span", $recipe);
         }
@@ -627,7 +635,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         $data->fiber = $this->getElementValueByClassName("fiber", "span", $recipe);
         $data->protein = $this->getElementValueByClassName("protein", "span", $recipe);
         $data->cholesterol = $this->getElementValueByClassName("cholesterol", "span", $recipe);
-        $data->hasNutrition = $data->servingSize || $data->calories || $data->fat || $data->saturatedFat || $data->unsaturatedFat || $data->carbohydrates || $data->sugar || $data->fiber || $data->protein || $data->cholesterol || $data->sodium || $data->transFat;
+        $data->hasNutrition =
+            $data->servingSize || $data->calories || $data->fat || $data->saturatedFat || $data->unsaturatedFat || $data->carbohydrates || $data->sugar || $data->fiber || $data->protein || $data->cholesterol || $data->sodium || $data->transFat;
 
         $data->notes = $this->getElementValueByClassName("ERNotes", "div", $recipe);
 

@@ -28,92 +28,99 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  * The entire class is saved to options, and after the first run, the class is directly instantiated by unserializing the options
  *
  * TODO - remove "@property" when Gravity Forms implemented
+ *
  * @property mixed gpUseGravity
  */
 class EasyRecipeSettings {
 
-    private static $defaultSettings = array(
-
-            'licenseKey' => '',
-
-            'style' => 'style001', 'printStyle' => 'style001',
-
-            'customCSS' => '',
-            'customPrintCSS' => '',
-            'extraCSS' => '',
-            'extraPrintCSS' => '',
-            'extraPrintHeader' => '',
-
-            'useFeaturedImage' => false,
-
-            'displayPrint' => true, 'allowLink' => false, 'convertFractions' => true, 'removeMicroformat' => false,
-
-            'enableSwoop' => false, 'swoopSiteID' => '',
-
-            'saveButton' => 'None', 'ziplistPartnerKey' => '', 'saltyfigPartnerKey' => '',
-
-            'author' => '',
-
-            'cuisines' => 'African|American|French|Greek|Indian|Italian|Kosher|Mexican|Middle Eastern|Spanish',
-
-            'recipeTypes' => 'Appetizer|Breakfast|Brunch|Dessert|Drinks|Entree|Main',
-
-            'ratings' => 'EasyRecipe',
-
-            'filterExcerpts' => true,
-            'filterFeeds' => true,
-
-            'lblIngredients' => 'Ingredients', 'lblInstructions' => 'Instructions', 'lblNotes' => 'Notes', 'lblNutrition' => 'Nutrition Information', 'lblAuthor' => 'Author', 'lblCuisine' => 'Cuisine',
-            'lblRecipeType' => 'Recipe type', 'lblPrepTime' => 'Prep time', 'lblCookTime' => 'Cook time', 'lblTotalTime' => 'Total time', 'lblServes' => 'Serves', 'lblServeSize' => 'Serving size',
-            'lblCalories' => 'Calories', 'lblSugar' => 'Sugar', 'lblSodium' => 'Sodium', 'lblFat' => 'Fat', 'lblSatFat' => 'Saturated fat', 'lblUnsatFat' => 'Unsaturated fat',
-            'lblTransFat' => 'Trans fat', 'lblCarbs' => 'Carbohydrates', 'lblFiber' => 'Fiber', 'lblProtein' => 'Protein', 'lblCholesterol' => 'Cholesterol', 'lblRateRecipe' => 'Rate this recipe',
-
-            'lblHour' => 'hour',
-            'lblHours' => 'hours',
-            'lblMinute' => 'min',
-            'lblMinutes' => 'mins',
-
-            'lblPrint' => 'Print',
-            'lblSave' => 'Save',
-
-            'gpUserID' => 0,
-            'gpDetailsPage' => 0,
-            'gpEntryPage' => 0,
-            'gpThanksPage' => 0,
-            'gpHideFooter' => true,
-
-
-            'lblGPName' => 'Name:',
-            'lblGPEmail' => 'Email:',
-            'lblGPWebsite' => 'Website URL:',
-            'lblGPContinue' => 'Continue',
-            'lblGPPostTitle' => 'Post title:',
-            'lblGPHint' => "Hint: Click on the chef's hat icon to enter the recipe part of your post:",
-            'lblGPMessage' => 'Leave me a private message (not for publication):',
-            'lblGPSubmitPost' => 'Submit Post',
-
-            'erSubscribe' => false,
-            'erEmailAddress' => '',
-            'erFirstName' => '',
-
-            'customTemplates' => '',
-
-            'forcejQuery' => false,
-            'noHTMLWarn' => false,
-            'genesisGrid' => false,
-
-            'displayZiplist' => false,
-            'displayRecipeCard' => false,
-            'displayGMC' => false,
+    private static $defaultSettings
+        = array(
+            'licenseKey'            => '',
+            'style'                 => 'style001',
+            'printStyle'            => 'style001',
+            'customCSS'             => '',
+            'customPrintCSS'        => '',
+            'extraCSS'              => '',
+            'extraPrintCSS'         => '',
+            'extraPrintHeader'      => '',
+            'useFeaturedImage'      => false,
+            'displayPrint'          => true,
+            'allowLink'             => false,
+            'convertFractions'      => true,
+            'removeMicroformat'     => false,
+            'enableSwoop'           => false,
+            'swoopSiteID'           => '',
+            'saveButton'            => 'None',
+            'ziplistPartnerKey'     => '',
+            'saltyfigPartnerKey'    => '',
+            'author'                => '',
+            'cuisines'              => 'African|American|French|Greek|Indian|Italian|Kosher|Mexican|Middle Eastern|Spanish',
+            'recipeTypes'           => 'Appetizer|Breakfast|Brunch|Dessert|Drinks|Entree|Main',
+            'ratings'               => 'EasyRecipe',
+            'filterExcerpts'        => true,
+            'filterFeeds'           => true,
+            'lblIngredients'        => 'Ingredients',
+            'lblInstructions'       => 'Instructions',
+            'lblNotes'              => 'Notes',
+            'lblNutrition'          => 'Nutrition Information',
+            'lblAuthor'             => 'Author',
+            'lblCuisine'            => 'Cuisine',
+            'lblRecipeType'         => 'Recipe type',
+            'lblPrepTime'           => 'Prep time',
+            'lblCookTime'           => 'Cook time',
+            'lblTotalTime'          => 'Total time',
+            'lblServes'             => 'Serves',
+            'lblServeSize'          => 'Serving size',
+            'lblCalories'           => 'Calories',
+            'lblSugar'              => 'Sugar',
+            'lblSodium'             => 'Sodium',
+            'lblFat'                => 'Fat',
+            'lblSatFat'             => 'Saturated fat',
+            'lblUnsatFat'           => 'Unsaturated fat',
+            'lblTransFat'           => 'Trans fat',
+            'lblCarbs'              => 'Carbohydrates',
+            'lblFiber'              => 'Fiber',
+            'lblProtein'            => 'Protein',
+            'lblCholesterol'        => 'Cholesterol',
+            'lblRateRecipe'         => 'Rate this recipe',
+            'lblHour'               => 'hour',
+            'lblHours'              => 'hours',
+            'lblMinute'             => 'min',
+            'lblMinutes'            => 'mins',
+            'lblPrint'              => 'Print',
+            'lblSave'               => 'Save',
+            'gpUserID'              => 0, // #ifdef GRAVITY
+            'gpGravityFormID'       => 0, // #endif
+            'gpDetailsPage'         => 0,
+            'gpEntryPage'           => 0,
+            'gpThanksPage'          => 0,
+            'gpHideFooter'          => true,
+            'lblGPName'             => 'Name:',
+            'lblGPEmail'            => 'Email:',
+            'lblGPWebsite'          => 'Website URL:',
+            'lblGPContinue'         => 'Continue',
+            'lblGPPostTitle'        => 'Post title:',
+            'lblGPHint'             => "Hint: Click on the chef's hat icon to enter the recipe part of your post:",
+            'lblGPMessage'          => 'Leave me a private message (not for publication):',
+            'lblGPSubmitPost'       => 'Submit Post',
+            'erSubscribe'           => false,
+            'erEmailAddress'        => '',
+            'erFirstName'           => '',
+            'customTemplates'       => '',
+            'forcejQuery'           => false,
+            'noHTMLWarn'            => false,
+            'genesisGrid'           => false,
+            'displayZiplist'        => false,
+            'displayRecipeCard'     => false,
+            'displayGMC'            => false,
             'displayUltimateRecipe' => false,
-
-            'enableFooderific' => '',
-            'fooderificAPIKey' => '',
-            'lastScanStarted' => 0,
-            'lastScanFinished' => 0,
-            'scanDelay' => 3,
-
-            'pluginVersion' => '');
+            'enableFooderific'      => '',
+            'fooderificAPIKey'      => '',
+            'lastScanStarted'       => 0,
+            'lastScanFinished'      => 0,
+            'scanDelay'             => 3,
+            'settingsVersion'       => null
+        );
 
 
     public $licenseKey;
@@ -202,12 +209,22 @@ class EasyRecipeSettings {
     public $lastScanFinished;
     public $scanDelay;
     public $fooderificAPIKey;
-    public $pluginVersion;
 
     public $displayZiplist;
     public $displayRecipeCard;
     public $displayGMC;
     public $displayUltimateRecipe;
+
+    /**
+     * @var string The plugin version that these settings were saved with.
+     * This should be the same as the plugin version except on the first run after an update
+     */
+    public $settingsVersion;
+
+    /**
+     * @var bool Will be set to true by the Taxonomy creation process
+     */
+    public $taxonomiesCreated = false;
 
     /**
      * @var EasyRecipeSettings
@@ -220,69 +237,72 @@ class EasyRecipeSettings {
      * @return EasyRecipeSettings
      */
     static function getInstance() {
-        $v32Settings = false;
+        $freeSettings = null;
         $updateOptions = false;
-        $previousSettings = false;
 
         /**
          * If we haven't already instantiated settings, try to do it from the options
          */
         if (!self::$instance) {
             self::$instance = get_option('EasyRecipe', false);
-            /**
-             * If there were no settings stored, see if we need to merge older style settings
-             */
+
             if (!self::$instance) {
                 self::$instance = new EasyRecipeSettings();
-                // FIXME - plus not picking up free settings?
+
                 /**
-                 * See if we had existing 3.1 style settings
+                 * If we're updating from a very early version, copy the old settings which are still relevant
+                 * Any not set in the defaults are deprecated and we can drop them
                  */
-                $v32Settings = get_option('ERPlusSettings');
-                if (!$v32Settings) {
-                    $v32Settings = get_option('ERSettings');
+                $v31Settings = get_option('ERSettings');
+
+                if (!empty($v31Settings)) {
+                    foreach ($v31Settings as $setting => $value) {
+                        if (isset(self::$defaultSettings[$setting])) {
+                            self::$instance->$setting = $value;
+                        }
+                    }
+                    $updateOptions = true;
                 }
             }
+
             /**
-             * Set any defaults which are new in the current version
+             * Fixup possible legacy problems where the options weren't stored as the correct class
+             */
+            if (!(self::$instance instanceof EasyRecipeSettings)) {
+                self::$instance = new EasyRecipeSettings(self::$instance);
+                $updateOptions = true;
+            }
+
+            /**
+             * If this is the first run of the plugin after an update, see if we need to do any processing specific to this update.
+             * Also do the update check if the taxonomies haven't been created yet
+             *
+             * TODO - determine if this is a new install -  won't need to check if so?
+             */
+            $updateCheck = version_compare(self::$instance->settingsVersion, EasyRecipe::$pluginVersion) == -1 || !self::$instance->taxonomiesCreated;
+            if ($updateCheck) {
+                EasyRecipeUpdate::check(self::$instance);
+                /**
+                 * Save the new settings version (will be the same as the installed pluginVersion)
+                 */
+                self::$instance->settingsVersion = EasyRecipe::$pluginVersion;
+                $updateOptions = true;
+            }
+
+            /**
+             * Set any defaults which haven't been set in the current version (i.e. new settings just introduced)
+             * TODO - remove any options no longer needed?
              */
             foreach (self::$defaultSettings as $setting => $default) {
                 if (!isset(self::$instance->$setting)) {
                     self::$instance->$setting = $default;
-                    // FIXME - update settings?
+                    $updateOptions = true;
                 }
             }
 
             /**
-             * Check for a non-existent Fooderific setting and pick up the old MBRB setting if that's there
+             * Update the settings if we changed them during construction
              */
-            if (self::$instance->enableFooderific === '' && $v32Settings) {
-                self::$instance->enableFooderific = isset($v32Settings['pingMBRB']) ? $v32Settings['pingMBRB'] : false;
-                $updateOptions = true;
-            }
-
-            /**
-             * If we're updating from v3.2, copy those settings which are still relevant
-             * Any not set by the default above are deprecated and we can drop them
-             */
-            if ($v32Settings) {
-                foreach ($v32Settings as $setting => $value) {
-                    if (isset(self::$instance->$setting)) {
-                        self::$instance->$setting = $value;
-                    }
-                }
-                $updateOptions = true;
-            }
-
-            if ($previousSettings) {
-                foreach ($previousSettings as $setting => $value) {
-                    if (isset(self::$instance->$setting)) {
-                        self::$instance->$setting = $value;
-                    }
-                }
-                $updateOptions = true;
-            }
-
             if ($updateOptions) {
                 update_option('EasyRecipe', self::$instance);
             }
@@ -292,9 +312,12 @@ class EasyRecipeSettings {
 
     /**
      * Constructor is only ever called from getInstance
+     *
+     * @param null $settings Possible settings as a stdClass retrieved from options. Seems some version in the past wrote settings as a stdClass
      */
-    private function __construct() {
-        foreach (self::$defaultSettings as $setting => $default) {
+    private function __construct($settings = null) {
+        $defaultSettings = empty($settings) ? self::$defaultSettings : $settings;
+        foreach ($defaultSettings as $setting => $default) {
             $this->{$setting} = $default;
         }
     }
@@ -315,10 +338,10 @@ class EasyRecipeSettings {
 
         $data->settingsname = 'EasyRecipe';
         $wpurl = get_bloginfo("wpurl");
-        $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $data->wpurl);
+        $data->fdsite = preg_replace('%^(?:http://)(.*)$%i', '$1', $wpurl);
         $isWP39 = version_compare($wp_version, '3.9.dev', '>') > 0 ? 'true' : 'false';
         $editURL = "$wpurl/wp-admin/edit.php";
-        $data->pluginversion = $pluginversion = '3.2.1311';
+        $data->pluginversion = EasyRecipe::$pluginVersion;
         $license = $this->licenseKey;
 
         /**
@@ -334,23 +357,27 @@ class EasyRecipeSettings {
             $data->fdNotEnabled = true;
             $data->retrieveclass = 'FDDisplayNone';
             $lastScan = 0;
-        } else if ($this->lastScanStarted == 0) {
-            $data->fdFirstRun = true;
-            $data->retrieveclass = 'FDDisplayNone';
-            $lastScan = 0;
         } else {
-            $data->retrieveclass = '';
-            $tzOffet = get_option('gmt_offset');
-            $lastScan = date_i18n("j M y g:ia", $this->lastScanStarted + $tzOffet * 3600);
+            if ($this->lastScanStarted == 0) {
+                $data->fdFirstRun = true;
+                $data->retrieveclass = 'FDDisplayNone';
+                $lastScan = 0;
+            } else {
+                $data->retrieveclass = '';
+                $tzOffet = get_option('gmt_offset');
+                $lastScan = date_i18n("j M y g:ia", $this->lastScanStarted + $tzOffet * 3600);
+            }
         }
 
-        $data->javascript = <<<EOD
+        $pluginVersion = EasyRecipe::$pluginVersion;
+        $data->javascript
+            = <<<EOD
 <script type="text/javascript">
 //<![CDATA[
     window.EASYRECIPE = window.EASYRECIPE || {};
     EASYRECIPE.settingsName = 'EasyRecipe';
     EASYRECIPE.editURL = '$editURL';
-    EASYRECIPE.pluginVersion = '$pluginversion';
+    EASYRECIPE.pluginVersion = '$pluginVersion';
     EASYRECIPE.wpurl = '$wpurl';
     EASYRECIPE.license = '$license';
     EASYRECIPE.lastScan = '$lastScan';
@@ -474,9 +501,10 @@ EOD;
             $styleItem->STYLES[] = $style;
             $styleNum++;
         }
-        $styleItem->styleTab = $styleTab;
-        $data->STYLETABS[] = $styleItem;
-
+        if ($styleItem) {
+            $styleItem->styleTab = $styleTab;
+            $data->STYLETABS[] = $styleItem;
+        }
         $styles = EasyRecipeStyles::getStyles($this->customTemplates, EasyRecipeStyles::ISPRINT);
         //$styles = call_user_func(array ($this->stylesClass, 'getStyles'), $this->settings['customTemplates'], constant("$this->stylesClass::ISPRINT"));
 
@@ -499,8 +527,10 @@ EOD;
             $styleItem->PRINTSTYLES[] = $style;
             $styleNum++;
         }
-        $styleItem->styleTab = $styleTab;
-        $data->PRINTSTYLETABS[] = $styleItem;
+        if ($styleItem) {
+            $styleItem->styleTab = $styleTab;
+            $data->PRINTSTYLETABS[] = $styleItem;
+        }
 
         $data->optionsHTML = $optionsHTML;
 
@@ -524,7 +554,7 @@ EOD;
     }
 
     /**
-     * @param $data stdClass Updates $data with the current custrom label settings
+     * @param $data stdClass Updates $data with the current custom label settings
      */
     public function getLabels($data) {
         foreach (self::$defaultSettings as $key => $nil) {
@@ -537,6 +567,7 @@ EOD;
     /**
      * Save the settings
      * TODO check nonce?
+     *
      * @param $settings Array Key/value array of settings
      */
     public function save($settings) {
@@ -611,7 +642,5 @@ EOD;
     public function update() {
         update_option('EasyRecipe', $this);
     }
-
-
 }
 

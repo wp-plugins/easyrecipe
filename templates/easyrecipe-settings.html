@@ -55,7 +55,7 @@
 <div id="divERSTabs">
 <ul>
     <li><a href="#divERSGeneral"><span class="xlate">General</span></a></li>
-    <li><a href="#divERSCustom"><span class="xlate">Labels</span></a></li>
+    <li><a href="#divERSLabels"><span class="xlate">Labels</span></a></li>
     <li><a href="#divERSStyles"><span class="xlate">Display Styles</span></a></li>
     <li><a href="#divERSPrintStyles"><span class="xlate">Print Styles</span></a></li>
     <li><a href="#divERSFooderific" class="ERSNoSave"><span class="xlate">Fooderific</span></a></li>
@@ -245,31 +245,31 @@
         </tr>
     </table>
 </div>
-<div id="divERSCustom">
+<div id="divERSLabels">
     <div class="ERSCustomHdr ERSHdrExplain"><span class="xlate">Custom labels allow you to change the way EasyRecipe displays field names</span>.<br/>
         <span class="xlate">For example, you might want your recipes to show &quot;Method&quot; instead of &quot;Instructions&quot;</span></div>
-    <table>
+    <table id="tblERSLabels">
         <tr>
             <td>
                 <table>
                     <tr>
-                        <th scope="row"><span class="xlate">Author label</span></th>
+                        <th scope="row"><span class="xlate"><em>Author</em> label</span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblAuthor]" value="#lblAuthor#"/></td>
                     </tr>
                     <tr>
-                        <th scope="row"><span class="xlate">Ingredients heading</span></th>
+                        <th scope="row"><span class="xlate"><em>Ingredients</em> heading</span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblIngredients]" value="#lblIngredients#"/></td>
                     </tr>
                     <tr>
-                        <th scope="row"><span class="xlate">Instructions heading</span></th>
+                        <th scope="row"><span class="xlate"><em>Instructions</em> heading</span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblInstructions]" value="#lblInstructions#"/></td>
                     </tr>
                     <tr>
-                        <th scope="row"><span class="xlate">Notes heading</span></th>
+                        <th scope="row"><span class="xlate"><em>Notes</em> heading</span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblNotes]" value="#lblNotes#"/></td>
                     </tr>
                     <tr>
-                        <th scope="row"><span class="xlate">Nutrition heading</span></th>
+                        <th scope="row"><span class="xlate"><em>Nutrition</em> heading</span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblNutrition]" value="#lblNutrition#"/></td>
                     </tr>
                     <tr>
@@ -293,7 +293,7 @@
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblTotalTime]" value="#lblTotalTime#"/></td>
                     </tr>
                     <tr>
-                        <th scope="row"><span class="xlate"><em>Serves</em> label</span></th>
+                        <th scope="row"><span class="xlate"><em>Yield</em> label</span></th>
                         <td><input class="ERSTextField" type="text" name="#settingsname#[lblServes]" value="#lblServes#"/></td>
                     </tr>
                     <tr>
@@ -761,3 +761,4 @@
 </div>
 </body>
 </html>
+

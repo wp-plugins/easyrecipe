@@ -2,8 +2,8 @@
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.6
-Tested up to: 3.9
-Stable tag:  3.2.1311
+Tested up to: 4.0
+Stable tag:  3.2.2802
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,6 +78,14 @@ You can also visit [EasyRecipe Support](http://support.easyrecipeplugin.com/)
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
+= 3.2.2802 =
+* Enhancement: Generate taxonomies that can be used by the EasyIndex plugin
+* Update: Bring version numbers into line with EasyRecipe Plus
+* Update: Changes for Wordpress 4.0
+* Update: Use the more correct "ratingCount" rather than "reviewCount"
+* Update: re-label "Serves" as the more correct "Yield"
+* Bug fix: Self ratings weren't being displayed in some circumstances
+
 = 3.2 Build 1311 =
 * Enhancement: Display Get Me Cooking recipes without the need to convert (Plus version)
 * Enhancement: Display Recipe Card recipes without the need to convert (Plus version)
@@ -99,13 +107,13 @@ You can also visit [EasyRecipe Support](http://support.easyrecipeplugin.com/)
 * Update: Allow for non-breaking spaces in [img], [url] shortcodes
 * Update: Remove some old unused code
 * Update: Standardise Live Formatting popup layout across more themes
-* Update: Changes to handle themes that globally set <div> spacing (recipe entry)
+* Update: Changes to handle themes that globally set &lt;div&gt; spacing (recipe entry)
 * Update: Handle Genesis grid items better (Plus version)
 * Bug fix: Fix recipe displaying as a shortcode when some other plugins present
 * Bug fix: Process [br] shortcodes in Ziplist recipes correctly (Plus version)
 * Bug fix: Remove extra "!important" from Live Formatting CSS
 * Bug fix: Strip slashes from quoted extra CSS
-* Bug fix: Remove spurious <a> tag when addding links in IE11
+* Bug fix: Remove spurious &lt;a&gt; tag when addding links in IE11
 
 = 3.2 Build 1303 =
 * Bug fix: Handle embedded links properly in Ziplist recipes (Plus version)
@@ -441,3 +449,4 @@ You can also visit [EasyRecipe Support](http://support.easyrecipeplugin.com/)
 == Upgrade Notice ==
 = 2.1.3 =
 Various bug fixes for version 2
+
