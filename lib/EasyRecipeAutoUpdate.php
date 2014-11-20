@@ -14,16 +14,15 @@
  *
  * Code to do plugin update checks
  */
-
 class EasyRecipeAutoUpdate {
 
-    private $slug = 'easyrecipe/easyrecipe';
+    private $slug = 'easyrecipe';
     private $version;
     private $updateURL;
     private $licenseKey;
 
 
-    function __construct($version, $updateURL, $licenseKey = '') {
+    function __construct($version, $updateURL, $licenseKey = '', $licenseRequired = true) {
         $this->licenseKey = $licenseKey;
         $this->updateURL = $updateURL;
         $this->version = $version;
@@ -36,21 +35,24 @@ class EasyRecipeAutoUpdate {
          */
         add_action('update-custom_' . 'easyrecipe-update', array($this, 'forceUpdate'));
 
-    }
+        /**
+         * If the plugin requires a license to update automatically, add a hook to check for the existence of a license key on the plugin download page
+         * This is so we can display a reasonable error message when the license key is missing from the download URL
+         */
+        if ($licenseRequired) {
+            add_filter('upgrader_pre_download', array($this, 'checkLicense'), 1, 2);
+        }
 
-    /**
-     * Add a hook to check for the existence of a license key on the plugin download page
-     * This is so we can display a reasonable error message when the license key is missing from the download URL
-     *
-     * It's up to the plugin whether to call this or not
-     */
-    public function upgradeHook() {
-        add_filter('upgrader_pre_download', array($this, 'checkLicense'), 1, 2);
     }
 
     /**
      * Check for the existence of a license key. (not its validity)
      * A common problem is that users don't enter their license key and get a cryptic error on the download failure
+     *
+     * @param $value
+     * @param $package
+     *
+     * @return WP_Error
      */
     public function checkLicense($value, $package) {
         /**
@@ -88,6 +90,7 @@ class EasyRecipeAutoUpdate {
      * Gets data from the update server
      *
      * @param string $action
+     *
      * @return bool|object
      */
     private function getData($action) {
@@ -98,6 +101,7 @@ class EasyRecipeAutoUpdate {
         $args['s'] = $this->slug;
         $args['u'] = get_bloginfo("wpurl");
         $args['p'] = 0;
+
         $request = wp_remote_post($this->updateURL, array('body' => $args));
         if (is_wp_error($request) || wp_remote_retrieve_response_code($request) != 200) {
             return false;
@@ -112,6 +116,7 @@ class EasyRecipeAutoUpdate {
      * Otherwise find the latest data for our own plugin and replace (or insert) it in the transient
      *
      * @param object $transient
+     *
      * @return object
      */
     public function checkUpdate($transient) {
@@ -125,7 +130,7 @@ class EasyRecipeAutoUpdate {
         $response = $this->getData('vcheck');
 
         if ($response !== false) {
-            $transient->response[$this->slug . '.php'] = $response;
+            $transient->response["$this->slug/$this->slug.php"] = $response;
         }
         return $transient;
     }
@@ -134,8 +139,9 @@ class EasyRecipeAutoUpdate {
      * Get the latest plugin info
      *
      * @param boolean $value
-     * @param array $action
-     * @param object $args
+     * @param array   $action
+     * @param object  $args
+     *
      * @return bool|object
      */
     public function checkInfo(/** @noinspection PhpUnusedParameterInspection */
@@ -148,3 +154,4 @@ class EasyRecipeAutoUpdate {
     }
 
 }
+

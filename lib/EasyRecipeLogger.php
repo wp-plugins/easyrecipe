@@ -11,7 +11,6 @@ if (!class_exists('EasyLogger', false)) {
     class EasyRecipeLogger {
         /**
          * @param $logfile
-         *
          * @return EasyLoggerLog
          */
         static function getLog(/** @noinspection PhpUnusedParameterInspection */

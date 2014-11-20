@@ -19,7 +19,7 @@ class EasyRecipeDiagnostics {
     public $dataVersion = 5;
 
     public $pluginName = 'easyrecipe';
-    public $pluginVersion = '3.2.2802';
+    public $pluginVersion = '3.2.2885';
 
     public $pluginURL = '';
     public $pluginDir = '';
@@ -143,7 +143,7 @@ class EasyRecipeDiagnostics {
 
 
         /** @noinspection PhpUndefinedClassInspection */
-        $this->pluginURL = EasyRecipe::$EasyRecipeURL;
+        $this->pluginURL = EasyRecipe::$EasyRecipeUrl;
 
         /** @noinspection PhpUndefinedClassInspection */
         $this->pluginDir = EasyRecipe::$EasyRecipeDir;

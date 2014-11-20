@@ -112,6 +112,7 @@ class EasyRecipeSettings {
             'genesisGrid'           => false,
             'displayZiplist'        => false,
             'displayRecipeCard'     => false,
+            'displayRecipage'       => false,
             'displayGMC'            => false,
             'displayUltimateRecipe' => false,
             'enableFooderific'      => '',
@@ -212,6 +213,7 @@ class EasyRecipeSettings {
 
     public $displayZiplist;
     public $displayRecipeCard;
+    public $displayRecipage;
     public $displayGMC;
     public $displayUltimateRecipe;
 
@@ -325,6 +327,10 @@ class EasyRecipeSettings {
     public function showPage() {
         /* @var $wp_rewrite WP_Rewrite */
         global $wp_rewrite;
+
+        /** @var $wpdb wpdb */
+        global $wpdb;
+
         global $wp_version;
 
         if (isset($_POST['action']) && $_POST['action'] == 'save') {
@@ -379,6 +385,7 @@ class EasyRecipeSettings {
     EASYRECIPE.editURL = '$editURL';
     EASYRECIPE.pluginVersion = '$pluginVersion';
     EASYRECIPE.wpurl = '$wpurl';
+    EASYRECIPE.slug = 'easyrecipe';
     EASYRECIPE.license = '$license';
     EASYRECIPE.lastScan = '$lastScan';
     EASYRECIPE.fdAPIKey = '$fdAPIKey';
@@ -402,6 +409,7 @@ EOD;
         $data->filterExcerptsChecked = $this->filterExcerpts ? 'checked="checked"' : '';
         $data->displayZiplistChecked = $this->displayZiplist ? 'checked="checked"' : '';
         $data->displayRecipeCardChecked = $this->displayRecipeCard ? 'checked="checked"' : '';
+        $data->displayRecipageChecked = $this->displayRecipage ? 'checked="checked"' : '';
         $data->displayGMCChecked = $this->displayGMC ? 'checked="checked"' : '';
         $data->displayUltimateRecipeChecked = $this->displayUltimateRecipe ? 'checked="checked"' : '';
         $data->allowLinkChecked = $this->allowLink ? 'checked="checked"' : '';
@@ -417,10 +425,15 @@ EOD;
         $data->saveButtonZiplistChecked = $data->saveButtonSaltyFigChecked = $data->saveButtonNoneChecked = '';
         $data->ziplistclass = $data->saltyfigclass = "ERSDisplayNone";
 
+        /**
+         * Only show the Ziplist stuff if we are already using it and then only so it can be unselected
+         */
+        $data->showZiplist = false;
         switch ($data->saveButton) {
             case 'Ziplist':
                 $data->saveButtonZiplistChecked = 'checked="checked"';
                 $data->ziplistclass = '';
+                $data->showZiplist = true;
                 break;
 
             case 'SaltyFig':
@@ -432,6 +445,7 @@ EOD;
                 $data->saveButtonNoneChecked = 'checked="checked"';
                 break;
         }
+
 
         $data->ratingEasyRecipeChecked = $data->ratingSelfRatedChecked = $data->ratingDisabledChecked = '';
         $ratingChecked = "rating" . $this->ratings . "Checked";
@@ -462,7 +476,7 @@ EOD;
         /** @noinspection PhpParamsInspection */
         $data->swoopqs = http_build_query($swoopData);
 
-        $data->easyrecipeURL = EasyRecipe::$EasyRecipeURL;
+        $data->easyrecipeURL = EasyRecipe::$EasyRecipeUrl;
         $data->siteurl = get_site_url();
 
 
@@ -547,7 +561,7 @@ EOD;
         echo $html;
 
         $data = new stdClass();
-        $data->easyrecipeURL = EasyRecipe::$EasyRecipeURL;
+        $data->easyrecipeURL = EasyRecipe::$EasyRecipeUrl;
         $template = new EasyRecipeTemplate(EasyRecipe::$EasyRecipeDir . "/templates/easyrecipe-upgrade.html");
         echo $template->replace($data);
 
@@ -583,6 +597,7 @@ EOD;
                 case 'filterExcerpts':
                 case 'displayZiplist':
                 case 'displayRecipeCard':
+                case 'displayRecipage':
                 case 'displayGMC':
                 case 'displayUltimateRecipe':
                 case 'useFeaturedImage' :

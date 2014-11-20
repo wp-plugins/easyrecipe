@@ -3,7 +3,7 @@ Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.6
 Tested up to: 4.0
-Stable tag:  3.2.2802
+Stable tag:  3.2.2885
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,7 +78,20 @@ You can also visit [EasyRecipe Support](http://support.easyrecipeplugin.com/)
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
-= 3.2.2802 =
+= 3.2.2885 =
+* Enhancement: Enable Recipage recipe conversion
+* Enhancement: Display Recipage recipes as EasyRecipe recipes (Plus version)
+* Update: Better handling of shortcodes within a recipe
+* Update: Handle links in instruction section headings
+* Update: Don't open formatting popup if a link in a recipe is clicked when logged in as admin
+* Update: Cater for sites that have huge numbers of registered users (Plus version)
+* Update: Remove Ziplist Save button functionality (Plus version)
+* Bug fix: Fix microformatting on Ziplist style when times missing and on nutrition data (Plus version)
+* Bug fix: Supress times display when times missing on Ziplist recipes (Plus version)
+* Bug fix: Live Formatting handling of quoted font names
+* Bug fix: Improve popup window stacking handling on recipe entry
+
+= 3.2 Build 2802 =
 * Enhancement: Generate taxonomies that can be used by the EasyIndex plugin
 * Update: Bring version numbers into line with EasyRecipe Plus
 * Update: Changes for Wordpress 4.0

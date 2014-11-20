@@ -306,8 +306,6 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
              * Insert a shortcode placeholder for the recipe. We need to remove the recipe from the content before wpauto() mangles it
              * It gets re-inserted during the "the_content" hook. The placeholder stores the postID and the index of the recipe on the post
              */
-//            $shortCode = "[easyrecipe id=\"$postID\" n=\"$nRecipe\"]";
-//            $placeHolder = $this->createTextNode($shortCode);
 
             /**
              * Replace the original recipe (the unformatted version from the post) with a place holder
@@ -340,6 +338,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
 
         /**
          * Replace the placeholders with the formatted recipe HTML
+         * FIXME - why are we doing this?
          */
         for ($i = 0; $i < $nRecipe; $i++) {
             $html = str_replace("<div id=\"_easyrecipe_$i\"></div>", $this->easyrecipesHTML[$i], $html);
@@ -606,6 +605,19 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
             $data->preptime = $this->getElementValueByProperty('time', 'itemprop', 'prepTime', $recipe);
             $data->cooktime = $this->getElementValueByProperty('time', 'itemprop', 'cookTime', $recipe);
             $data->totaltime = $this->getElementValueByProperty('time', 'itemprop', 'totalTime', $recipe);
+        }
+
+        /**
+         * Hack for awkward convert of times from Ziplist
+         */
+        if ($data->preptime == '0 min') {
+            unset($data->preptime);
+        }
+        if ($data->cooktime == '0 min') {
+            unset($data->cooktime);
+        }
+        if ($data->totaltime == '0 min') {
+            unset($data->totaltime);
         }
 
         $data->hasTimes = (!empty($data->preptime) || !empty($data->cooktime) || !empty($data->totaltime));

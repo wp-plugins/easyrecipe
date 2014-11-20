@@ -159,6 +159,11 @@
                         <td style="width:37%"><input id="cbDisplayRecipeCard" type="checkbox" name="#settingsname#[displayRecipeCard]" #displayRecipeCardChecked# /></td>
                     </tr>
                     <tr>
+                        <th scope="row"><span class="xlate">Display Recipage recipes</span><br/>
+                            <span class="ERSExplain xlate">Allow EasyRecipe to format and display Recipepage recipes</span></th>
+                        <td style="width:37%"><input id="cbDisplayRecipage" type="checkbox" name="#settingsname#[displayRecipage]" #displayRecipageChecked# /></td>
+                    </tr>
+                    <tr>
                         <th scope="row"><span class="xlate">Display Get&nbsp;Me&nbsp;Cooking recipes</span><br/>
                             <span class="ERSExplain xlate">Allow EasyRecipe to format and display Get&nbsp;Me&nbsp;Cooking recipes</span></th>
                         <td style="width:37%"><input id="cbDisplayGMC" type="checkbox" name="#settingsname#[displayGMC]" #displayGMCChecked# /></td>
@@ -184,32 +189,20 @@
                         <td class="ERSSaveButtons"><label>
                             <input type="radio" name="#settingsname#[saveButton]" value="None" #saveButtonNoneChecked# />
                             None</label>
+                            <!-- START INCLUDEIF showZiplist -->
                             <br/>
                             <label>
                                 <input type="radio" name="#settingsname#[saveButton]" value="Ziplist" #saveButtonZiplistChecked# />
                                 Ziplist</label>
 
-                            <!-- START IGNORE -->
-                            <br/>
-                            <label>
-                                <input type="radio" name="#settingsname#[saveButton]" value="SaltyFig" #saveButtonSaltyFigChecked# />
-                                Salty Fig</label>
-
-                            <!-- END IGNORE -->
 
                             <div class="ERSPartnerKey #ziplistclass#" id="divERSZiplistSettings">Your Ziplist partner key<br/>
                                 <input name="#settingsname#[ziplistPartnerKey]" type="text" value="#ziplistPartnerKey#"/>
 
                                 <div id="divERSZiplistLink" class="ERSDisplayNone"><a href="http://www.ziplist.com/partner_signup" target="_blank">Get a Ziplist partner key</a></div>
                             </div>
-
-                            <!-- START IGNORE -->
-
-                            <div class="ERSPartnerKey #saltyfigclass#" id="divERSSaltyFigSettings">Your Salty Fig partner key<br/>
-                                <input name="#settingsname#[saltyfigPartnerKey]" type="text" value="#saltyfigPartnerKey#"/>
-                            </div>
-
-                            <!-- END IGNORE --></td>
+                            <!-- END INCLUDEIF showZiplist -->
+                            </td>
                     </tr>
                     <tr>
                         <th width="53%" scope="row"><span class="xlate">Subscribe to our mailing list</span></th>

@@ -37,7 +37,7 @@ class EasyRecipeStyles {
     static public function getStyleData($styleName, $customTemplates, $isPrint = false) {
         $isFormatting = false;
         $isFonts = false;
-        $pluginURL = EasyRecipe::$EasyRecipeURL;
+        $pluginURL = EasyRecipe::$EasyRecipeUrl;
         if ($styleName[0] == '_') {
             $directory = $customTemplates;
             $url = get_bloginfo('wpurl') . "/easyrecipe-style";

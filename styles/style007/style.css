@@ -75,7 +75,7 @@ div.easyrecipe {
     background-color: #EFEFEF;
 }
 
-#easyrecipe.easyrecipe img {
+#easyrecipe.easyrecipe .er-photo-container img {
     border: 0;
     width: 82%;
 }

@@ -337,7 +337,7 @@ class EasyRecipeTemplate {
                     $endIncludeLength = strlen($endInclude);
                     $endPosition = strpos($inText, $endInclude);
                     if ($endPosition == false) {
-                        trigger_error("'$endInclude' not found", E_USER_NOTICE);
+                        trigger_error(htmlspecialchars("'$endInclude'") . " not found", E_USER_NOTICE);
                         $this->opText .= "<";
                         $currentPosition++;
                         break;
@@ -468,3 +468,4 @@ class EasyRecipeTemplate {
     }
 
 }
+

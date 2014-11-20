@@ -20,6 +20,8 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  *
  * Handles conversions from other plugins
  *
+ * TODO - the converted structure is a hangover from the first "EasyRecipe hrecipe to EasyRecipe schema.org" conversion and badly needs to be cleaned up and simplified
+ *
  */
 class EasyRecipeConvert {
     private function yumprintTime($time) {
@@ -32,7 +34,35 @@ class EasyRecipeConvert {
     }
 
     /**
+     * Attempt to recognise an arbitrary time string
+     * Works for various variations of "xx hours yy mins" but is pretty basic
+     *
+     * @param string $timeString
+     *
+     * @return string The time in ISO format if we can recognise a time, else an empty string
+     */
+    private function convertTimeString($timeString) {
+        if (empty($timeString)) {
+            return '';
+        }
+        $timeString = preg_replace('/(hours?|hrs?|h)/', 'H', $timeString);
+        $timeString = preg_replace('/(minutes?|mins?|mi|m)/', 'M', $timeString);
+        $timeString = str_replace(' ', '', $timeString);
+        if (!preg_match('/^(?:(\d+)H)?(?:(\d+)M)?$/', $timeString, $regs)) {
+            return '';
+        }
+        $time = $regs[1] * 60 + $regs[2];
+        $minutes = $time % 60;
+        $hours = floor(($time - $minutes) / 60);
+
+        return sprintf("PT%dH%dM", $hours, $minutes);
+
+    }
+
+    /**
      * Decode markdown
+     * Convert Ziplist markdown to EasyRecipe markdown
+     * Also converts HTML links and images to EasyRecipe markdown (affiliate type links e.g. Amazon don't (can't?) use Ziplist markdown)
      * TODO - this is a pretty naive implementation. It doesn't handle markdown embedded in markdown well
      * e.g. It will handle [*bold*|link.com] but not *[bold|link.com]*
      *
@@ -41,6 +71,14 @@ class EasyRecipeConvert {
      * @return mixed
      */
     private function decodeMarkdown($string) {
+        /**
+         * Convert <a> and <img> tags
+         */
+        $string = preg_replace('%<a\s+([^>]+?)>(.+?)</a>%', '[url $1]$2[/url]', $string);
+        $string = preg_replace('%<img\s+([^>]+?)\s*?/>%', '[img $1 /]', $string);
+        /**
+         * Convert Ziplist markdown
+         */
         $string = preg_replace('/\[([^|[\]]+?)\|(.+?)\]/', '[url href="$2" target="_blank"]$1[/url]', $string);
         $string = preg_replace('/([\W]|^)_([^_]+?)_(\W|$)/', '$1[i]$2[/i]$3', $string);
         return preg_replace('/([\W]|^)\*([^*]+?)\*(\W|$)/', '$1[b]$2[/b]$3', $string);
@@ -91,18 +129,22 @@ class EasyRecipeConvert {
                  * If that doesn't work, at least try some likely English duration specifiers
                  */
                 $xMinutes = __('minutes', 'wp-ultimate-recipe');
-                $timeText = $recipe['recipe_prep_time_text'][0];
+                $timeText = !empty($recipe['recipe_prep_time_text']) ? $recipe['recipe_prep_time_text'][0] : '';
                 if ($timeText == $xMinutes || $timeText == 'minute') {
                     $result->recipe->prep_time = 'PT' . $recipe['recipe_prep_time'][0] . 'M';
                 } elseif ($timeText == 'hours' || $timeText == 'hour') {
                     $result->recipe->prep_time = 'PT' . $recipe['recipe_prep_time'][0] . 'H0M';
+                } else {
+                    $result->recipe->prep_time ='';
                 }
 
-                $timeText = $recipe['recipe_cook_time_text'][0];
+                $timeText = !empty($recipe['recipe_cook_time_text']) ? $recipe['recipe_cook_time_text'][0] : '';
                 if ($timeText == $xMinutes || $timeText == 'minute') {
                     $result->recipe->cook_time = 'PT' . $recipe['recipe_cook_time'][0] . 'M';
                 } elseif ($timeText == 'hours' || $timeText == 'hour') {
                     $result->recipe->cook_time = 'PT' . $recipe['recipe_cook_time'][0] . 'H0M';
+                }else {
+                    $result->recipe->cook_time ='';
                 }
 
                 $result->recipe->recipe_image = !empty($image) ? $image[0] : '';
@@ -115,12 +157,12 @@ class EasyRecipeConvert {
                     $result->recipe->mealType = htmlspecialchars($course[0]->name);
                 }
 
-                $result->recipe->recipe_title = htmlspecialchars($recipe['recipe_title'][0]);
+                $result->recipe->recipe_title = !empty($recipe['recipe_title']) ? htmlspecialchars($recipe['recipe_title'][0]) : '';
                 /** @noinspection PhpUndefinedFieldInspection */
                 $result->recipe->author = htmlspecialchars($user->data->display_name);
-                $result->recipe->summary = htmlspecialchars($recipe['recipe_description'][0]);
+                $result->recipe->summary = !empty($recipe['recipe_description']) ? htmlspecialchars($recipe['recipe_description'][0]) : '';
 
-                $notes = preg_replace_callback('%<(strong|em)>(.*?)</\1>%', array($this, 'notesConversion'), $recipe['recipe_notes'][0]);
+                $notes = !empty($recipe['recipe_notes'][0]) ? preg_replace_callback('%<(strong|em)>(.*?)</\1>%', array($this, 'notesConversion'), $recipe['recipe_notes'][0]) : '';
                 $result->recipe->notes = preg_replace('%<a ([^>]+)>(.*?)</a>%i', '[url $1]$2[/url]', $notes);
 
                 $section = '';
@@ -166,6 +208,69 @@ class EasyRecipeConvert {
 
                 $result->recipe->instructions = implode("\n", $instructions);
                 break;
+
+            case 'recipage':
+                /** @var WP_Post $post */
+                $post = $wpdb->get_row("SELECT * FROM " . $wpdb->posts . " WHERE ID=" . $postID);
+                $content = $post->post_content;
+                $document = new EasyRecipeDOMDocument($content);
+                if (!$document->isValid()) {
+                    return null;
+                }
+
+                $hrecipe = $document->getElementByClassName('hrecipe');
+                if (!$hrecipe) {
+                    return null;
+                }
+                $result->recipe = new stdClass();
+                $result->recipe->total_time = '';
+                $result->recipe->serving_size = '';
+                $result->recipe->notes = '';
+                $result->recipe->calories = '';
+                $result->recipe->fat = '';
+                $result->recipe->rating = '';
+
+                /** @var DOMElement $element */
+                $element = $document->getElementByClassName('photo', 'img', $hrecipe);
+                $result->recipe->recipe_image = $element != null ? $element->getAttribute('src') : '';
+
+                $element = $document->getElementByClassName('fn', '*', $hrecipe);
+                $result->recipe->recipe_title = $element != null ? htmlspecialchars($element->textContent) : '';
+
+                $element = $document->getElementByClassName('author', '*', $hrecipe);
+                $result->recipe->author = $element != null ? htmlspecialchars($element->textContent) : '';
+
+                $element = $document->getElementByClassName('summary', '*', $hrecipe);
+                $result->recipe->summary = $element != null ? htmlspecialchars($element->textContent) : '';
+
+                $element = $document->getElementByClassName('yield', '*', $hrecipe);
+                $result->recipe->yield = $element != null ? htmlspecialchars($element->textContent) : '';
+
+                $element = $document->getElementByClassName('preptime', '*', $hrecipe);
+                $prepTime = $element != null ? $element->textContent : '';
+                $result->recipe->prep_time = $this->convertTimeString($prepTime);
+
+                $element = $document->getElementByClassName('cooktime', '*', $hrecipe);
+                $cookTime = $element != null ? $element->textContent : '';
+                $result->recipe->cook_time = $this->convertTimeString($cookTime);
+
+                $result->ingredients = array();
+                $ingredients = $document->getElementsByClassName('ingredient', '*', $hrecipe);
+                /** @var DOMElement $ingredient */
+                foreach ($ingredients as $ingredient) {
+                    $result->ingredients[] = trim($ingredient->textContent);
+                }
+
+                $instructions = array();
+                $elements = $document->getElementsByClassName('instruction', '*', $hrecipe);
+                /** @var DOMElement $instruction */
+                foreach ($elements as $instruction) {
+                    $instructions[] = trim($instruction->textContent);
+                }
+                $result->recipe->instructions = implode("\n", $instructions);
+
+                break;
+
 
             case 'recipeseo' :
                 $result->recipe = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "amd_recipeseo_recipes WHERE recipe_id=" . $postID);

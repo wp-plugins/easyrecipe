@@ -45,24 +45,35 @@
             </span>
                 </p>
                 <!-- END INCLUDEIF hasRating -->
+                <!-- START INCLUDEIF preptime -->
                 <p>#lblPrepTime#:&nbsp;<span>
             <time itemprop="prepTime" datetime="#preptimeISO#">#preptime#</time>
               </span></p>
+                <!-- END INCLUDEIF preptime -->
+                <!-- START INCLUDEIF cooktime -->
                 <p>#lblCookTime#:&nbsp;
                     <span><time itemprop="cookTime" datetime="#cooktimeISO#">#cooktime#</time></span>
                 </p>
+                <!-- END INCLUDEIF cooktime -->
+                <!-- START INCLUDEIF totaltime -->
                 <p>#lblTotalTime#:&nbsp;<span>
             <time itemprop="totalTime" datetime="#totaltimeISO#">#totaltime#</time>
               </span></p>
+                <!-- END INCLUDEIF totaltime -->
             </div>
-            <div class="er-half-width er-float-left">
-                <p>#lblServes#:&nbsp;<span itemprop="recipeYield">#yield#</span></p>
-
+            <div itemprop="nutrition" itemscope itemtype="http://schema.org/NutritionInformation" class="er-half-width er-float-left">
+                <!-- START INCLUDEIF yield -->
+                <p>#lblServes#:&nbsp;<span>#yield#</span></p>
+                <!-- END INCLUDEIF yield -->
+                <!-- START INCLUDEIF servingSize -->
                 <p>#lblServeSize#:&nbsp;<span itemprop="servingSize">#servingSize#</span></p>
-
+                <!-- END INCLUDEIF servingSize -->
+                <!-- START INCLUDEIF calories -->
                 <p>#lblCalories#:&nbsp;<span itemprop="calories">#calories#</span></p>
-
+                <!-- END INCLUDEIF calories -->
+                <!-- START INCLUDEIF fat -->
                 <p>#lblFat#:&nbsp;<span itemprop="fatContent">#fat#</span></p>
+                <!-- END INCLUDEIF fat -->
             </div>
         </div>
         <div class="ERSClear"></div>
@@ -127,7 +138,6 @@
         </div>
         <!-- END INCLUDEIF notes -->
         <div class="ERSClear"></div>
-        <!-- END INCLUDEIF hasNutrition -->
         <!-- START INCLUDEIF hasLinkback -->
         <div class="ERSLinkback"><a class="ERSWRPLink" href="http://www.easyrecipeplugin.com/" title="EasyRecipe Wordpress Recipe Plugin" target="_blank">Wordpress Recipe Plugin by <span class="ERSAttribution">EasyRecipe</span></a></div>
         <!-- END INCLUDEIF hasLinkback -->

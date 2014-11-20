@@ -14,7 +14,7 @@ class EasyRecipeUpdate {
 
     public static function check(EasyRecipeSettings $settings) {
 
-        $log = EasyRecipeLogger::getLog('update');
+//        $log = EasyRecipeLogger::getLog('update');
 
         /**
          * If the settings haven't been updated to show that we've created taxonomies, schedule the taxonomy creation.
@@ -42,6 +42,5 @@ class EasyRecipeUpdate {
         }
 
     }
-
 }
 
