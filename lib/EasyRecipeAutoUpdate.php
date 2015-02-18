@@ -78,9 +78,9 @@ class EasyRecipeAutoUpdate {
     public function forceUpdate() {
         delete_site_transient('update_plugins');
 
-        $nonce = wp_create_nonce("upgrade-plugin_$this->slug.php");
+        $nonce = wp_create_nonce("upgrade-plugin_$this->slug/$this->slug.php");
 
-        $url = get_bloginfo('wpurl') . "/wp-admin/update.php?action=upgrade-plugin&plugin=$this->slug.php&_wpnonce=$nonce";
+        $url = get_bloginfo('wpurl') . "/wp-admin/update.php?action=upgrade-plugin&plugin=$this->slug/$this->slug.php&_wpnonce=$nonce";
 
         header("Location: $url");
         exit;

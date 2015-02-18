@@ -1,7 +1,7 @@
 <?php
 
 /*
- Copyright (c) 2010-2014 Box Hill LLC
+ Copyright (c) 2010-2015 Box Hill LLC
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -35,7 +35,10 @@ class EasyRecipe {
     const DIAGNOSTICS_URL = 'http://support.easyrecipeplugin.com/wp-admin/admin-ajax.php';
 
     const SWOOPJS = '<script type="text/javascript" id="spxw_script" src="http://ardrone.swoop.com/js/spxw.js" data-domain="%s" data-theme="red" data-serverbase="http://ardrone.swoop.com/"></script>';
+    const BIGOVENBUTTON = '<a href="" class="ERSSaveBtn bigoven">Save</a>';
 
+
+// FIXME - display yield on style 6 if no nutrition data
 
     const ENDPOINTREGEX = '%/easyrecipe-(print|diagnostics|style|printstyle)(?:/([^?/]+))?%';
 
@@ -299,7 +302,6 @@ EOD;
     }
 
 
-
     /**
      * EasyIndex Beta is active - show a message
      */
@@ -496,6 +498,7 @@ EOD;
         if ($this->settings->enableSwoop) {
             add_action('wp_footer', array($this, 'addSwoop'), 32767);
         }
+
     }
 
 
@@ -566,7 +569,7 @@ EOD;
      */
     function enqueueFooderificWPPointer() {
         if (current_user_can('edit_theme_options')) {
-            $dismissed = explode(',', (string) get_user_meta(get_current_user_id(), 'dismissed_wp_pointers', true));
+            $dismissed = explode(',', (string)get_user_meta(get_current_user_id(), 'dismissed_wp_pointers', true));
 
             if (!in_array('easyrecipe-fooderific', $dismissed)) {
                 wp_enqueue_style('wp-pointer');
@@ -880,12 +883,25 @@ EOD;
         printf(self::SWOOPJS, $this->settings->swoopSiteID);
     }
 
+    /**
+     * Add the recipe(s) data as a json string
+     */
+    function addRecipeJSON() {
+        // Add a JSON respresentation of the recipe(s)
+    }
+
+
     /*
     * Displays just the recipe and exits
     */
     private function printRecipe($postID, $recipeIX) {
         /** @var $wpdb wpdb */
         global $wpdb;
+
+        /**
+         * Be paranoid because we may use $postID in a SELECT later
+         */
+        $postID = (int)$postID;
 
         $post = get_post($postID);
         if (!$post) {
@@ -898,6 +914,7 @@ EOD;
         $content = str_replace("[br]", "<br>", $post->post_content);
         $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
 
+
         $postDOM = new EasyRecipeDocument($content);
 
         if (!$postDOM->isEasyRecipe) {
@@ -905,12 +922,15 @@ EOD;
         }
 
         /**
-         * If the post is formatted already then it came from the Object cache
+         * If the post is formatted already then it came from the Object cache (?)
          * If that's the case we need to re-read the original
          */
         if ($postDOM->isFormatted) {
             $post = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "posts WHERE ID = $postID");
-            $postDOM = new EasyRecipeDocument($post->post_content);
+
+            $content = str_replace("[br]", "<br>", $post->post_content);
+            $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
+
 
             if (!$postDOM->isEasyRecipe) {
                 return;
@@ -1030,7 +1050,6 @@ EOD;
 
 
 
-
     /**
      * Remove non display stuff
      *
@@ -1139,6 +1158,7 @@ EOD;
         /**
          * Process each post and replace placeholders with relevant data
          */
+        /** @var WP_Post $post */
         foreach ($posts as $post) {
 
             /**
@@ -1208,7 +1228,7 @@ EOD;
                 $q .= "WHERE comment_approved = 1 AND meta_key = 'ERRating' AND comment_post_ID = $post->ID AND meta_value > 0";
                 $ratings = $wpdb->get_row($q);
 
-                if ((int) $ratings->count > 0) {
+                if ((int)$ratings->count > 0) {
                     $data->ratingCount = $ratings->count;
                     $data->ratingValue = number_format($ratings->sum / $ratings->count, 1);
                     $data->ratingPC = $data->ratingValue * 100 / 5;
@@ -1222,6 +1242,19 @@ EOD;
                 }
             }
 
+            switch ($this->settings->saveButton) {
+                case 'Ziplist' :
+                    $data->saveButtonJS = self::ZIPLISTJS;
+                    $data->saveButton = sprintf(self::ZIPLISTBUTTON, $this->settings->ziplistPartnerKey, urlencode(get_permalink($post->ID)), $this->settings->lblSave);
+                    $data->hasSave = true;
+                    break;
+                case 'BigOven':
+                    $data->saveButtonJS = '';
+                    $data->saveButton = sprintf(self::BIGOVENBUTTON, self::$EasyRecipeUrl);
+                    $data->hasSave = true;
+
+                    break;
+            }
 
             $this->settings->getLabels($data);
 
@@ -1320,7 +1353,7 @@ EOD;
      * @return
      */
     function postSave($data, /** @noinspection PhpUnusedParameterInspection */
-        $postarr) {
+                      $postarr) {
 // TODO - update the taxonomy stuff
         /*
                 if (strpos($data['post_content'], 'easyrecipeWrapper') !== false) {
@@ -1361,7 +1394,7 @@ EOD;
 
     function ratingSave($commentID) {
         if (isset($_POST['ERRating'])) {
-            $rating = (int) $_POST['ERRating'];
+            $rating = (int)$_POST['ERRating'];
             if ($rating > 0) {
                 add_comment_meta($commentID, 'ERRating', $rating, true);
             }
@@ -1461,7 +1494,7 @@ EOD;
      * @return array
      */
     function mcePlugins($plugins) {
-        $plugins = (array) $plugins;
+        $plugins = (array)$plugins;
         $plugins['easyrecipe'] = self::$EasyRecipeUrl . "/js/easyrecipe-mce{$this->mceVersion}.js?v=" . self::$pluginVersion;
         $plugins['noneditable'] = self::$EasyRecipeUrl . "/tinymce/noneditable{$this->mceVersion}.js?v=" . self::$pluginVersion;
         return $plugins;

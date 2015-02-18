@@ -33,6 +33,8 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
     private $preEasyRecipe;
     private $postEasyRecipe;
 
+    private $recipeData = array();
+
     const regexEasyRecipe = '/<div\s+class\s*=\s*["\'](?:[^>]*\s+)?easyrecipe[ \'"]/si';
     const regexDOCTYPE = '%^<!DOCTYPE.*?</head>\s*<body>\s*(.*?)</body>\s*</html>\s*%si';
     const regexTime = '/^(?:([0-9]+) *(?:hours|hour|hrs|hr|h))? *(?:([0-9]+) *(?:minutes|minute|mins|min|mns|mn|m))?$/i';
@@ -189,6 +191,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
         }
     }
 
+
     /**
      * Sets the URL in the print button <a> tag href
      *
@@ -203,6 +206,7 @@ class EasyRecipeDocument extends EasyRecipeDOMDocument {
      */
     function formatRecipe($recipe, EasyRecipeTemplate $template, $data, $nRecipe = 0) {
         $data = $this->extractData($recipe, $data, $nRecipe);
+
         $html = $template->replace($data);
 
 

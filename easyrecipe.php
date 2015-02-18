@@ -4,13 +4,13 @@ Plugin Name: Easy Recipe
 Plugin URI: http://www.easyrecipeplugin.com/
 Description: The Wordpress recipe plugin for non-geeks. EasyRecipe makes it easy to enter, format and print your recipes, as well as automagically doing all the geeky stuff needed for Google's Recipe View.
 Author: EasyRecipe
-Version: 3.2.2885
+Version: 3.2.2929
 Author URI: http://www.easyrecipeplugin.com
 License: GPLv2 or later
 */
 
 /*
- Copyright (c) 2010-2014 Box Hill LLC
+ Copyright (c) 2010-2015 Box Hill LLC
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2
@@ -86,7 +86,7 @@ if (!class_exists('EasyRecipe', false)) {
     /**
      * Pass the version here so gulp doesn't have to re-generate the much larger class file on every build
      */
-    $EasyRecipe = new EasyRecipe(dirname(__FILE__), rtrim(plugin_dir_url(__FILE__), '/'), '3.2.2885');
+    $EasyRecipe = new EasyRecipe(dirname(__FILE__), rtrim(plugin_dir_url(__FILE__), '/'), '3.2.2929');
 
     /*
     * A little weirdness to handle WP's inability to get the plugin basename correct if wp-content/plugins is a symlink

@@ -50,9 +50,8 @@ class EasyRecipeSettings {
             'removeMicroformat'     => false,
             'enableSwoop'           => false,
             'swoopSiteID'           => '',
-            'saveButton'            => 'None',
+            'saveButton'            => 'BigOven',
             'ziplistPartnerKey'     => '',
-            'saltyfigPartnerKey'    => '',
             'author'                => '',
             'cuisines'              => 'African|American|French|Greek|Indian|Italian|Kosher|Mexican|Middle Eastern|Spanish',
             'recipeTypes'           => 'Appetizer|Breakfast|Brunch|Dessert|Drinks|Entree|Main',
@@ -143,7 +142,6 @@ class EasyRecipeSettings {
     public $swoopSiteID;
     public $saveButton;
     public $ziplistPartnerKey;
-    public $saltyfigPartnerKey;
     public $author;
     public $cuisines;
     public $recipeTypes;
@@ -422,23 +420,23 @@ EOD;
         $data->noHTMLWarnChecked = $this->noHTMLWarn ? 'checked="checked"' : '';
         $data->genesisGridChecked = $this->genesisGrid ? 'checked="checked"' : '';
 
-        $data->saveButtonZiplistChecked = $data->saveButtonSaltyFigChecked = $data->saveButtonNoneChecked = '';
-        $data->ziplistclass = $data->saltyfigclass = "ERSDisplayNone";
+        $data->saveButtonBigOvenChecked = $data->saveButtonZiplistChecked = $data->saveButtonNoneChecked = '';
+
+        $data->ziplistclass = "ERSDisplayNone";
 
         /**
          * Only show the Ziplist stuff if we are already using it and then only so it can be unselected
          */
         $data->showZiplist = false;
         switch ($data->saveButton) {
+            case 'BigOven':
+                $data->saveButtonBigOvenChecked = 'checked="checked"';
+                break;
+
             case 'Ziplist':
                 $data->saveButtonZiplistChecked = 'checked="checked"';
                 $data->ziplistclass = '';
                 $data->showZiplist = true;
-                break;
-
-            case 'SaltyFig':
-                $data->saveButtonSaltyFigChecked = 'checked="checked"';
-                $data->saltyfigclass = '';
                 break;
 
             default:

@@ -1,6 +1,6 @@
 <?php
 /*
-Copyright (c) 2010-2014 Box Hill LLC
+Copyright (c) 2010-2015 Box Hill LLC
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License
 as published by the Free Software Foundation; either version 2

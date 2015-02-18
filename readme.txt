@@ -2,8 +2,8 @@
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.6
-Tested up to: 4.0
-Stable tag:  3.2.2885
+Tested up to: 4.0.1
+Stable tag:  3.2.2929
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,7 +78,16 @@ You can also visit [EasyRecipe Support](http://support.easyrecipeplugin.com/)
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
-= 3.2.2885 =
+= 3.2.2929 =
+* Enhancement: Added BigOven save button
+* Bug fix: Fix Recipe Card automatic conversion (Plus version)
+
+= 3.2 Build 2925 =
+* Enhancement: Added BigOven save button (Plus version)
+* Bug fix: Don't try to insert duplicate taxonomy terms if multiple recipes on a post use the same cuisine/course
+* Update: Attempt to recover corrupted recipes in the recipe editor
+
+= 3.2 Build 2885 =
 * Enhancement: Enable Recipage recipe conversion
 * Enhancement: Display Recipage recipes as EasyRecipe recipes (Plus version)
 * Update: Better handling of shortcodes within a recipe

@@ -93,10 +93,13 @@ class EasyRecipeTaxonomies {
                     continue;
                 }
                 /**
-                 * The relationship didn't exist so insert it
+                 * If we have multiple recipes in the post, it's possible we have already seen this cuisine and if so, don't insert it a second time
+                 * Otherwise, the relationship didn't exist so insert it
                  */
-                $this->countTerms['cuisine'][] = $ttID;
-                $wpdb->insert($wpdb->term_relationships, array('object_id' => $postID, 'term_taxonomy_id' => $ttID));
+                if (!in_array($ttID, $this->countTerms['cuisine'])) {
+                    $this->countTerms['cuisine'][] = $ttID;
+                    $wpdb->insert($wpdb->term_relationships, array('object_id' => $postID, 'term_taxonomy_id' => $ttID));
+                }
             }
         }
 
@@ -124,10 +127,13 @@ class EasyRecipeTaxonomies {
                     continue;
                 }
                 /**
-                 * The relationship didn't exist so insert it and mark the ttID to be counted
+                 * If we have multiple recipes in the post, it's possible we have already seen this course and if so, don't insert it a second time
+                 * Otherwise, the relationship didn't exist so insert it
                  */
-                $this->countTerms['course'][] = $ttID;
-                $wpdb->insert($wpdb->term_relationships, array('object_id' => $postID, 'term_taxonomy_id' => $ttID));
+                if (!in_array($ttID, $this->countTerms['course'])) {
+                    $this->countTerms['course'][] = $ttID;
+                    $wpdb->insert($wpdb->term_relationships, array('object_id' => $postID, 'term_taxonomy_id' => $ttID));
+                }
             }
         }
         /**
