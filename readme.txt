@@ -2,8 +2,8 @@
 Contributors: Jayce53
 Tags: recipe, seo, hrecipe, Recipe View, microformatting, easy recipe, rich snippet, microdata
 Requires at least: 3.6
-Tested up to: 4.0.1
-Stable tag:  3.2.2929
+Tested up to: 4.2
+Stable tag:  3.3.2998
 License: GPLv2 or later
 
 EasyRecipe makes it easy to enter, format and print recipes, as well as automagically doing the geeky stuff needed for Google's Recipe View.
@@ -78,7 +78,20 @@ You can also visit [EasyRecipe Support](http://support.easyrecipeplugin.com/)
 9. We take support seriously. You can even add a ticket to our support database right from your blog admin.
 
 == Changelog ==
-= 3.2.2929 =
+= 3.3.2998 =
+* Update: tested with Wordpress 4.2
+* Update: Change print code to fix blank recipes on print
+* Update: Added optional debug logging
+* Update: Added setting for object cache update
+* Update: Updated to allow import from MacGourmet4 (Plus version)
+* Update: Allow up to 40Mb import files (Plus version)
+* Bug fix: <script> tags inserted in the editor Text mode were corrupted when switching back to Visual mode
+* Bug fix: Inhibit Live Formatting while theme customizer is active
+* Bug fix: Allow Save option to be set off in free version
+* Bug fix: Fix Recipe Card automatic conversion (Plus version)
+* Bug fix: Fix carbohydrates on Mastercook import (Plus version)
+
+= 3.2 Build 2929 =
 * Enhancement: Added BigOven save button
 * Bug fix: Fix Recipe Card automatic conversion (Plus version)
 

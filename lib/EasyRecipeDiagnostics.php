@@ -19,7 +19,7 @@ class EasyRecipeDiagnostics {
     public $dataVersion = 5;
 
     public $pluginName = 'easyrecipe';
-    public $pluginVersion = '3.2.2929';
+    public $pluginVersion = '3.3.2998';
 
     public $pluginURL = '';
     public $pluginDir = '';
@@ -44,6 +44,8 @@ class EasyRecipeDiagnostics {
     public $wpTheme = '';
     public $wpThemeVersion = '';
     public $wpThemeURL = '';
+
+    private $existingOP;
 
     /**
      * If $data is present, then we are on an EasySupport site (admin) and creating an object from customer submitted data, but the data pre-dates this class
@@ -131,9 +133,9 @@ class EasyRecipeDiagnostics {
 
 
         /**
-         * Get the php info.  Save anything already in the output buffer
+         * Get the php info.  Save anything already in the output buffer, just in case it's relevant for the site's output in show()
          */
-        $existingOP = ob_get_clean();
+        $this->existingOP = ob_get_clean();
         ob_start();
         phpinfo();
         $phpinfo = ob_get_contents();
@@ -223,10 +225,6 @@ class EasyRecipeDiagnostics {
             $this->PLUGINS[] = $item;
         }
 
-        /**
-         * Re-output anything that may have been in the buffer before we started
-         */
-        echo $existingOP;
     }
 
     /** @noinspection PhpUnusedPrivateMethodInspection */
@@ -271,6 +269,7 @@ class EasyRecipeDiagnostics {
             ob_end_clean();
             $level = ob_get_level();
         }
+        $html = $this->existingOP . $html;
         header("HTTP/1.1 200 OK");
         header("Content-Length: " . strlen($html));
         echo $html;
@@ -280,6 +279,8 @@ class EasyRecipeDiagnostics {
 
     /**
      * Send a support question (and possibly diagnostics) to the plugin support site
+     * @param $diagnosticsURL
+     * @param array $post
      */
     function send($diagnosticsURL, $post = array()) {
         /**

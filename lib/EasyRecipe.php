@@ -27,9 +27,6 @@ class EasyRecipe {
 
     private $pluginName = 'EasyRecipe';
 
-    const JQUERYJS = "https://ajax.googleapis.com/ajax/libs/jquery/1.8.3/jquery.min.js";
-    const JQUERYUIJS = "https://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/jquery-ui.min.js";
-    const JQUERYUICSS = "http://ajax.googleapis.com/ajax/libs/jqueryui/1.9.2/themes/base/jquery-ui.css";
     const VERSIONCHECKURL = "http://www.easyrecipeplugin.com/checkVersion.php";
 
     const DIAGNOSTICS_URL = 'http://support.easyrecipeplugin.com/wp-admin/admin-ajax.php';
@@ -51,9 +48,7 @@ class EasyRecipe {
     private $easyrecipes = array();
     private $formatting = false;
     private $styleName;
-    private $printStyle;
     private $styleData;
-    private $printStyleData;
     public $isGuest = false;
     private $postMeta;
     private $guestPosters = array();
@@ -234,6 +229,13 @@ class EasyRecipe {
 
         $this->settings = EasyRecipeSettings::getInstance();
 
+        /**
+         * Logging for those pesky bugs that are otherwise impossible to track down without server/xdebug access
+         */
+        if ($this->settings->enableDebugLog) {
+            $debugLog = new EasyRecipeDebugLog();
+            $debugLog->setHooks();
+        }
         /*
         * Everything past here is not needed on admin pages
         */
@@ -253,8 +255,13 @@ class EasyRecipe {
         /**
          * If this is one of our non-existent pages (print, diagnostics or custom styles) hook in early so 404 handlers don't stuff it up
          */
-        if (preg_match('%/easyrecipe-(print|diagnostics|style|printstyle)(?:/([^?/]+))?%', $_SERVER['REQUEST_URI'])) {
-            add_action('wp_headers', array($this, 'checkRewrites'), 0);
+        if (preg_match('%/easyrecipe-print/(\d+)-(\d)+/?%', $_SERVER['REQUEST_URI'], $regs)) {
+            $print = new EasyRecipePrint($this);
+            $print->printRecipe($regs[1], $regs[2]);
+            exit;
+        }
+        if (preg_match('%/easyrecipe-(print|diagnostics|style|printstyle|debuglogs|log)(?:/([^?/]+))?%', $_SERVER['REQUEST_URI'])) {
+            add_filter('wp_headers', array($this, 'checkRewrites'), 0);
         } else {
             add_action('the_posts', array($this, 'thePosts'), 0);
 
@@ -280,10 +287,6 @@ class EasyRecipe {
             $this->styleName = $this->settings->style;
         }
 
-        /*
-         * Make sure our head gets run before the enqueued stuff is output
-        */
-        add_action('wp_head', array($this, 'addHead'), 0);
         /*
         * Add the custom CSS very late so it overrides everything else
         */
@@ -334,11 +337,13 @@ EOD;
      */
     function loadSettingsPage() {
         wp_enqueue_style("easyrecipe-UI");
-        wp_enqueue_style("easyrecipe-settings", self::$EasyRecipeUrl . "/css/easyrecipe-settings.css", array('easyrecipe-UI'), self::$pluginVersion);
+        wp_enqueue_style("easyrecipe-settings", self::$EasyRecipeUrl . "/css/easyrecipe-settings-min.css", array('easyrecipe-UI'), self::$pluginVersion);
+
+
         wp_enqueue_style("thickbox");
         wp_enqueue_script('thickbox');
-        wp_enqueue_script('easyrecipe-settings', self::$EasyRecipeUrl . "/js/easyrecipe-settings.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs', 'jquery-ui-button', 'thickbox'),
-            self::$pluginVersion, true);
+        wp_enqueue_script('easyrecipe-settings', self::$EasyRecipeUrl . "/js/easyrecipe-settings-min.js", array('jquery-ui-dialog', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-tabs', 'jquery-ui-button', 'thickbox'), self::$pluginVersion, true);
+
 
 
         $this->settings = EasyRecipeSettings::getInstance();
@@ -366,13 +371,13 @@ EOD;
 
 
             wp_enqueue_style("easyrecipe-UI");
-            wp_enqueue_style("easyrecipe-entry", self::$EasyRecipeUrl . "/css/easyrecipe-entry.css", array('easyrecipe-UI'), self::$pluginVersion);
+            wp_enqueue_style("easyrecipe-entry", self::$EasyRecipeUrl . "/css/easyrecipe-entry-min.css", array('easyrecipe-UI'), self::$pluginVersion);
 
             wp_enqueue_script('jquery-ui-dialog');
             wp_enqueue_script('jquery-ui-autocomplete');
             wp_enqueue_script('jquery-ui-button');
             wp_enqueue_script('jquery-ui-tabs');
-            wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeUrl . "/js/easyrecipe-entry{$this->wpVersion}.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button', 'jquery-ui-tabs'), self::$pluginVersion, true);
+            wp_enqueue_script('easyrecipe-entry', self::$EasyRecipeUrl . "/js/easyrecipe-entry{$this->wpVersion}-min.js", array('jquery-ui-dialog', 'jquery-ui-autocomplete', 'jquery-ui-button', 'jquery-ui-tabs'), self::$pluginVersion, true);
 
             add_filter('tiny_mce_before_init', array($this, 'mcePreInitialise'));
             add_filter('mce_external_plugins', array($this, 'mcePlugins'));
@@ -385,7 +390,9 @@ EOD;
              * but they may be persistent if there's a caching plugin installed (e.g. W3 Total Cache)
              */
             if (isset($_REQUEST['post'])) {
-                wp_cache_delete($_REQUEST['post'], 'posts');
+                if ($this->settings->updateObjectCache) {
+                    wp_cache_delete($_REQUEST['post'], 'posts');
+                }
             }
 
         }
@@ -423,16 +430,6 @@ EOD;
         }
 
         /**
-         * Hack that attempts to repair bad jQuery versions loaded from poorly written themes/plugins
-         * Allow the user to load it if they specify 'loadjq' in the URL querystring since conflicting plugins may well
-         * prevent the EasyRecipe Settings page from functioning
-         */
-        if ($this->settings->forcejQuery || (current_user_can('edit_theme_options') && isset($_REQUEST['loadjq']))) {
-            wp_deregister_script('jquery');
-            wp_register_script('jquery', self::JQUERYJS, false);
-            wp_enqueue_script('jquery');
-        }
-        /**
          * Set the translate switch if this isn't in the US
          */
         if (get_locale() != 'en_US') {
@@ -446,8 +443,7 @@ EOD;
         }
 
         $this->styleData = EasyRecipeStyles::getStyleData($this->styleName, $this->settings->customTemplates);
-
-        wp_enqueue_style('easyrecipestyle-reset', self::$EasyRecipeUrl . "/css/easyrecipe-style-reset.css", array(), self::$pluginVersion);
+        wp_enqueue_style('easyrecipestyle-reset', self::$EasyRecipeUrl . "/css/easyrecipe-style-reset-min.css", array(), self::$pluginVersion);
         wp_enqueue_style("easyrecipebuttonUI", self::$EasyRecipeUrl . "/ui/easyrecipe-buttonUI.css", array('easyrecipestyle-reset'), self::$pluginVersion);
         /**
          * If the style directory starts with an underscore, it's a custom style
@@ -461,8 +457,7 @@ EOD;
         if (file_exists(self::$EasyRecipeDir . "/styles/$this->styleName/style.js")) {
             wp_enqueue_script('easyrecipestyle', self::$EasyRecipeUrl . "/styles/$this->styleName/style.js", array($this->pluginName), self::$pluginVersion . ".{$this->styleData->version}", $this->loadJSInFooter);
         }
-
-        wp_enqueue_script($this->pluginName, self::$EasyRecipeUrl . "/js/easyrecipe.js", array('jquery', 'jquery-ui-button'), self::$pluginVersion, $this->loadJSInFooter);
+        wp_enqueue_script($this->pluginName, self::$EasyRecipeUrl . "/js/easyrecipe-min.js", array('jquery', 'jquery-ui-button'), self::$pluginVersion, $this->loadJSInFooter);
 
         /**
          * Load any fonts used by the style
@@ -482,16 +477,17 @@ EOD;
          *
          * edit_theme_options is a better capability to check than edit_plugins (which is limited to super admins)
          *
+         * Don't setup Live Formatting if the theme is being customized.
+         *
          */
-        if (current_user_can("edit_theme_options")) {
+        if (current_user_can("edit_theme_options") && !class_exists('WP_Customize_Control', false)) {
             /*
              * Use an unobtrusive grey scheme for the formatting dialog so it doesn't visually overpower the recipe's styling
             */
             wp_enqueue_style("easyrecipe-FormatUI", self::$EasyRecipeUrl . "/formatui/easyrecipeFormatUI{$this->uiVersion}.css", array(), self::$pluginVersion);
-            wp_enqueue_style("easyrecipeformat", self::$EasyRecipeUrl . "/css/easyrecipe-format.css", array('easyrecipe-FormatUI'), self::$pluginVersion);
+            wp_enqueue_style("easyrecipeformat", self::$EasyRecipeUrl . "/css/easyrecipe-format-min.css", array('easyrecipe-FormatUI'), self::$pluginVersion);
 
-            wp_enqueue_script('easyrecipeformat', self::$EasyRecipeUrl . "/js/easyrecipe-format.js",
-                array('jquery', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-accordion', 'jquery-ui-dialog', 'jquery-ui-tabs', 'jquery-ui-button', 'json2'), self::$pluginVersion, $this->loadJSInFooter);
+            wp_enqueue_script('easyrecipeformat', self::$EasyRecipeUrl . "/js/easyrecipe-format-min.js", array('jquery', 'jquery-ui-slider', 'jquery-ui-autocomplete', 'jquery-ui-accordion', 'jquery-ui-dialog', 'jquery-ui-tabs', 'jquery-ui-button', 'json2'), self::$pluginVersion, $this->loadJSInFooter);
             add_action('wp_footer', array($this, 'addFormatDialog'), 0);
         }
 
@@ -574,7 +570,7 @@ EOD;
             if (!in_array('easyrecipe-fooderific', $dismissed)) {
                 wp_enqueue_style('wp-pointer');
                 wp_enqueue_script('wp-pointer');
-                wp_enqueue_script('easyrecipe-wppointer', self::$EasyRecipeUrl . "/js/easyrecipe-wppointer.js", array('wp-pointer'), self::$pluginVersion);
+                wp_enqueue_script('easyrecipe-wppointer', self::$EasyRecipeUrl . "/js/easyrecipe-wppointer-min.js", array('wp-pointer'), self::$pluginVersion);
 
                 add_action('admin_print_footer_scripts', array($this, 'adminPostsFooterFooderific'));
             }
@@ -660,7 +656,7 @@ EOD;
      *
      * @return string
      */
-    private function getCSS($print = '') {
+    public function getCSS($print = '') {
         $customCSS = trim($this->settings->{"custom{$print}CSS"});
         if ($customCSS != '') {
             $customCSS = json_decode(stripslashes($customCSS));
@@ -722,11 +718,6 @@ EOD;
         return $css;
     }
 
-    public function addHead() {
-
-
-    }
-
     public function addExtraCSS() {
         echo $this->getCSS();
     }
@@ -768,16 +759,14 @@ EOD;
     }
 
     /**
+     * @param $styleData
      * @param bool $isPrint
-     *
      * @return string
      */
-    function getFormatDialog($isPrint = false) {
+    function getFormatDialog($styleData, $isPrint = false) {
         $data = new stdClass();
         $data->SECTIONS = array();
         $id = 0;
-
-        $styleData = $isPrint ? $this->printStyleData : $this->styleData;
 
         /**
          * Get the formatting data for each formattable element
@@ -845,7 +834,14 @@ EOD;
         $formats = json_encode($formats);
         $formats = str_replace("'", '\'', $formats);
 
-        $print = $isPrint ? 'true' : 'false';
+        if ($isPrint) {
+            $minHeight = 550;
+            $print = 'true';
+        } else {
+            $minHeight = 638;
+            $print = 'false';
+        }
+
         $thumbs = json_encode($styleThumbs);
         $url = self::$EasyRecipeUrl;
         $pluginVersion = self::$pluginVersion;
@@ -854,6 +850,7 @@ EOD;
 /* <![CDATA[ */
 window.EASYRECIPE = window.EASYRECIPE || {};
 EASYRECIPE.isPrint = $print;
+EASYRECIPE.minHeight = $minHeight;
 EASYRECIPE.formatting = '$formats';
 EASYRECIPE.customCSS = '$customCSS';
 EASYRECIPE.easyrecipeURL = '$url';
@@ -865,18 +862,11 @@ EASYRECIPE.fontChangeHTML = '$fontChangeHTML';
 /* ]]> */
 </script>
 EOD;
-        /*
-        * Display formatting JS is handled by enqueue scripts
-        * The print page exits before enqueues get output so add the script manually now
-        */
-        if ($isPrint && current_user_can("edit_theme_options")) {
-            $html .= sprintf('<script type="text/javascript" src="%s/js/easyrecipe-format.js?version=%s"></script>', self::$EasyRecipeUrl, self::$pluginVersion);
-        }
         return $html;
     }
 
     function addFormatDialog() {
-        echo $this->getFormatDialog();
+        echo $this->getFormatDialog($this->styleData);
     }
 
     function addSwoop() {
@@ -891,151 +881,30 @@ EOD;
     }
 
 
-    /*
-    * Displays just the recipe and exits
-    */
-    private function printRecipe($postID, $recipeIX) {
-        /** @var $wpdb wpdb */
-        global $wpdb;
-
-        /**
-         * Be paranoid because we may use $postID in a SELECT later
-         */
-        $postID = (int)$postID;
-
-        $post = get_post($postID);
-        if (!$post) {
-            return;
-        }
-
-        /**
-         * Process the [br] shortcodes and remove the spurious <br>'s that wp_auto() inserts
-         */
-        $content = str_replace("[br]", "<br>", $post->post_content);
-        $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
-
-
-        $postDOM = new EasyRecipeDocument($content);
-
-        if (!$postDOM->isEasyRecipe) {
-            return;
-        }
-
-        /**
-         * If the post is formatted already then it came from the Object cache (?)
-         * If that's the case we need to re-read the original
-         */
-        if ($postDOM->isFormatted) {
-            $post = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "posts WHERE ID = $postID");
-
-            $content = str_replace("[br]", "<br>", $post->post_content);
-            $content = preg_replace('%</div>\s*</p></div>%im', '</div></div>', $content);
-
-
-            if (!$postDOM->isEasyRecipe) {
-                return;
-            }
-        }
-
-        $this->settings = EasyRecipeSettings::getInstance();
-        if (isset($_GET['style'])) {
-            $this->styleName = $_GET['style'];
-        } else {
-            $this->styleName = $this->settings->printStyle;
-        }
-
-
-//        $this->printStyleData = call_user_func(array($this->stylesClass, 'getStyleData'), $this->styleName, $this->settings->get('customTemplates'), true);
-        $this->printStyleData = EasyRecipeStyles::getStyleData($this->styleName, $this->settings->customTemplates, true);
-        if (get_locale() != 'en_US') {
-            EasyRecipeTemplate::setTranslate('easyrecipe');
-        }
-
-        /**
-         * Fix possibly broken times in older posts
-         * Fix the Cholesterol oops in early versions
-         */
-
-        if ($postDOM->recipeVersion < '3') {
-            $postDOM->fixTimes("preptime");
-            $postDOM->fixTimes("cooktime");
-            $postDOM->fixTimes("duration");
-            $postDOM->setParentValueByClassName("cholestrol", $this->settings->lblCholesterol, "Cholestrol");
-        }
-
-        $postDOM->setSettings($this->settings);
-        $data = new stdClass();
-        $data->hasRating = false;
-        $data->convertFractions = $this->settings->convertFractions;
-
-        $this->settings->getLabels($data);
-        $data->hasLinkback = $this->settings->allowLink;
-        $data->title = $post->post_title;
-        $data->blogname = get_option("blogname");
-        $data->recipeurl = get_permalink($post->ID);
-
-        $data->customCSS = $this->getCSS('Print');
-        $data->extraPrintHeader = $this->settings->extraPrintHeader;
-
-        $data->easyrecipeURL = self::$EasyRecipeUrl;
-
-        $recipe = $postDOM->getRecipe($recipeIX);
-        $photoURL = $postDOM->findPhotoURL($recipe);
-        $data->hasPhoto = !empty($photoURL);
-
-        $data->jqueryjs = self::JQUERYJS;
-        $data->jqueryuijs = self::JQUERYUIJS;
-        $data->jqueryuicss = self::JQUERYUICSS;
-
-        if (current_user_can('edit_posts')) {
-            $data->isAdmin = true;
-            $data->formatDialog = $this->getFormatDialog(true);
-        } else {
-            $data->formatDialog = '';
-        }
-
-        $data->style = $this->styleName;
-
-        if ($data->style[0] == '_') {
-        } else {
-            $data->css = self::$EasyRecipeUrl . "/printstyles/$data->style";
-            $templateFile = self::$EasyRecipeDir . "/printstyles/$data->style/style.html";
-        }
-
-        $data->css .= "/style.css?version=" . self::$pluginVersion . ".{$this->printStyleData->version}";
-
-        $template = new EasyRecipeTemplate($templateFile);
-
-        /**
-         * Brain dead IE shows "friendly" error pages (i.e. it's non-compliant) so we need to force a 200
-         */
-        header("HTTP/1.1 200 OK");
-
-        echo $postDOM->formatRecipe($recipe, $template, $data);
-
-
-        exit();
-    }
-
 
     /**
      * Check if this is one of our rewrite endpoints (non-existent pages)
+     *
+     * @param array $headers
+     * @return array
      */
-    function checkRewrites() {
+    function checkRewrites($headers) {
 
         /**
          * Just return if it's nothing we're interested in
          */
-        if (!preg_match('%/easyrecipe-(print|diagnostics)(?:/([^?/]+))?%', $_SERVER['REQUEST_URI'], $regs)) {
-            return;
+        if (!preg_match('%/easyrecipe-(print|diagnostics|debuglogs|log)(?:/([^?/]+))?%', $_SERVER['REQUEST_URI'], $regs)) {
+            return $headers;
         }
 
         switch ($regs[1]) {
-            case 'print' :
-                if (preg_match('/^(\d+)-(\d+)$/', $regs[2], $regs)) {
-                    $this->printRecipe($regs[1], $regs[2]);
-                }
-                break;
+//            case 'print' :
+//                if (preg_match('/^(\d+)-(\d+)$/', $regs[2], $regs)) {
+//                    $print = new EasyRecipePrint($this);
+//                    $print->printRecipe($regs[1], $regs[2]);
+//                    exit;
+//                }
+//                break;
 
             case 'diagnostics' :
                 if (current_user_can('administrator')) {
@@ -1044,7 +913,22 @@ EOD;
                 }
                 break;
 
+            case 'debuglogs' :
+                if (current_user_can('administrator')) {
+                    $debugLog = new EasyRecipeDebugLog();
+                    $debugLog->showLogs();
+                }
+                break;
+
+            case 'log' :
+                if (current_user_can('administrator')) {
+                    $debugLog = new EasyRecipeDebugLog();
+                    $debugLog->showLog($regs[2]);
+                }
+                break;
+
         }
+        return $headers;
     }
 
 
@@ -1313,10 +1197,12 @@ EOD;
              * Some themes do a get_post() again instead of using the posts as modified by plugins
              * So make sure our modified post is in cache so the get_post() picks up the modified version not the original
              * Need to do both add and replace since add doesn't replace and replace doesn't add and we can't be sure if the cache key exists at this point
+             * But only do this if absolutely necessary
              */
-            wp_cache_add($post->ID, $post, 'posts');
-            wp_cache_replace($post->ID, $post, 'posts');
-
+            if ($this->settings->updateObjectCache) {
+                wp_cache_add($post->ID, $post, 'posts');
+                wp_cache_replace($post->ID, $post, 'posts');
+            }
             $newPosts[] = $post;
         }
         return $newPosts;
@@ -1495,8 +1381,8 @@ EOD;
      */
     function mcePlugins($plugins) {
         $plugins = (array)$plugins;
-        $plugins['easyrecipe'] = self::$EasyRecipeUrl . "/js/easyrecipe-mce{$this->mceVersion}.js?v=" . self::$pluginVersion;
-        $plugins['noneditable'] = self::$EasyRecipeUrl . "/tinymce/noneditable{$this->mceVersion}.js?v=" . self::$pluginVersion;
+        $plugins['easyrecipe'] = self::$EasyRecipeUrl . "/js/easyrecipe-mce{$this->mceVersion}-min.js?v=" . self::$pluginVersion;
+        $plugins['noneditable'] = self::$EasyRecipeUrl . "/js/noneditable{$this->mceVersion}-min.js?v=" . self::$pluginVersion;
         return $plugins;
     }
 

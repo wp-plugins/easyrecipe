@@ -25,7 +25,7 @@ Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 class EasyRecipeConvert {
     private function yumprintTime($time) {
-        $time = (int) $time;
+        $time = (int)$time;
 
         $minutes = $time % 60;
         $hours = floor(($time - $minutes) / 60);
@@ -135,7 +135,7 @@ class EasyRecipeConvert {
                 } elseif ($timeText == 'hours' || $timeText == 'hour') {
                     $result->recipe->prep_time = 'PT' . $recipe['recipe_prep_time'][0] . 'H0M';
                 } else {
-                    $result->recipe->prep_time ='';
+                    $result->recipe->prep_time = '';
                 }
 
                 $timeText = !empty($recipe['recipe_cook_time_text']) ? $recipe['recipe_cook_time_text'][0] : '';
@@ -143,8 +143,8 @@ class EasyRecipeConvert {
                     $result->recipe->cook_time = 'PT' . $recipe['recipe_cook_time'][0] . 'M';
                 } elseif ($timeText == 'hours' || $timeText == 'hour') {
                     $result->recipe->cook_time = 'PT' . $recipe['recipe_cook_time'][0] . 'H0M';
-                }else {
-                    $result->recipe->cook_time ='';
+                } else {
+                    $result->recipe->cook_time = '';
                 }
 
                 $result->recipe->recipe_image = !empty($image) ? $image[0] : '';
@@ -392,44 +392,90 @@ class EasyRecipeConvert {
              */
             case 'yumprint' :
                 $post = $wpdb->get_row("SELECT * FROM " . $wpdb->prefix . "yumprint_recipe_recipe WHERE id=" . $postID);
-                $nutrition = json_decode($post->nutrition);
-                $result->recipe = json_decode($post->recipe);
-                $result->recipe->recipe_title = $result->recipe->title;
-                $result->recipe->recipe_image = $result->recipe->image;
-                $result->ingredients = $result->recipe->ingredients[0]->lines;
-                $result->recipe->instructions = implode("\n", $result->recipe->directions[0]->lines);
-                $result->recipe->notes = implode("\n", $result->recipe->notes[0]->lines);
+                $nutrition = @json_decode($post->nutrition);
+                $recipe = @json_decode($post->recipe);
+                if (empty($recipe)) {
+                    $recipe = new stdClass();
+                }
+                $recipe->recipe_title = !empty($recipe->title) ? $recipe->title : '';
+                $recipe->recipe_image = !empty($recipe->image) ? $recipe->image : '';
+                $ingredients = !empty($recipe->ingredients) && is_array($recipe->ingredients) ? $recipe->ingredients : array();
+                $result->ingredients = array();
+                foreach ($ingredients as $value) {
+                    if ($value->title != '') {
+                        $result->ingredients[] = '!' . $value->title;
+                    }
+                    foreach ($value->lines as $line) {
+                        $result->ingredients[] = $line;
+                    }
+                }
+                $instructions = !empty($recipe->directions) && is_array($recipe->directions) ? $recipe->directions : array();
+                $recipe->instructions = array();
+                foreach ($instructions as $value) {
+                    if ($value->title != '') {
+                        $recipe->instructions[] = '!' . $value->title;
+                    }
+                    foreach ($value->lines as $line) {
+                        $recipe->instructions[] = $line;
+                    }
+                }
+                $recipe->instructions = implode("\n", $recipe->instructions);
 
-                $result->recipe->prep_time = $this->yumprintTime($result->recipe->prepTime);
-                $result->recipe->cook_time = $this->yumprintTime($result->recipe->cookTime);
+                $recipe->notes = !empty($recipe->notes) && is_array($recipe->notes) ? implode("\n", $recipe->notes[0]->lines) : '';
 
-                $result->recipe->yield = $result->recipe->yields;
-                $result->recipe->serving_size = $result->recipe->servings;
+                $recipe->prep_time = !empty($recipe->prepTime) ? $this->yumprintTime($recipe->prepTime) : '';
+                $recipe->cook_time = !empty($recipe->cookTime) ? $this->yumprintTime($recipe->cookTime) : '';
 
-                $result->recipe->nutrition = $nutrition;
+                $recipe->yield = !empty($recipe->yields) ? $recipe->yields : '';
+                $recipe->serving_size = !empty($recipe->servings) ? $recipe->servings : '';
 
-                $serves = (int) $result->recipe->servings;
+                $serves = !empty($recipe->servings) ? (int)$recipe->servings : '';
 
                 $div = !empty($serves) ? $serves : 1;
 
-                /** @noinspection PhpUnusedLocalVariableInspection */
-                foreach ($nutrition as $key => &$value) {
-                    $value /= $div;
+                if (!empty($nutrition)) {
+
+                    /** @noinspection PhpUnusedLocalVariableInspection */
+                    foreach ($nutrition as $key => &$value) {
+                        $value /= $div;
+                    }
+
+                    $nutrition->calories = round($nutrition->calories);
+                    $nutrition->totalFat = round($nutrition->totalFat) . 'g';
+                    $nutrition->saturatedFat = round($nutrition->saturatedFat) . 'g';
+                    $nutrition->transFat = round($nutrition->transFat) . 'g';
+                    $nutrition->polyunsaturatedFat = round($nutrition->polyunsaturatedFat);
+                    $nutrition->monounsaturatedFat = round($nutrition->monounsaturatedFat);
+                    $nutrition->unsaturatedFat = ($nutrition->polyunsaturatedFat + $nutrition->monounsaturatedFat) . 'g';
+                    $nutrition->cholesterol = round($nutrition->cholesterol) . 'mg';
+                    $nutrition->sodium = round($nutrition->sodium) . 'mg';
+                    $nutrition->totalCarbohydrates = round($nutrition->totalCarbohydrates) . 'g';
+                    $nutrition->dietaryFiber = round($nutrition->dietaryFiber) . 'g';
+                    $nutrition->sugars = round($nutrition->sugars) . 'g';
+                    $nutrition->protein = round($nutrition->protein) . 'g';
+                    foreach ($nutrition as $key => &$value) {
+                        if ($value == '0g' || $value == '0mg') {
+                            $value = '';
+                        }
+                    }
+                } else {
+                    $nutrition = new stdClass();
+                    $nutrition->calories = '';
+                    $nutrition->totalFat = '';
+                    $nutrition->saturatedFat = '';
+                    $nutrition->transFat = '';
+                    $nutrition->polyunsaturatedFat = '';
+                    $nutrition->monounsaturatedFat = '';
+                    $nutrition->unsaturatedFat = '';
+                    $nutrition->cholesterol = '';
+                    $nutrition->sodium = '';
+                    $nutrition->totalCarbohydrates = '';
+                    $nutrition->dietaryFiber = '';
+                    $nutrition->sugars = '';
+                    $nutrition->protein = '';
                 }
 
-                $nutrition->calories = round($nutrition->calories);
-                $nutrition->totalFat = round($nutrition->totalFat) . 'g';
-                $nutrition->saturatedFat = round($nutrition->saturatedFat) . 'g';
-                $nutrition->transFat = round($nutrition->transFat) . 'g';
-                $nutrition->polyunsaturatedFat = round($nutrition->polyunsaturatedFat);
-                $nutrition->monounsaturatedFat = round($nutrition->monounsaturatedFat);
-                $nutrition->unsaturatedFat = ($nutrition->polyunsaturatedFat + $nutrition->monounsaturatedFat) . 'g';
-                $nutrition->cholesterol = round($nutrition->cholesterol) . 'mg';
-                $nutrition->sodium = round($nutrition->sodium) . 'mg';
-                $nutrition->totalCarbohydrates = round($nutrition->totalCarbohydrates) . 'g';
-                $nutrition->dietaryFiber = round($nutrition->dietaryFiber) . 'g';
-                $nutrition->sugars = round($nutrition->sugars) . 'g';
-                $nutrition->protein = round($nutrition->protein) . 'g';
+                $result->recipe = $recipe;
                 $result->recipe->nutrition = $nutrition;
 
                 unset($result->recipe->prepTime);
@@ -471,10 +517,10 @@ class EasyRecipeConvert {
                 if (!empty($postThumb)) {
                     $result->recipe->recipe_image = $postThumb[0];
                 }
-                $prepHour = (int) get_post_meta($postID, "gmc-prep-time-hours", true);
-                $prepMinute = (int) get_post_meta($postID, "gmc-prep-time-mins", true);
-                $cookHour = (int) get_post_meta($postID, "gmc-cooking-time-hours", true);
-                $cookMinute = (int) get_post_meta($postID, "gmc-cooking-time-mins", true);
+                $prepHour = (int)get_post_meta($postID, "gmc-prep-time-hours", true);
+                $prepMinute = (int)get_post_meta($postID, "gmc-prep-time-mins", true);
+                $cookHour = (int)get_post_meta($postID, "gmc-cooking-time-hours", true);
+                $cookMinute = (int)get_post_meta($postID, "gmc-cooking-time-mins", true);
                 $result->recipe->prep_time = "PT{$prepHour}H{$prepMinute}M";
                 $result->recipe->cook_time = "PT{$cookHour}H{$cookMinute}M";
 
@@ -596,7 +642,7 @@ class EasyRecipeConvert {
      * Return RecipeSEO/ZipList data/Yumprint/ReciPress
      */
     function convertRecipe() {
-        echo json_encode($this->doConvert((int) $_POST['id'], $_POST['type']));
+        echo json_encode($this->doConvert((int)$_POST['id'], $_POST['type']));
         die();
     }
 

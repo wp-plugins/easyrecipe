@@ -119,7 +119,9 @@ class EasyRecipeSettings {
             'lastScanStarted'       => 0,
             'lastScanFinished'      => 0,
             'scanDelay'             => 3,
-            'settingsVersion'       => null
+            'settingsVersion'       => null,
+            'updateObjectCache'     => false,
+            'enableDebugLog'        => false
         );
 
 
@@ -214,6 +216,9 @@ class EasyRecipeSettings {
     public $displayRecipage;
     public $displayGMC;
     public $displayUltimateRecipe;
+
+    public $updateObjectCache;
+    public $enableDebugLog;
 
     /**
      * @var string The plugin version that these settings were saved with.
@@ -394,13 +399,15 @@ EOD;
 
 
         /**
-         * If the site isn't using permalinks then just pass the print stuff as a qurerystring param
+         * If the site isn't using permalinks then just pass the print stuff as a querystring param
          */
         $data->siteDiagnosticsURL = home_url();
         if (!$wp_rewrite->using_permalinks()) {
             $data->siteDiagnosticsURL .= "?";
         }
 
+
+        $data->showDebugLogs = $this->enableDebugLog;
 
         $data->useFeaturedImageChecked = $this->useFeaturedImage ? 'checked="checked"' : '';
         $data->displayPrintChecked = $this->displayPrint ? 'checked="checked"' : '';
@@ -419,6 +426,8 @@ EOD;
         $data->forcejQueryChecked = $this->forcejQuery ? 'checked="checked"' : '';
         $data->noHTMLWarnChecked = $this->noHTMLWarn ? 'checked="checked"' : '';
         $data->genesisGridChecked = $this->genesisGrid ? 'checked="checked"' : '';
+        $data->enableDebugLogChecked = $this->enableDebugLog ? 'checked="checked"' : '';
+        $data->updateObjectCacheChecked = $this->updateObjectCache ? 'checked="checked"' : '';
 
         $data->saveButtonBigOvenChecked = $data->saveButtonZiplistChecked = $data->saveButtonNoneChecked = '';
 
@@ -608,6 +617,8 @@ EOD;
                 case 'forcejQuery' :
                 case 'noHTMLWarn' :
                 case 'genesisGrid' :
+                case 'enableDebugLog' :
+                case 'updateObjectCache' :
                     // case 'gpUseGravity' :
                     $this->$key = isset($settings[$key]);
                     break;
