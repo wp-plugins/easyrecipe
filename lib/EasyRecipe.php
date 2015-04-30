@@ -1127,11 +1127,6 @@ EOD;
             }
 
             switch ($this->settings->saveButton) {
-                case 'Ziplist' :
-                    $data->saveButtonJS = self::ZIPLISTJS;
-                    $data->saveButton = sprintf(self::ZIPLISTBUTTON, $this->settings->ziplistPartnerKey, urlencode(get_permalink($post->ID)), $this->settings->lblSave);
-                    $data->hasSave = true;
-                    break;
                 case 'BigOven':
                     $data->saveButtonJS = '';
                     $data->saveButton = sprintf(self::BIGOVENBUTTON, self::$EasyRecipeUrl);
@@ -1408,7 +1403,7 @@ EOD;
      * page - they're display:none by default
      */
     function addDialogHTML() {
-        global $post;
+        global $post, $wp_version;
 
         if (!$this->isGuest && !isset($post)) {
             return;
@@ -1493,7 +1488,7 @@ EASYRECIPE.recipeTypes = '$recipeTypes';
 EASYRECIPE.cuisines = '$cuisines';
 EASYRECIPE.isGuest = $guestPost;
 EASYRECIPE.wpurl = '$wpurl';
-EASYRECIPE.wpVersion = '$this->wpVersion';
+EASYRECIPE.wpVersion = '$wp_version';
 EASYRECIPE.postID = $post->ID;
 EASYRECIPE.noHTMLWarn = $noWarn;
 /* ]]> */
