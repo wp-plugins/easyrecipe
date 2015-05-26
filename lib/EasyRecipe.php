@@ -363,12 +363,14 @@ EOD;
      * Remove the post from the object cache
      */
     function loadPostAdmin() {
+        global $typenow;
         /**
          * Custom post types don't necessarily have an editor so don't output EasyRecipe stuff if it's not needed
+         * Check the gloabl $typenow instead of the REQUEST - the REQUEST isn't set on post Add
          * TODO - add an option to select which post types EasyRecipe should be active on rather than test individual cases
          */
-        if (empty($_REQUEST['post_type']) || $_REQUEST['post_type'] != 'soliloquy' || $_REQUEST['post_type'] != 'easyindex') {
-
+//        if (empty($_REQUEST['post_type']) || $_REQUEST['post_type'] != 'soliloquy' || $_REQUEST['post_type'] != 'easyindex') {
+        if (empty($typenow) || ($typenow != 'soliloquy' && $typenow != 'easyindex')) {
 
             wp_enqueue_style("easyrecipe-UI");
             wp_enqueue_style("easyrecipe-entry", self::$EasyRecipeUrl . "/css/easyrecipe-entry-min.css", array('easyrecipe-UI'), self::$pluginVersion);

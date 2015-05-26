@@ -167,7 +167,11 @@ class EasyRecipePrint {
          * Brain dead IE shows "friendly" error pages (i.e. it's non-compliant) so we need to force a 200
          */
         header("HTTP/1.1 200 OK");
-
+        /**
+         * Set the character encoding explicitly
+         */
+        $charset = get_bloginfo('charset');
+        header("Content-Type:text/html; charset=$charset");
         echo $postDOM->formatRecipe($recipe, $template, $data);
         flush();
 
